@@ -9,8 +9,8 @@
 #include "utilities.h"
 
 const char *NSStringToCString( const NSString *thisNSString);
-string NSStringToString(NSString *thisNSString);
-NSString *StringToNSString(string aString);
+std::string NSStringToString(NSString *thisNSString);
+NSString *StringToNSString(std::string aString);
 
 enum Texture2DPixelFormat {
 	kTexture2DPixelFormat_Automatic = 0,
@@ -30,7 +30,7 @@ enum Texture2DPixelFormat {
 GLuint GL_CreateOpenGLTexture(const void *data, Texture2DPixelFormat pixelFormat, NSUInteger width,  NSUInteger height);
 GLuint GL_ConvertUIImageToOpenGLTexture(const UIImage *uiImage, int &imageWidth, int &imageHeight, int &width, int &height, unsigned char *&imageData);
 //int GL_LoadTextureFromText(const NSString *text,ImageInfo & outImageInfo );
-int GL_LoadTextureFromText(string inText/*const NSString *text*/,ImageInfo & outImageInfo);
+int GL_LoadTextureFromText(std::string inText/*const NSString *text*/,ImageInfo & outImageInfo);
 int GL_LoadTextureFromFile(const char * inFileName, ImageInfo & outImageInfo);
 
 NSString *getGameDataFolderPath();

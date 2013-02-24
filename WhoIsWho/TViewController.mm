@@ -45,8 +45,6 @@
 #include <fstream>
 #include "glm/glm.hpp"
 
-using namespace std;
-
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 static const int kButtonWidth = 24;
 static const int kButtonHeight = 21;
@@ -98,8 +96,8 @@ struct GLData {
     
     GLuint faceListVAO;  // used for drawing the list of faces through the color program
     
-    string image; // image resource name (into gGame.images) of the image to bind for the photo shader
-    string mask0, mask1;  // image resource names (into gGame.images) of the mask images
+    std::string image; // image resource name (into gGame.images) of the image to bind for the photo shader
+    std::string mask0, mask1;  // image resource names (into gGame.images) of the mask images
     
     
 } gGLData;
@@ -210,17 +208,17 @@ static int IMG_SprayPaint(ImageInfo & inImage, int inLastX, int inLastY, int inC
 			for( int x = -halfBrushSize; x<brushSize-halfBrushSize; x++ ) {
 				if( xx+x >= imageInfo->texWidth || xx+x < 0 ) continue;
                 
-				double alphaFactor = (halfBrushSize - fmin(halfBrushSize, sqrt((double)y*y + x*x))) / halfBrushSize;
+				double alphaFactor = (halfBrushSize - glm::min(double(halfBrushSize), glm::sqrt((double)y*y + x*x))) / halfBrushSize;
 				alphaFactor = pow(alphaFactor, 1.7);
                 
-				unsigned char alphaInc = fmax(0, fmin(255, alphaFactor * inArgs.pressure));
+				unsigned char alphaInc = (unsigned char)glm::max(0.0, glm::min(255.0, alphaFactor * inArgs.pressure));
                 
 				int index1 = ((y+halfBrushSize)*brushSize + (x+halfBrushSize))*B;
 				int index2 = ((yy+y)*w + xx+x)*B;
                 
 				if( inErase ) {
 					int alpha = imageInfo->image[index2+3];
-					alpha = fmax(0, alpha-(alphaInc*0.5));
+					alpha = glm::max(0, int(alpha-(alphaInc*0.5)));
 					imageInfo->image[index2+3] = (unsigned char)alpha;
                     
 				} else {
@@ -229,7 +227,7 @@ static int IMG_SprayPaint(ImageInfo & inImage, int inLastX, int inLastY, int inC
 					imageInfo->image[index2+2] = blue;
                     
 					unsigned char alpha = imageInfo->image[index2+3];
-					alpha = (unsigned char)min(255, (int)alpha+alphaInc);
+					alpha = (unsigned char)glm::min(255, int(alpha)+alphaInc);
 					
 					imageInfo->image[index2+3] = alpha;
 					
@@ -288,17 +286,17 @@ struct Photo {
         index = -1;
     }
     
-    string username;  // resource name of this image (Joe)
-    string filename;  // name of image(image.jpg, image2.jpg)
-    string ring;  // the ring this image lives on
-    string type;  // face mask or photo(face, mask, photo)
+    std::string username;  // resource name of this image (Joe)
+    std::string filename;  // name of image(image.jpg, image2.jpg)
+    std::string ring;  // the ring this image lives on
+    std::string type;  // face mask or photo(face, mask, photo)
     
     int index;  // index in parent ring.photos vector
     
     int currentMask;
    
-    vector<string> maskImages;  // ordered set of imageDef resource// maskImage[1] = image mask1.png;
-    vector<float> maskWeights;  // the alpha of the mask, should be same size as maskImages
+    std::vector<std::string> maskImages;  // ordered set of imageDef resource// maskImage[1] = image mask1.png;
+    std::vector<float> maskWeights;  // the alpha of the mask, should be same size as maskImages
     
     float transform[16];  // this transforms the unit square into on the XY plane into world space; it's algorithmetically computed when drawn
 };
@@ -325,7 +323,7 @@ struct Ring {
         currentPhoto = -1;
         ringType = ERingType(-1);
     }
-    Ring(string inName, ERingType inRingType) {
+    Ring(std::string inName, ERingType inRingType) {
         name = inName;
         ringAlpha = 1;
         selectedPhoto = -1;
@@ -340,12 +338,12 @@ struct Ring {
     bool operator !=(const Ring & inRing) const {
         return !(*this == inRing);
     }
-    string name;  // resource name
+    std::string name;  // resource name
     int stackingOrder;  // 0 is the top most ring (the title ring), 1 is the ring beneath it, etc.
     
     int selectedPhoto;
     float currentPhoto;
-    vector<string> photos;
+    std::vector<std::string> photos;
     
     float ringAlpha;  // when new rings are created they fade in
     
@@ -353,9 +351,9 @@ struct Ring {
     
     struct {  // used by localGame, remoteGame, userGame, friendGame
         
-        // not implemented yet  vector<GameName> gameNames;
-        vector<GameName> localGameNames;
-        vector<GameName> remoteGameNames;
+        // not implemented yet  std::vector<GameName> gameNames;
+        std::vector<GameName> localGameNames;
+        std::vector<GameName> remoteGameNames;
         
     } browseData;
     
@@ -378,9 +376,9 @@ struct Rings {
     Rings() {
         
     }
-    vector<string> stackingOrder;
-    string currentRing;  // resource name into 'rings'
-    map<string, Ring> rings;
+    std::vector<std::string> stackingOrder;
+    std::string currentRing;  // resource name into 'rings'
+    std::map<std::string, Ring> rings;
 };
 
 struct DraggingFace {
@@ -394,7 +392,7 @@ struct DraggingFace {
 };
 
 struct Faces {
-    vector<string> faceList;  // image resource names of the faces
+    std::vector<std::string> faceList;  // image resource names of the faces
     DraggingFace draggingFace;
 };
 
@@ -407,26 +405,26 @@ struct Game
         zoomedToPhoto = false;
     }
     
-    void Execute(string inCommand, int inNumPairs = 0, ...);
+    void Execute(std::string inCommand, int inNumPairs = 0, ...);
 
-    Ring * GetRing(string inName);
+    Ring * GetRing(std::string inName);
     Ring * GetBackRing();
     Ring * GetCurrentRing();
-    Photo * GetPhoto(string inName);
+    Photo * GetPhoto(std::string inName);
     
     
 
 
     Rings rings;  // this game shows a bunch of discs or rings with images on them.  this structure contains all the loaded rings
-    vector<string> faceList;  // the game shows a list of faces along the bottom that the user drags onto a ring.  This is an ordered list of image resource names
+    std::vector<std::string> faceList;  // the game shows a list of faces along the bottom that the user drags onto a ring.  This is an ordered list of image resource names
     
     float faceDropdownAnim;
-    map<string, ImageInfo> images;  // loaded images that the faceList and the rings use.  they can be looked up by a resource name
+    std::map<std::string, ImageInfo> images;  // loaded images that the faceList and the rings use.  they can be looked up by a resource name
     
-    map<string, Photo> photos;
+    std::map<std::string, Photo> photos;
     
-    list<string> animations;  // the list of sequential animations
-    map<string, void *> animationVars;  // animation variables - animation strings can reference these vars
+    std::list<std::string> animations;  // the list of sequential animations
+    std::map<std::string, void *> animationVars;  // animation variables - animation std::strings can reference these vars
     
     bool zoomedToPhoto;
     
@@ -435,10 +433,10 @@ struct Game
 Game gGame; // *** the main global in this app ***
 
 
-Ring * Game::GetRing(string inName) 
+Ring * Game::GetRing(std::string inName) 
 // returns the ring whose resource name is 'inName' or 0 if such a name doesn't exist.
 {
-    map<string, Ring>::iterator it = gGame.rings.rings.find(inName);
+    std::map<std::string, Ring>::iterator it = gGame.rings.rings.find(inName);
     if( it == gGame.rings.rings.end() ) {
         return 0;
     } else {
@@ -473,7 +471,7 @@ static void PopulateLocalGameNamesRing(Ring & inRing, void *) {
         // NSLog(eachGameFolderFull);
         
 		NSString* fileName;
-        string commandString;
+        std::string commandString;
         
 		for ( fileName in [fileManager subpathsOfDirectoryAtPath: eachGameFolderFull error:nil]){
             //   NSLog(fileName);
@@ -487,11 +485,11 @@ static void PopulateLocalGameNamesRing(Ring & inRing, void *) {
 				thisGame.isEditable = true;
                 thisGame.imageI = gGame.images.size();
                 
-                string nameString = fileName.UTF8String;
+                std::string nameString = fileName.UTF8String;
                 //gGame.images.push_back(ImageInfo());
                 //   GL_LoadTextureFromText(fileName,  gGame.images[fileName.UTF8String]);//.back());
                 // gGame.animations.push_back("addImageFromText name=create text=Create");
-                //  gGame.animations.push_back("addImageFromText name= nameString text=fileName);
+                //  gGame.animations.push_back("addImageFromText name= namestd::string text=fileName);
                 
                 // name=\"002 face 001\" file=\"002 face 001.png\"
                 
@@ -500,14 +498,14 @@ static void PopulateLocalGameNamesRing(Ring & inRing, void *) {
                 //     ring.photos.push_back(photo);
                 //  ring.browseData.localGameNames.push_back(thisGame);
                 
-                string commandString = "addImageFromText name=";
+                std::string commandString = "addImageFromText name=";
                 commandString += nameString;
                 commandString += " text=";
                 commandString +=NSStringToString(fileName);
                 
                 gGame.animations.push_back(commandString);
                 
-                string commandString2 = "addPhotoToRing name=";
+                std::string commandString2 = "addPhotoToRing name=";
                 commandString2 += nameString;
                 commandString2 +=" image=";
                 commandString2 +=nameString;
@@ -564,7 +562,7 @@ static void displayAllLocalGameNames()
                 // gGame.animations.push_back("addImageFromText name=create text=Create");
                 gGame.animations.push_back("addImageFromText name=fileName.UTF8String text=fileName");
                 
-                //  gGame.animations.push_back(string("addPhotoToRing name=fileName.UTF8String image=fileName.UTF8String ring=") + inRing.name);
+                //  gGame.animations.push_back(std::string("addPhotoToRing name=fileName.UTF8String image=fileName.UTF8String ring=") + inRing.name);
                 
                 
                 Photo photo;
@@ -581,22 +579,22 @@ Ring * Game::GetCurrentRing()
 {
     return GetRing(gGame.rings.currentRing);
 }
-Photo * Game::GetPhoto(string inPhoto) {
-    map<string, Photo>::iterator it = photos.find(inPhoto);
+Photo * Game::GetPhoto(std::string inPhoto) {
+    std::map<std::string, Photo>::iterator it = photos.find(inPhoto);
     if( it == photos.end() ) {
         return 0;
     }
 
     return &it->second;
 }
-void Game::Execute(string inCommand, int inNumPairs, ...) {
+void Game::Execute(std::string inCommand, int inNumPairs, ...) {
     gGame.animations.push_back(inCommand);
     
     va_list args;
     va_start(args, inNumPairs);
     
     for_i( inNumPairs ) {
-        string key = (string)va_arg(args, char *);
+        std::string key = (std::string)va_arg(args, char *);
         void * value = (void *)va_arg(args, void *);
         gGame.animationVars[key] = value;
     }
@@ -611,9 +609,9 @@ void PopulateTitleRing(Ring & inRing, void *)
     gGame.animations.push_back("addImageFromText name=edit text=Edit");
     gGame.animations.push_back("addImageFromText name=create text=Create");
     
-    gGame.animations.push_back(string("addPhotoToRing name=play image=play ring=") + inRing.name);
-    gGame.animations.push_back(string("addPhotoToRing name=edit image=edit ring=") + inRing.name);
-    gGame.animations.push_back(string("addPhotoToRing name=create image=create ring=") + inRing.name);
+    gGame.animations.push_back(std::string("addPhotoToRing name=play image=play ring=") + inRing.name);
+    gGame.animations.push_back(std::string("addPhotoToRing name=edit image=edit ring=") + inRing.name);
+    gGame.animations.push_back(std::string("addPhotoToRing name=create image=create ring=") + inRing.name);
 }
 void PopulatePlayRing(Ring & inRing, void *)
 // this function is the callback target to populate the play ring
@@ -650,36 +648,36 @@ void PopulatePlayRing(Ring & inRing, void *)
     gGame.Execute("addImageFromFile name=007 file=007.jpg");
     gGame.Execute("addImageFromFile name=008 file=008.jpg");
     
-    string ring = inRing.name;
-    gGame.Execute(string("addPhotoToRing name=001.jpg image=001 ring=") + ring);
+    std::string ring = inRing.name;
+    gGame.Execute(std::string("addPhotoToRing name=001.jpg image=001 ring=") + ring);
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
     
-    gGame.Execute(string("addPhotoToRing name=002.jpg image=002 ring=") + ring);
+    gGame.Execute(std::string("addPhotoToRing name=002.jpg image=002 ring=") + ring);
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
     
-    gGame.Execute(string("addPhotoToRing name=003.jpg image=003 ring=") + ring);
+    gGame.Execute(std::string("addPhotoToRing name=003.jpg image=003 ring=") + ring);
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
     
-    gGame.Execute(string("addPhotoToRing name=004.jpg image=004 ring=") + ring);
+    gGame.Execute(std::string("addPhotoToRing name=004.jpg image=004 ring=") + ring);
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=004.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=004.jpg");
     
-    gGame.Execute(string("addPhotoToRing name=005.jpg image=005 ring=") + ring);
+    gGame.Execute(std::string("addPhotoToRing name=005.jpg image=005 ring=") + ring);
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=005.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=005.jpg");
     
-    gGame.Execute(string("addPhotoToRing name=006.jpg image=006 ring=") + ring);
+    gGame.Execute(std::string("addPhotoToRing name=006.jpg image=006 ring=") + ring);
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=006.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=006.jpg");
     
-    gGame.Execute(string("addPhotoToRing name=007.jpg image=007 ring=") + ring);
+    gGame.Execute(std::string("addPhotoToRing name=007.jpg image=007 ring=") + ring);
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=007.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=007.jpg");
     
-    gGame.Execute(string("addPhotoToRing name=008.jpg image=008 ring=") + ring);
+    gGame.Execute(std::string("addPhotoToRing name=008.jpg image=008 ring=") + ring);
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=008.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=008.jpg");
     
@@ -734,7 +732,7 @@ void WHO_InitApp()
         
         glGenBuffers(1, &gGLData.diskVBO);
         glBindBuffer(GL_ARRAY_BUFFER, gGLData.diskVBO);
-        vector<float> verts, normals, texCoords;
+        std::vector<float> verts, normals, texCoords;
         GEO_GenerateDisc(0, 360, kR0, kR1, 0, 64, verts, normals, texCoords, 0);
         gGLData.diskNumVertices = verts.size()/3;
         unsigned int size = verts.size()*sizeof(float);
@@ -833,7 +831,7 @@ void WHO_InitApp()
 	if ( !putController )
 		putController = [[PutController alloc]init]; 
     
-    NSString *newFileName  = @"game1"; //[NSString stringWithUTF8String: curPhotoName.c_str()];	
+    NSString *newFileName  = @"game1"; //[NSString std::stringWithUTF8String: curPhotoName.c_str()];	
  //   [self saveGame:newFileName];
    // NSString *gameDataFolderPath = (NSString *)getGameDataFolderPath();
     NSString *gameDataFolderPath = (NSString *)getGameDataFolderPath(newFileName); 
@@ -841,7 +839,7 @@ void WHO_InitApp()
     NSLog(newFileName);
     
 	[putController setPutFileName:newFileName]; 
-	[putController startCreate: usernameString]; 
+	[putController startCreate: usernameString];
 }
 
 
@@ -938,7 +936,7 @@ void WHO_InitApp()
 		fileName = [listController.listGameNames objectAtIndex:i];
 		//NSString *ext = [fileName pathExtension]; 
 		if ( [[fileName pathExtension] caseInsensitiveCompare:@"who"] == NSOrderedSame) {
-			fileName = [fileName stringByDeletingPathExtension]; 
+			fileName = [fileName stringByDeletingPathExtension];
 			thisGame.name =  fileName;
 			thisGame.isEditable = true;
             thisGame.imageI = gGame.images.size();
@@ -1085,7 +1083,7 @@ void WHO_InitApp()
     {
         
         
-        for( int i=max(0, currentRing->stackingOrder-1); i<gGame.rings.stackingOrder.size() && hitRing==0; i++ ) {
+        for( int i=glm::max(0, currentRing->stackingOrder-1); i<gGame.rings.stackingOrder.size() && hitRing==0; i++ ) {
             Ring * ring = gGame.GetRing(gGame.rings.stackingOrder[i]);
             
             float ptOnPlane[3] = { 0, 0, -float(i) };
@@ -1320,8 +1318,8 @@ static void ComputeTopPhotoCorners(Ring & inRing, float * outCorners) {
     float angle1 = kPi * spacingFn(t+halfStep, &p);
     float angle = (angle0 + angle1) * 0.5f;
     float dAngle = (angle1 - angle0) * 0.5f;
-    angle0 = angle - min(w0, dAngle);
-    angle1 = angle + min(w0, dAngle);
+    angle0 = angle - glm::min(w0, dAngle);
+    angle1 = angle + glm::min(w0, dAngle);
     
     float p0[] = { radius*cosf(angle0), radius*sinf(angle0) };
     float p1[] = { radius*cosf(angle1), radius*sinf(angle1) };
@@ -1459,7 +1457,7 @@ static void DrawRing(Ring & inRing, bool inZoomedIn, float * inMVPMat) {
             endImageI = startImageI + 2;
         }
     }
-    startImageI  = max(0, startImageI); 
+    startImageI  = glm::max(0, startImageI); 
     for( int imageI=startImageI; imageI<endImageI; imageI++ ) {
         int i = imageI%numImages;
         
@@ -1470,8 +1468,8 @@ static void DrawRing(Ring & inRing, bool inZoomedIn, float * inMVPMat) {
         float angle1 = kPi * spacingFn(t+halfStep, &p);
         float angle = (angle0 + angle1) * 0.5f;
         float dAngle = (angle1 - angle0) * 0.5f;
-        angle0 = angle - min(w0, dAngle);
-        angle1 = angle + min(w0, dAngle);
+        angle0 = angle - glm::min(w0, dAngle);
+        angle1 = angle + glm::min(w0, dAngle);
         
         float p0[] = { radius*cosf(angle0), radius*sinf(angle0) };  // top right point in world space
         float p1[] = { radius*cosf(angle1), radius*sinf(angle1) };  // top left point in world space
@@ -1720,7 +1718,7 @@ std::string WhoParser::Word(const char * inStr, int & inOutPos) {
     
     EatWhitespace(inStr, inOutPos);
     
-    string str;
+    std::string str;
         
     char ch = inStr[inOutPos];
     bool quote = ch == '"';
@@ -1746,7 +1744,7 @@ std::string WhoParser::Word(const char * inStr, int & inOutPos) {
 
 
 
-bool WhoParser::KeyValue(const char * inKey, const char * inStr, int & inOutPos, string & outValue) {
+bool WhoParser::KeyValue(const char * inKey, const char * inStr, int & inOutPos, std::string & outValue) {
     int pos = inOutPos;
     
     EatWhitespace(inStr, inOutPos);
@@ -1802,7 +1800,7 @@ bool WhoParser::ZoomToRing(const char * inStr, int & inOutPos) {
     
     if( Word(inStr, inOutPos) == "zoomToRing" ) {
         
-        string ringName;
+        std::string ringName;
         if( KeyValue("ring", inStr, inOutPos, ringName) ) {
         
             Ring * ring = gGame.GetRing(ringName);
@@ -1835,7 +1833,7 @@ bool WhoParser::ZoomToPhoto(const char * inStr, int & inOutPos) {
     
     if( Word(inStr, inOutPos) == "zoomToPhoto" ) {
     
-        string photoName;
+        std::string photoName;
         if( KeyValue("photo", inStr, inOutPos, photoName) ) {
             char command[256];
             int commandPos = 0;
@@ -1875,7 +1873,7 @@ bool WhoParser::IncrementCurrentRing(const char * inStr, int & inOutPos) {
         
     
         int currentRing = gGame.rings.rings[gGame.rings.currentRing].stackingOrder;
-        currentRing = min(currentRing+1, int(gGame.rings.rings.size())-1);
+        currentRing = glm::min(currentRing+1, int(gGame.rings.rings.size())-1);
         gGame.rings.currentRing = gGame.rings.stackingOrder[currentRing];
         
         return true;
@@ -1892,7 +1890,7 @@ bool WhoParser::DecrementCurrentRing(const char * inStr, int & inOutPos) {
         
         
         int currentRing = gGame.rings.rings[gGame.rings.currentRing].stackingOrder;
-        currentRing = max(currentRing-1, 0);
+        currentRing = glm::max(currentRing-1, 0);
         gGame.rings.currentRing = gGame.rings.stackingOrder[currentRing];
         
         return true;
@@ -1909,7 +1907,7 @@ bool WhoParser::SetCurrentPhoto(const char * inStr, int & inOutPos) {
     
     if( Word(inStr, inOutPos) == "setCurrentPhoto" ) {
     
-        string value;
+        std::string value;
         if( KeyValue("photo", inStr, inOutPos, value) ) {
         
             Photo * photo = gGame.GetPhoto(value);
@@ -1963,8 +1961,8 @@ bool WhoParser::DecrementCurrentPhoto(const char * inStr, int & inOutPos) {
 bool WhoParser::AddImageFromText(const char * inStr, int & inOutPos) {
     int pos = inOutPos;
     
-    string name;
-    string text;
+    std::string name;
+    std::string text;
     if( Word(inStr, inOutPos) == "addImageFromText" 
             && KeyValue("name", inStr, inOutPos, name)
             && KeyValue("text", inStr, inOutPos, text) )
@@ -1982,8 +1980,8 @@ bool WhoParser::AddImageFromText(const char * inStr, int & inOutPos) {
 bool WhoParser::AddImageFromFile(const char * inStr, int & inOutPos) {
     int pos = inOutPos;
     
-    string name;
-    string file;
+    std::string name;
+    std::string file;
     if( Word(inStr, inOutPos) == "addImageFromFile" 
        && KeyValue("name", inStr, inOutPos, name)
        && KeyValue("file", inStr, inOutPos, file) )
@@ -2001,9 +1999,9 @@ bool WhoParser::AddImageFromFile(const char * inStr, int & inOutPos) {
 bool WhoParser::AddPhotoToRing(const char * inStr, int & inOutPos) {
     int pos = inOutPos;
     
-    string name;
-    string image;
-    string ringStr;
+    std::string name;
+    std::string image;
+    std::string ringStr;
     
     if( Word(inStr, inOutPos) == "addPhotoToRing"
             && KeyValue("name", inStr, inOutPos, name)
@@ -2030,9 +2028,9 @@ bool WhoParser::AddMaskToPhoto(const char * inStr, int & inOutPos) {
     
     int pos = inOutPos;
     
-    string name;
-    string image;
-    string photoStr;
+    std::string name;
+    std::string image;
+    std::string photoStr;
     
     if( Word(inStr, inOutPos) == "addMaskToPhoto" 
             && KeyValue("name", inStr, inOutPos, name)
@@ -2056,8 +2054,8 @@ bool WhoParser::NewBackRing(const char * inStr, int & inOutPos) {
 
     int pos = inOutPos;
     
-    string nameStr;
-    string beginStr;
+    std::string nameStr;
+    std::string beginStr;
         
     
     if( Word(inStr, inOutPos) == "newBackRing" 
@@ -2068,7 +2066,7 @@ bool WhoParser::NewBackRing(const char * inStr, int & inOutPos) {
         newBackRing_beginCallback beginCallback = (newBackRing_beginCallback)gGame.animationVars[beginStr];
         
         void * args = 0;
-        string argsStr;
+        std::string argsStr;
         if( KeyValue("args", inStr, inOutPos, argsStr) ) {
             args = gGame.animationVars[argsStr];
         }
@@ -2165,7 +2163,7 @@ bool WhoParser::PRS_Command(const char * inStr, int & inOutPos) {
                 eIncrementCurrentRing, eZoomToRing };
         */
         
-        string anm = gGame.animations.front();
+        std::string anm = gGame.animations.front();
         gGame.animations.pop_front();
         //pattern[gCurrentPattern];
         
@@ -2202,12 +2200,12 @@ bool WhoParser::PRS_Command(const char * inStr, int & inOutPos) {
 
         } else if( anm == eIncrementCurrentRing ) {  // next ring
             int currentRing = gGame.rings.rings[gGame.rings.currentRing].stackingOrder;
-            currentRing = min(currentRing+1, int(gGame.rings.rings.size())-1);
+            currentRing = glm::min(currentRing+1, int(gGame.rings.rings.size())-1);
             gGame.rings.currentRing = gGame.rings.stackingOrder[currentRing];
            
         } else if( anm == eDecrementCurrentRing ) {
             int currentRing = gGame.rings.rings[gGame.rings.currentRing].stackingOrder;
-            currentRing = max(currentRing-1, 0);
+            currentRing = glm::max(currentRing-1, 0);
             gGame.rings.currentRing = gGame.rings.stackingOrder[currentRing];
             
         } else if( anm == eIncrementCurrentPhoto ) { 
@@ -2300,7 +2298,7 @@ bool WhoParser::PRS_Command(const char * inStr, int & inOutPos) {
     
     ANM_UpdateAnimations(gTick);
     
-    vector<int> removedRingIndices;
+    std::vector<int> removedRingIndices;
     
     for_j( gGame.rings.stackingOrder.size() ) {
         
@@ -2321,7 +2319,7 @@ bool WhoParser::PRS_Command(const char * inStr, int & inOutPos) {
             for_i( ring->photos.size() ) {
                 Photo * photo = gGame.GetPhoto(ring->photos[i]);
                 
-                string resourceName = photo->filename;
+                std::string resourceName = photo->filename;
                 glDeleteTextures(1, &gGame.images[resourceName].texID);
                 delete gGame.images[resourceName].image;
                 gGame.images[resourceName].image = 0;
@@ -2335,7 +2333,7 @@ bool WhoParser::PRS_Command(const char * inStr, int & inOutPos) {
             }
             
             if( ring->ringType == eRingTypeEdit ) {
-                string resourceName = "brush";
+                std::string resourceName = "brush";
                 glDeleteTextures(1, &gGame.images[resourceName].texID);
                 delete gGame.images[resourceName].image;
                 gGame.images[resourceName].image = 0;
@@ -2363,7 +2361,7 @@ bool WhoParser::PRS_Command(const char * inStr, int & inOutPos) {
     if( !removedRingIndices.empty() ) 
     // if any reings have been deleted, update the stackingOrder list
     {
-        vector<string> newStackingOrder;
+        std::vector<std::string> newStackingOrder;
         
         int removedI = 0;
         
@@ -2519,7 +2517,7 @@ void DrawToolList(float inRotation) {
         
     }
     
-    string faceList[] = { 
+    std::string faceList[] = { 
         "brush",
         "eraser",
         "scissors"
@@ -2557,7 +2555,7 @@ void DrawToolList(float inRotation) {
     
     int currentRingZ = gGame.rings.rings[gGame.rings.currentRing].stackingOrder;
     
-    size_t startRingI = size_t(max(currentRingZ-2, 0));
+    size_t startRingI = size_t(glm::max(currentRingZ-2, 0));
     size_t endRingI = gGame.rings.rings.size();
     
     if( gCameraData.zoomed == 1 ) {
@@ -2621,7 +2619,7 @@ void DrawToolList(float inRotation) {
     [self unlock]; 
 }
 #if 0 
-bool giSaveGameData(GameImages & inOutGI, const string & inFilename) {
+bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
     
     gGame.photos
 
@@ -2632,22 +2630,22 @@ bool giSaveGameData(GameImages & inOutGI, const string & inFilename) {
 	if( !out.is_open() ) {
 		return GenerateErrorCode(1);
 	}
-    map<string, Photo>::iterator it
+    std::map<std::string, Photo>::iterator it
     
-	for(  map<string, Photo>::iterator it = gGame.photos.begin(); it != gGame.photos.end(); it++ ) {
+	for(  std::map<std::string, Photo>::iterator it = gGame.photos.begin(); it != gGame.photos.end(); it++ ) {
 		Photo thisPhoto = it->second;
         
 		out << "face \"" << thiPhoto.Photo<< "\"\n";
 	}
     
     
-	for( vector<GamePhoto *>::iterator it = gi.photos.begin(); it != gi.photos.end(); it++ ) {
+	for( std::vector<GamePhoto *>::iterator it = gi.photos.begin(); it != gi.photos.end(); it++ ) {
 		GamePhoto * photo = *it;
         
 		out << "photo \"" << photo->filename << "\" ";
-		for( vector<GameFace *>::iterator it2 = photo->masks.begin(); it2 != photo->masks.end(); it2++ ) {
+		for( std::vector<GameFace *>::iterator it2 = photo->masks.begin(); it2 != photo->masks.end(); it2++ ) {
 			GameFace * mask = *it2;
-			string faceName = giExtractFaceName(photo->filename, mask->filename);
+			std::string faceName = giExtractFaceName(photo->filename, mask->filename);
 			
 			out << "\"" << faceName << "\" ";
 		}
@@ -2659,9 +2657,9 @@ bool giSaveGameData(GameImages & inOutGI, const string & inFilename) {
 }
 #endif
 
-static BOOL SaveGameData( const string & inFilename) {
+static BOOL SaveGameData( const std::string & inFilename) {
 
-	ofstream out(inFilename.c_str(), ios::out);
+	std::ofstream out(inFilename.c_str(), std::ios::out);
     
 	if( !out.is_open() ) {
        return NO;
@@ -2742,32 +2740,32 @@ static BOOL SaveGameData( const string & inFilename) {
 	// add all face mage files to the zip
     
 	NSString *tmpGameDataPath =(NSString *) getGameDataFolderPath();
-	for( vector<GameFace *>::iterator it = app.gi.faces.begin(); it != app.gi.faces.end(); it++ ) {
+	for( std::vector<GameFace *>::iterator it = app.gi.faces.begin(); it != app.gi.faces.end(); it++ ) {
 		GameFace * face = *it;
 		
-		string faceFileName = face->filename;
+		std::string faceFileName = face->filename;
 		
-		NSString *faceFileNameString = [[NSString alloc] initWithUTF8String:faceFileName.c_str()];
-		NSString *faceString = [tmpGameDataPath stringByAppendingPathComponent:faceFileNameString];
-		if ( faceFileNameString )
-			[zip addFileToZip:faceString newname:faceFileNameString];
+		NSString *faceFileNamestd::string = [[NSString alloc] initWithUTF8String:faceFileName.c_str()];
+		NSString *facestd::string = [tmpGameDataPath stringByAppendingPathComponent:faceFileNamestd::string];
+		if ( faceFileNamestd::string )
+			[zip addFileToZip:facestd::string newname:faceFileNamestd::string];
 		
-		[faceFileNameString release];
-		faceFileNameString = nil;
+		[faceFileNamestd::string release];
+		faceFileNamestd::string = nil;
 	}
     
 	// add all photo image files to the zip file
-	for( vector<GamePhoto *>::iterator it = app.gi.photos.begin(); it != app.gi.photos.end(); it++ ) {
+	for( std::vector<GamePhoto *>::iterator it = app.gi.photos.begin(); it != app.gi.photos.end(); it++ ) {
 		GamePhoto * photo = *it;
 		
-		string photoFileName = photo->filename;
-		NSString *photoFileNameString = [[NSString alloc] initWithUTF8String:photoFileName.c_str()];
-		NSString *photoString = [tmpGameDataPath stringByAppendingPathComponent:photoFileNameString];
-		if ( photoFileNameString)
-			[zip addFileToZip:photoString newname:photoFileNameString];
+		std::string photoFileName = photo->filename;
+		NSString *photoFileNamestd::string = [[NSString alloc] initWithUTF8String:photoFileName.c_str()];
+		NSString *photostd::string = [tmpGameDataPath stringByAppendingPathComponent:photoFileNamestd::string];
+		if ( photoFileNamestd::string)
+			[zip addFileToZip:photostd::string newname:photoFileNamestd::string];
         
-		[photoFileNameString release];
-		photoFileNameString = nil;
+		[photoFileNamestd::string release];
+		photoFileNamestd::string = nil;
 	}
     
 	if( ![zip CloseZipFile2] )
@@ -2817,13 +2815,13 @@ static BOOL SaveGameData( const string & inFilename) {
 {
 #if 0 
     NSString *title;  	
-    title =@"Send this game to friends?"; // NSLocalizedString(@"Send this game to friends?", @"");  
+    title =@"Send this game to friends?"; // NSLocalizedstd::string(@"Send this game to friends?", @"");  
     
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title  
                                                     message:nil  
                                                    delegate:self  
-                                          cancelButtonTitle:@"NO"//NSLocalizedString(@"NO", @"")
-                                          otherButtonTitles: @"YES",nil]; ////NSLocalizedString(@"YES", @""), nil ];
+                                          cancelButtonTitle:@"NO"//NSLocalizedstd::string(@"NO", @"")
+                                          otherButtonTitles: @"YES",nil]; ////NSLocalizedstd::string(@"YES", @""), nil ];
     //otherButtonTitles:nil];  
     [alert show];  
     [alert release]; 

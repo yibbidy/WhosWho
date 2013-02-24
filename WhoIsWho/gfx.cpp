@@ -6,8 +6,6 @@
 #include "utilities.h"
 #include <vector>
 
-using namespace std;
-
 
 int GFX_LoadGLSLProgram(const char * inVS, const char * inFS, GLuint & outProgram, ...)
 //  e.g.,
@@ -68,10 +66,10 @@ int GFX_LoadGLSLProgram(const char * inVS, const char * inFS, GLuint & outProgra
     }
     
     if( !errorCode ) {
-        typedef pair<char *, int *> GLSLIdentifier;
+        typedef std::pair<char *, int *> GLSLIdentifier;
     
-        vector<GLSLIdentifier> uniforms;
-        vector<GLSLIdentifier> attribs;
+        std::vector<GLSLIdentifier> uniforms;
+        std::vector<GLSLIdentifier> attribs;
     
         va_list args;
         va_start(args, outProgram);
@@ -81,7 +79,7 @@ int GFX_LoadGLSLProgram(const char * inVS, const char * inFS, GLuint & outProgra
         // extract the vertex attrib and uniform names so we can get their id later
         {
         
-            vector<GLSLIdentifier> & array = (bindingType==eGLSLBindingAttribute) ? attribs : uniforms;
+            std::vector<GLSLIdentifier> & array = (bindingType==eGLSLBindingAttribute) ? attribs : uniforms;
         
             char * name = va_arg(args, char *);
             int * id = va_arg(args, int *);
@@ -133,7 +131,7 @@ bool GFX_ValidateProgram(GLuint prog)
 {
                         
     GLint logLength, status;
-    vector<char> log;
+    std::vector<char> log;
     
     glValidateProgram(prog);
     glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength);

@@ -10,16 +10,16 @@ const char *NSStringToCString( const NSString *thisNSString)
 	const char *cString = [thisNSString cStringUsingEncoding: NSUTF8StringEncoding ]; 
 	return cString; 
 }
-string NSStringToString(NSString *thisNSString)
+std::string NSStringToString(NSString *thisNSString)
 {
 	
 	const char *cString = [thisNSString cStringUsingEncoding: NSUTF8StringEncoding ]; 
-	string thisString(cString);
+    std::string thisString(cString);
 	
 	return thisString; 
 	
 }
-NSString *StringToNSString(string aString)
+NSString *StringToNSString(std::string aString)
 {
     
     NSString *aNSString = [NSString stringWithUTF8String: aString.c_str()];
@@ -484,7 +484,7 @@ NSString *getGameDataFolderPath(NSString *thisGame)
 	return gameDataFolderPath; 
 	
 }
-static const char *getGameFileName(string fileName)
+static const char *getGameFileName(std::string fileName)
 {
 	NSString *newFileName  = [NSString stringWithUTF8String: fileName.c_str()];	
 	NSString *newFileNameWithNoExt = [newFileName stringByDeletingPathExtension]; 
@@ -581,7 +581,7 @@ static UIImage *drawText(NSString* text, UIImage* image, CGPoint point)
     
     return newImage;
 }
-int GL_LoadTextureFromText(string inText/*const NSString *text*/,ImageInfo & outImageInfo )
+int GL_LoadTextureFromText(std::string inText/*const NSString *text*/,ImageInfo & outImageInfo )
 {
     int errorCode = 0;
     outImageInfo.texID = 0;

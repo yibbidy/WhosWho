@@ -3,8 +3,7 @@
 //
 
 #include "utilities.h"
-
-using namespace std;
+#include "glm/glm.hpp"
 
 float MTH_Round(float value) {
 	int intVal = (int)value;
@@ -233,7 +232,7 @@ float VEC3_AngleBetween(float * first_vec3, float * second_vec3) {
 
 	float dot = VEC3_Dot(first_vec3, second_vec3);
 
-	float angleBetween = acos(max(min(dot / (mag1*mag2), 1.0f), -1.0f) );
+	float angleBetween = glm::acos(glm::max(glm::min(dot / (mag1*mag2), 1.0f), -1.0f) );
 
 	return angleBetween;
 }
@@ -376,12 +375,12 @@ void MAT4_TransposeUpper3(float * mat4, float * transpose_mat4) {
 }
 
 void MAT4_Transpose(float * inOutMat) {
-	swap(inOutMat[1], inOutMat[5]);
-	swap(inOutMat[2], inOutMat[8]);
-	swap(inOutMat[3], inOutMat[12]);
-	swap(inOutMat[6], inOutMat[9]);
-	swap(inOutMat[7], inOutMat[13]);
-	swap(inOutMat[11], inOutMat[14]);
+    std::swap(inOutMat[1], inOutMat[5]);
+    std::swap(inOutMat[2], inOutMat[8]);
+	std::swap(inOutMat[3], inOutMat[12]);
+	std::swap(inOutMat[6], inOutMat[9]);
+	std::swap(inOutMat[7], inOutMat[13]);
+	std::swap(inOutMat[11], inOutMat[14]);
 }
 
 void MAT4_SetEqual(float * mat4, float * output_mat4) {
@@ -400,9 +399,9 @@ void MAT4_InvertQuick(float * inMat, float * outMat) {
 	outMat[12] = VEC3_Dot(offset, inMat+0);
 	outMat[13] = VEC3_Dot(offset, inMat+4);
 	outMat[14] = VEC3_Dot(offset, inMat+8);
-	swap(outMat[1], outMat[4]);
-	swap(outMat[2], outMat[8]);
-	swap(outMat[6], outMat[9]);
+	std::swap(outMat[1], outMat[4]);
+	std::swap(outMat[2], outMat[8]);
+	std::swap(outMat[6], outMat[9]);
 }
 
 float MTH_DegToRad(float deg) {
@@ -1208,7 +1207,7 @@ void FPSCAM_RollRight(float inAmountDeg, float * inOutViewMat) {
 	MAT4_Multiply(rotMat, inOutViewMat, inOutViewMat);
 }
 
-void GEO_GenerateUnitSphere(vector<float> & vertices, vector<float> & normals) {
+void GEO_GenerateUnitSphere(std::vector<float> & vertices, std::vector<float> & normals) {
 	const int Size = (int)((3.141592654 / .2 + 1)*(2*3.141592654 / .2 + 1)) * 6;
 	vertices.resize(Size);
 	normals.resize(Size);
@@ -1246,7 +1245,7 @@ void GEO_GenerateUnitSphere(vector<float> & vertices, vector<float> & normals) {
 	
 }
 
-void GEO_GenerateDisc(float inStartAngle, float inEndAngle, float inInnerRadius, float inOuterRadius, float inZ, int inSegments, vector<float> & outVertices, vector<float> & outNormals, vector<float> & outTexCoords, float * outBoundingCube)
+void GEO_GenerateDisc(float inStartAngle, float inEndAngle, float inInnerRadius, float inOuterRadius, float inZ, int inSegments, std::vector<float> & outVertices, std::vector<float> & outNormals, std::vector<float> & outTexCoords, float * outBoundingCube)
 // generate triangle strip for a partial disc.  first vertex is on outer radius
 {
 	outVertices.resize(inSegments*2 * 3);
@@ -1298,10 +1297,10 @@ void GEO_GenerateDisc(float inStartAngle, float inEndAngle, float inInnerRadius,
 		*t++ = 1;
 
 		if( cube ) {
-			cube[0] = min(cube[0], min(*(v-3), *(v-6)));
-			cube[1] = max(cube[1], min(*(v-3), *(v-6)));
-			cube[3] = min(cube[3], min(*(v-2), *(v-5)));
-			cube[4] = max(cube[4], min(*(v-2), *(v-5)));
+			cube[0] = glm::min(cube[0], glm::min(*(v-3), *(v-6)));
+			cube[1] = glm::max(cube[1], glm::min(*(v-3), *(v-6)));
+			cube[3] = glm::min(cube[3], glm::min(*(v-2), *(v-5)));
+			cube[4] = glm::max(cube[4], glm::min(*(v-2), *(v-5)));
 		}
 
 		angle += angleDiff;
@@ -1309,7 +1308,7 @@ void GEO_GenerateDisc(float inStartAngle, float inEndAngle, float inInnerRadius,
 
 }
 
-void GEO_GenerateUnitCircle(int inSegments, vector<float> & outVertices) {
+void GEO_GenerateUnitCircle(int inSegments, std::vector<float> & outVertices) {
     outVertices.resize(inSegments*2);
     for( int i=0; i<inSegments; i++ ) {
         float angle = i/float(inSegments) * 3.141592654f;
@@ -1585,7 +1584,7 @@ int GEO_BestFitRectInRect(float * inFlexibleRect, float * inFixedRect, float * o
 	return errorCode;
 }
 
-void GEO_GenerateUnitRectangle(vector<float> & outVertices, vector<float> & outTexCoords) {
+void GEO_GenerateUnitRectangle(std::vector<float> & outVertices, std::vector<float> & outTexCoords) {
 	
 	float v[] = { -1,-1,0, 1,-1,0, -1,1,0, 1,1,0 }; // triangle strip
 	outVertices.resize(12);
@@ -1597,7 +1596,7 @@ void GEO_GenerateUnitRectangle(vector<float> & outVertices, vector<float> & outT
 
 }
 
-void GEO_GenerateRectangle(float inWidth, float inHeight, vector<float> & outVertices, vector<float> & outNormals, vector<float> & outTexCoords) 
+void GEO_GenerateRectangle(float inWidth, float inHeight, std::vector<float> & outVertices, std::vector<float> & outNormals, std::vector<float> & outTexCoords) 
 // this function generates vertex attributes of a ccw triangle strip that makes a rectangle, centered.
 {
     const float w = inWidth/2;
@@ -1649,11 +1648,11 @@ int OS_GetCurrentMillisecond() {
 	return 0;
 }
 
-bool OS_ReadBinaryFile(const string & inFilename, void * outStream, int inBytes) 
+bool OS_ReadBinaryFile(const std::string & inFilename, void * outStream, int inBytes) 
 // outputs the content of a binary file to outStream.  returns true on success
 {
 
-	ifstream in(inFilename.c_str(), ios::binary);
+    std::ifstream in(inFilename.c_str(), std::ios::binary);
 	if( !in.is_open() ) return false;
 		
 	in.read((char *)outStream, inBytes);
@@ -1695,7 +1694,7 @@ static bool ANM_UpdateAnimation(float inTick, Animation & inOutAnimation)
 	Animation & a = inOutAnimation;
     
 	float t = (inTick - a.startTick) / a.duration;
-	t = min(max(t, 0.0f), 1.0f);
+	t = glm::min(glm::max(t, 0.0f), 1.0f);
     
 	if( a.interpolation == InterpolationTypeSmooth ) {
 		t = 3*t*t - 2*t*t*t;

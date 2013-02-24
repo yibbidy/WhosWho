@@ -8,6 +8,9 @@
 #import <GLKit/GLKit.h>
 #include "utilities.h"
 
+// TODO this file should be merged into renderer.h i think
+
+
 const char *NSStringToCString( const NSString *thisNSString);
 std::string NSStringToString(NSString *thisNSString);
 NSString *StringToNSString(std::string aString);

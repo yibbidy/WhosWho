@@ -1,0 +1,838 @@
+// Contributors:
+//  Justin Hutchison (yibbidy@gmail.com)
+
+// TODO this file should be the one that issues opengl calls
+// functions related to drawing the scene are in here
+// TODO change math to use glm
+
+#include "Renderer.h"
+#include "WhosWho.h"
+#include "Camera.h"
+#include "glm/glm.hpp"
+
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
+// TODO this class should be renamed Renderer
+GLData gGLData;
+
+int GLData::Init()
+{
+    int errorCode = 0;
+
+
+    if( !errorCode ) {  // load the glsl photo program
+        NSString * vertShaderPathname = [[NSBundle mainBundle] pathForResource:@"photo" ofType:@"vs"];
+        NSString * fragShaderPathname = [[NSBundle mainBundle] pathForResource:@"photo" ofType:@"fs"];
+        
+        GLchar * vSource = (GLchar *)[[NSString stringWithContentsOfFile:vertShaderPathname encoding:NSUTF8StringEncoding error:nil] UTF8String];
+        GLchar * fSource = (GLchar *)[[NSString stringWithContentsOfFile:fragShaderPathname encoding:NSUTF8StringEncoding error:nil] UTF8String];
+        
+        errorCode = GFX_LoadGLSLProgram(vSource, fSource, gGLData.photoProgram.program,
+                                  eGLSLBindingAttribute, "inPosition", &gGLData.photoProgram.positionLoc,
+                                  eGLSLBindingAttribute, "inUV", &gGLData.photoProgram.uvLoc,
+                                  eGLSLBindingUniform, "kMVPMat", &gGLData.photoProgram.mvpLoc,
+                                  eGLSLBindingUniform, "kScale", &gGLData.photoProgram.scaleLoc,
+                                  eGLSLBindingUniform, "kImageTex", &gGLData.photoProgram.imageTexLoc,
+                                  eGLSLBindingUniform, "kImageAlpha", &gGLData.photoProgram.imageAlphaLoc,
+                                  eGLSLBindingUniform, "kMaskTex", &gGLData.photoProgram.maskTexLoc,
+                                  eGLSLBindingUniform, "kMaskWeight", &gGLData.photoProgram.maskWeightLoc,
+                                  eGLSLBindingEnd);
+    }
+
+    if( !errorCode ) {  // load the color glsl program
+        NSString * vertShaderPathname = [[NSBundle mainBundle] pathForResource:@"uniformColor" ofType:@"vs"];
+        NSString * fragShaderPathname = [[NSBundle mainBundle] pathForResource:@"uniformColor" ofType:@"fs"];
+        
+        GLchar * vSource = (GLchar *)[[NSString stringWithContentsOfFile:vertShaderPathname encoding:NSUTF8StringEncoding error:nil] UTF8String];
+        GLchar * fSource = (GLchar *)[[NSString stringWithContentsOfFile:fragShaderPathname encoding:NSUTF8StringEncoding error:nil] UTF8String];
+        
+        errorCode = GFX_LoadGLSLProgram(vSource, fSource, gGLData.colorProgram.program,
+                                  eGLSLBindingAttribute, "inPosition", &gGLData.colorProgram.positionLoc,
+                                  eGLSLBindingAttribute, "inUV", &gGLData.colorProgram.uvLoc,
+                                  eGLSLBindingUniform, "kMVPMat", &gGLData.colorProgram.mvpMatLoc,
+                                  eGLSLBindingUniform, "kColor", &gGLData.colorProgram.colorLoc,
+                                  eGLSLBindingUniform, "kImageTexture", &gGLData.colorProgram.imageTexture,
+                                  eGLSLBindingUniform, "kImageWeight", &gGLData.colorProgram.imageWeight,
+                                  eGLSLBindingEnd);
+    }
+
+    if( !errorCode ) {  // generate vbos and vaos
+        
+        // generate the vbo and vao for disk
+        glGenVertexArraysOES(1, &gGLData.diskVAO);
+        glBindVertexArrayOES(gGLData.diskVAO);
+        
+        glGenBuffers(1, &gGLData.diskVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, gGLData.diskVBO);
+        std::vector<float> verts, normals, texCoords;
+        GEO_GenerateDisc(0, 360, who::kR0, who::kR1, 0, 64, verts, normals, texCoords, 0);
+        gGLData.diskNumVertices = verts.size()/3;
+        unsigned int size = verts.size()*sizeof(float);
+        glBufferData(GL_ARRAY_BUFFER, size, &verts[0], GL_STATIC_DRAW);
+        glEnableVertexAttribArray(gGLData.colorProgram.positionLoc);
+        glVertexAttribPointer(gGLData.colorProgram.positionLoc, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), BUFFER_OFFSET(0));
+        
+        
+        glGenVertexArraysOES(1, &gGLData.diskInnerEdgeVAO);
+        glBindVertexArrayOES(gGLData.diskInnerEdgeVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, gGLData.diskVBO);
+        glEnableVertexAttribArray(gGLData.colorProgram.positionLoc);
+        glVertexAttribPointer(gGLData.colorProgram.positionLoc, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(0));
+        
+        glGenVertexArraysOES(1, &gGLData.diskOuterEdgeVAO);
+        glBindVertexArrayOES(gGLData.diskOuterEdgeVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, gGLData.diskVBO);
+        glEnableVertexAttribArray(gGLData.colorProgram.positionLoc);
+        glVertexAttribPointer(gGLData.colorProgram.positionLoc, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3*sizeof(float)));
+        
+        
+        glGenVertexArraysOES(1, &gGLData.squareVAO);
+        glBindVertexArrayOES(gGLData.squareVAO);
+        GEO_GenerateRectangle(1, 1, verts, normals, texCoords);
+        glGenBuffers(1, &gGLData.squareVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, gGLData.squareVBO);
+        glBufferData(GL_ARRAY_BUFFER, verts.size()*sizeof(float)+texCoords.size()*sizeof(float), 0, GL_STATIC_DRAW);
+        
+        glBufferSubData(GL_ARRAY_BUFFER, 0, verts.size()*sizeof(float), &verts[0]);
+        glBufferSubData(GL_ARRAY_BUFFER, verts.size()*sizeof(float), texCoords.size()*sizeof(float), &texCoords[0]);
+        
+        glGenBuffers(1, &gGLData.squareIBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gGLData.squareIBO);
+        int indices[] = { 0, 1, 2, 3 };
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4*sizeof(int), indices, GL_STATIC_DRAW);
+        
+        glEnableVertexAttribArray(gGLData.photoProgram.positionLoc);
+        glVertexAttribPointer(gGLData.photoProgram.positionLoc, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), BUFFER_OFFSET(0));
+        glEnableVertexAttribArray(gGLData.photoProgram.uvLoc);
+        glVertexAttribPointer(gGLData.photoProgram.uvLoc, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), BUFFER_OFFSET(verts.size()*sizeof(float)));
+        
+        
+        glGenVertexArraysOES(1, &gGLData.squareEdgeVAO);
+        glBindVertexArrayOES(gGLData.squareEdgeVAO);
+        glGenBuffers(1, &gGLData.squareEdgeIBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gGLData.squareEdgeIBO);
+        int indices2[] = { 0, 1, 3, 2 };
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int)*4, &indices2[0], GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, gGLData.squareVBO);
+        glEnableVertexAttribArray(gGLData.colorProgram.positionLoc);
+        glVertexAttribPointer(gGLData.colorProgram.positionLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+        
+        
+        glGenVertexArraysOES(1, &gGLData.faceListVAO);
+        glBindVertexArrayOES(gGLData.faceListVAO);
+        
+        glBindBuffer(GL_ARRAY_BUFFER, gGLData.squareVBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gGLData.squareIBO);
+        
+        glEnableVertexAttribArray(gGLData.colorProgram.positionLoc);
+        glVertexAttribPointer(gGLData.colorProgram.positionLoc, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), BUFFER_OFFSET(0));
+        glEnableVertexAttribArray(gGLData.colorProgram.uvLoc);
+        glVertexAttribPointer(gGLData.colorProgram.uvLoc, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), BUFFER_OFFSET(verts.size()*sizeof(float)));
+        
+        glBindVertexArrayOES(0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        
+    }
+    
+    return errorCode;
+}
+
+int GLData::DeInit()
+{
+    int errorCode = 0;
+    
+    // deallocate vbos, vaos, programs
+    glDeleteBuffers(1, &gGLData.diskVBO);
+    glDeleteVertexArraysOES(1, &gGLData.diskVAO);
+
+    glDeleteBuffers(1, &gGLData.squareVBO);
+    glDeleteVertexArraysOES(1, &gGLData.squareVAO);
+
+    glDeleteProgram(gGLData.photoProgram.program);
+    glDeleteProgram(gGLData.colorProgram.program);
+    
+    return errorCode;
+}
+
+int GLData::RenderScene()
+{
+    int errorCode = 0;
+    
+    glClearColor(0.65f, 0.65f, 0.65f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    float mat[16];
+    MAT4_Equate(gGLData.mvpMat, mat);
+    
+    int currentRingZ = gGame.rings.rings[gGame.rings.currentRing].stackingOrder;
+    
+    size_t startRingI = size_t(glm::max(currentRingZ-2, 0));
+    size_t endRingI = gGame.rings.rings.size();
+    
+    if( gCameraData.zoomed == 1 ) {
+        startRingI = currentRingZ;
+        endRingI = startRingI+1;
+    }
+    
+    for( size_t i=startRingI; i < endRingI; i++ ) {
+        
+        who::Ring & ring = gGame.rings.rings[gGame.rings.stackingOrder[i]];
+        
+        float mvMat[16];
+        MAT4_Equate(mat, mvMat);
+        MAT4_PostTranslate(0, 0, -float(i), mvMat);
+        
+        DrawRing(ring, gCameraData.zoomed==1, mvMat);
+#if 0
+        if( gGame.rings.currentRing==i && gGame.faceDropdownAnim>0 && gCameraData.zoomed==1 ) {
+            if( ring.ringType == eRingTypeEdit ) {
+                DrawFaceList(gGame.faceDropdownAnim);
+                DrawToolList(gGame.faceDropdownAnim);
+            } else if(ring.ringType == eRingTypePlay ) {
+                DrawFaceList(gGame.faceDropdownAnim);
+            }
+        }
+#endif
+        
+    }
+    
+    return errorCode;
+}
+
+
+//-(void) draw
+void DrawFaceList(float inDropdownAnim) {
+    
+    // draw face list
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    glUseProgram(gGLData.colorProgram.program);
+    glBindVertexArrayOES(gGLData.squareVAO);
+    glUniform4f(gGLData.colorProgram.colorLoc, 0, 0, 1, 1);
+    glUniform1f(gGLData.colorProgram.imageWeight, 0);
+    glUniform1i(gGLData.colorProgram.imageTexture, 0);
+    glActiveTexture(GL_TEXTURE0);
+    
+    float height = 0.07f;
+    float width = 0.1f;
+    
+    int currentRingZ = gGame.rings.rings[gGame.rings.currentRing].stackingOrder;
+    
+    float corners[3*4];
+    ComputeTopPhotoCorners(gGame.rings.rings[gGame.rings.currentRing], corners);
+    float top = (who::kR1+who::kR0)*0.5f + corners[2*3 + 1];
+    width = corners[0*3 + 0] - corners[1*3 + 0];
+    float dy = height * fabs(sinf(inDropdownAnim));
+    float mat[16];
+    MAT4_Equate(gGLData.mvpMat, mat);
+    MAT4_PostTranslate(0, top - dy*0.5f, -currentRingZ+0.01f, mat);
+    MAT4_PostScale(width, dy, 1, mat);
+    glUniform4f(gGLData.colorProgram.colorLoc, 0.8f, 0.8f, 0.8f, 0.5f);
+    glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, mat);
+    
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    
+    int numItems = int(gGame.faceList.size());
+    
+    int xSpacing = 0;
+    float centerX = -width*0.5f + height*0.5f;
+    float xInc = height + xSpacing;
+    
+    centerX += xSpacing;
+    if( width / height >= numItems )
+    // simple layout of faces
+    {
+        xInc = width / numItems;
+        centerX = -width*0.5f + xInc - 0.5*xInc;
+        
+    }
+    else
+    // shrink face images down to fit them all
+    {
+        xInc = width / numItems;
+        centerX = -width*0.5f + xInc - 0.5*xInc;
+        
+        height = xInc;
+        dy = height * fabs(sinf(inDropdownAnim));
+        
+    }
+    
+    for_i( numItems ) {
+        
+        MAT4_Equate(gGLData.mvpMat, mat);
+        MAT4_PostTranslate(centerX, top - dy*0.5f, -currentRingZ+0.01f, mat);
+        MAT4_PostScale(height, dy, 1, mat);
+        glUniform4f(gGLData.colorProgram.colorLoc, 0.8f, 0.8f, 0.8f, 1);
+        glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, mat);
+        glBindTexture(GL_TEXTURE_2D, gGame.images[gGame.faceList[i]].texID);
+        glUniform1f(gGLData.colorProgram.imageWeight, 1);
+        
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        
+        centerX += xInc;
+    }
+    
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+    
+}
+
+void DrawToolList(float inRotation) {
+    
+    float _rotation = inRotation;
+    
+    // draw tools
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    glUseProgram(gGLData.colorProgram.program);
+    glBindVertexArrayOES(gGLData.squareVAO);
+    glUniform4f(gGLData.colorProgram.colorLoc, 1, 1, 1, 0.3f);
+    glUniform1f(gGLData.colorProgram.imageWeight, 0);
+    glUniform1i(gGLData.colorProgram.imageTexture, 0);
+    glActiveTexture(GL_TEXTURE0);
+    
+    float height = 0.04f;
+    float width = 0.1f;
+    
+    int currentRingZ = gGame.rings.rings[gGame.rings.currentRing].stackingOrder;
+    
+    who::Ring & editRing = gGame.rings.rings[gGame.rings.currentRing];
+    float corners[3*4];
+    ComputeTopPhotoCorners(editRing, corners);
+    float top = (who::kR0+who::kR1)*0.5f + corners[0*3 + 1] + height;
+    width = corners[0*3 + 0] - corners[1*3 + 0];
+    float dy = height * fabs(sinf(4*_rotation));
+    float mat[16];
+    MAT4_Equate(gGLData.mvpMat, mat);
+    MAT4_PostTranslate(0, top - dy*0.5f, -currentRingZ+0.01f, mat);
+    MAT4_PostScale(width, dy, 1, mat);
+    glUniform4f(gGLData.colorProgram.colorLoc, 0.8f, 0.8f, 0.8f, 0.5f);
+    glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, mat);
+    
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    
+    int numItems = int(gGame.faceList.size());
+    
+    float xSpacing = 0.01;
+    float centerX = -width*0.5f + height*0.5f;
+    float xInc = height + xSpacing;
+    
+    centerX += xSpacing;
+    if( width / height >= numItems ) {  // simple placement
+        centerX = -width*0.5f + xInc - 0.5*xInc;
+        
+    } else {  // shrink images down
+        centerX = -width*0.5f + xInc - 0.5*xInc;
+        
+        height = xInc;
+        dy = height * fabs(sinf(4*_rotation));
+        
+    }
+    
+    std::string faceList[] = {
+        "brush",
+        "eraser",
+        "scissors"
+    };
+    
+    for_i( numItems ) {
+        
+        MAT4_Equate(gGLData.mvpMat, mat);
+        MAT4_PostTranslate(centerX, top - dy*0.5f, -currentRingZ+0.01f, mat);
+        MAT4_PostScale(height, dy, 1, mat);
+        glUniform4f(gGLData.colorProgram.colorLoc, 0.8f, 0.8f, 0.8f, 1);
+        glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, mat);
+        glBindTexture(GL_TEXTURE_2D, gGame.images[faceList[i]].texID);
+        glUniform1f(gGLData.colorProgram.imageWeight, 1);
+        
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        
+        centerX += xInc;
+    }
+    
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+    
+}
+
+
+void IMG_Clear(ImageInfo & inImage) {
+    memset(inImage.image, 0, inImage.texHeight*inImage.rowBytes);
+    
+    glBindTexture(GL_TEXTURE_2D, inImage.texID);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, inImage.texWidth, inImage.texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, inImage.image);
+}
+
+int IMG_SprayPaint(ImageInfo & inImage, int inLastX, int inLastY, int inCurrX, int inCurrY, const SprayPaintArgs & inArgs) {
+    int errorCode = 0;
+    
+	ImageInfo * imageInfo = &inImage;
+    
+	bool inErase = inArgs.erase;
+	unsigned char red = inArgs.r * 255;
+	unsigned char green = inArgs.g * 255;
+	unsigned char blue = inArgs.b * 255;
+    
+	int brushSize = inArgs.brushSize;
+	int halfBrushSize = brushSize/2;
+	//int alphaInc = inArgs.pressure;
+	//halfBrushSize = 17;
+    
+	int w = imageInfo->texWidth;
+	int h = imageInfo->texHeight;
+    
+	double dx = inCurrX - inLastX;
+	double dy = inCurrY - inLastY;
+    
+	int steps = 0;
+    
+	//static double t = 100;
+    
+    
+	double xInc = 0;
+	double yInc = 0;
+	if( fabs(dx) > fabs(dy) ) {
+		steps = fabs(dx);
+		xInc = (dx > 0) ? 1 : -1;
+		yInc = fabs(dy / dx);
+		yInc *= (dy > 0) ? 1 : -1;
+	} else {
+		steps = fabs(dy);
+		yInc = (dy > 0) ? 1 : -1;
+		xInc = fabs(dx / dy);
+		xInc *= (dx > 0) ? 1 : -1;
+	}
+    
+    glBindTexture(GL_TEXTURE_2D, inImage.texID);
+	
+	double currY = inLastY;
+	double currX = inLastX;
+    
+	int B = imageInfo->bitDepth/8;
+    
+	static unsigned char * block = 0; // cache
+	static int blockBrushSize = 18;
+	static int blockBpp = 4;
+	if( !block || blockBrushSize!=brushSize || blockBpp != B ) {
+		blockBrushSize = brushSize;
+		blockBpp = B;
+		if( block ) {
+			delete [] block;
+		}
+		block = new unsigned char[blockBpp * blockBrushSize * blockBrushSize];
+	}
+    
+	for( int step=0; step<steps; step++ ) {
+        
+		currY += yInc;
+		currX += xInc;
+        
+		int xx = (int)currX;
+		int yy = (int)currY;
+        
+		
+		memset(block, 0, 4*brushSize*brushSize);
+		
+		for( int y = -halfBrushSize; y<brushSize-halfBrushSize; y++ ) {
+			if( yy+y>=imageInfo->texHeight || yy+y<0 ) continue;
+            
+			for( int x = -halfBrushSize; x<brushSize-halfBrushSize; x++ ) {
+				if( xx+x >= imageInfo->texWidth || xx+x < 0 ) continue;
+                
+				double alphaFactor = (halfBrushSize - glm::min(double(halfBrushSize), glm::sqrt((double)y*y + x*x))) / halfBrushSize;
+				alphaFactor = pow(alphaFactor, 1.7);
+                
+				unsigned char alphaInc = (unsigned char)glm::max(0.0, glm::min(255.0, alphaFactor * inArgs.pressure));
+                
+				int index1 = ((y+halfBrushSize)*brushSize + (x+halfBrushSize))*B;
+				int index2 = ((yy+y)*w + xx+x)*B;
+                
+				if( inErase ) {
+					int alpha = imageInfo->image[index2+3];
+					alpha = glm::max(0, int(alpha-(alphaInc*0.5)));
+					imageInfo->image[index2+3] = (unsigned char)alpha;
+                    
+				} else {
+					imageInfo->image[index2+0] = red;
+					imageInfo->image[index2+1] = green;
+					imageInfo->image[index2+2] = blue;
+                    
+					unsigned char alpha = imageInfo->image[index2+3];
+					alpha = (unsigned char)glm::min(255, int(alpha)+alphaInc);
+					
+					imageInfo->image[index2+3] = alpha;
+					
+				}
+                
+				block[index1+0] = imageInfo->image[index2+0];
+				block[index1+1] = imageInfo->image[index2+1];
+				block[index1+2] = imageInfo->image[index2+2];
+				block[index1+3] = imageInfo->image[index2+3];
+                
+			}
+		}
+        
+		int xSize = brushSize;
+		int xOffset = xx-halfBrushSize;
+        if( xOffset > w ) {
+            continue;
+        }
+		unsigned char * blockStart = &block[0];
+		if( xOffset < 0 ) {
+			xSize = brushSize + xOffset;
+			blockStart += -xOffset * blockBpp;
+			xOffset = 0;
+		}
+		int rOffset = xx+halfBrushSize;
+		if( rOffset >= w ) {
+			xSize = brushSize - (rOffset-w) - 1;
+		}
+		
+		int ySize = brushSize;
+		int yOffset = yy-halfBrushSize;
+        if( yOffset > h ) {
+            continue;
+        }
+		if( yOffset < 0 ) {
+			ySize = brushSize + yOffset;
+			blockStart += -yOffset*blockBrushSize * blockBpp;
+			yOffset = 0;
+		}
+		int bOffset = yy+halfBrushSize;
+		if( bOffset >= h ) {
+			ySize = brushSize - (bOffset-h) - 1;
+		}
+        
+		glTexSubImage2D(GL_TEXTURE_2D, 0, xOffset, yOffset, xSize, ySize, GL_RGBA, GL_UNSIGNED_BYTE, blockStart);
+	}
+    
+    
+	return errorCode;
+}
+
+
+
+
+int GFX_LoadGLSLProgram(const char * inVS, const char * inFS, GLuint & outProgram, ...)
+//  e.g.,
+//  GFX_LoadGLSLProgram(vs, fs, programID,
+//      eGLSLBindingAttribute, "inPosition", &position,
+//      eGLSLBindingAttribute, "inNormal", &normal,
+//      eGLSLBindingUniform, "kUniform1", &uniform1,
+//      eGLSLBindingUniform, "kUniform2", &uniform2,
+//      eGLSLBindingEnd);
+{
+    int errorCode = 0;
+    
+    char infoLog[1024];
+    int len;
+    GLint compileStatus;
+    
+    GLuint vShader = 0;
+    GLuint fShader = 0;
+    
+    if( !errorCode ) {
+        vShader = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vShader, 1, &inVS, 0);
+        glCompileShader(vShader);
+        
+        glGetShaderInfoLog(vShader, 1024, &len, infoLog);
+        glGetShaderiv(vShader, GL_COMPILE_STATUS, &compileStatus);
+        if( compileStatus == GL_FALSE ) {
+            errorCode = 1;
+        }
+    }
+    
+    if( !errorCode ) {
+        fShader = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fShader, 1, &inFS, 0);
+        glCompileShader(fShader);
+        
+        glGetShaderInfoLog(fShader, 1024, &len, infoLog);
+        glGetShaderiv(fShader, GL_COMPILE_STATUS, &compileStatus);
+        if( compileStatus == GL_FALSE ) {
+            errorCode = 2;
+        }
+    }
+    
+    if( !errorCode ) {
+        GLint linkStatus;
+        
+        outProgram = glCreateProgram();
+        glAttachShader(outProgram, vShader);
+        glAttachShader(outProgram, fShader);
+        
+        glLinkProgram(outProgram);
+        
+        glGetProgramInfoLog(outProgram, 1024, &len, infoLog);
+        glGetProgramiv(outProgram, GL_LINK_STATUS, &linkStatus);
+        if( linkStatus == GL_FALSE ) {
+            errorCode = 3;  // failed to link
+        }
+    }
+    
+    if( !errorCode ) {
+        typedef std::pair<char *, int *> GLSLIdentifier;
+        
+        std::vector<GLSLIdentifier> uniforms;
+        std::vector<GLSLIdentifier> attribs;
+        
+        va_list args;
+        va_start(args, outProgram);
+        
+        EGLSLBinding bindingType;
+        while( (bindingType = va_arg(args, EGLSLBinding)) != eGLSLBindingEnd && !errorCode )
+            // extract the vertex attrib and uniform names so we can get their id later
+        {
+            
+            std::vector<GLSLIdentifier> & array = (bindingType==eGLSLBindingAttribute) ? attribs : uniforms;
+            
+            char * name = va_arg(args, char *);
+            int * id = va_arg(args, int *);
+            
+            if( !id ) {
+                errorCode = 4;  // bad attrib parameter
+            }
+            array.push_back(GLSLIdentifier(name, id));
+        }
+        
+        
+        for( size_t i=0; i<attribs.size() && !errorCode; i++ ) {
+            char * name = attribs[i].first;
+            int * id = attribs[i].second;
+            
+            *id = glGetAttribLocation(outProgram, name);
+            if( *id == -1 ) {
+                errorCode = 5;  // attrib not found
+            }
+            
+        }
+        
+        
+        for( size_t i=0; i<uniforms.size() && !errorCode; i++ ) {
+            char * name = uniforms[i].first;
+            int * id = uniforms[i].second;
+            
+            *id = glGetUniformLocation(outProgram, name);
+            if( *id == -1 ) {
+                errorCode = 6;  // uniform not found
+            }
+        }
+        
+        va_end(args);
+    }
+    
+    if( errorCode > 0 ) {
+        glDeleteProgram(outProgram);
+        outProgram = 0;
+        glDeleteShader(vShader);
+        glDeleteShader(fShader);
+    }
+    
+    return errorCode;
+    
+}
+
+void DrawRing(who::Ring & inRing, bool inZoomedIn, float * inMVPMat) {
+    
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);//(GL_BLEND);
+    
+    // Draw the ring (a disc)
+    glUseProgram(gGLData.colorProgram.program);
+    
+    glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, inMVPMat);
+    glUniform4f(gGLData.colorProgram.colorLoc, 0.2f, 0.3f, 1, inRing.ringAlpha);//0.8f);
+    glUniform1f(gGLData.colorProgram.imageWeight, 0);
+    glUniform1i(gGLData.colorProgram.imageTexture, 0);
+    glBindVertexArrayOES(gGLData.diskVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, gGLData.diskNumVertices);
+    
+    float mat[16];
+    MAT4_Equate(inMVPMat, mat);
+    MAT4_PostTranslate(0, 0, 0.001f, mat);
+    glUseProgram(gGLData.colorProgram.program);
+    glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, mat);
+    glUniform4f(gGLData.colorProgram.colorLoc, 0, 0, 0, inRing.ringAlpha);
+    glBindVertexArrayOES(gGLData.diskInnerEdgeVAO);
+    glLineWidth(4.0f);
+    glDrawArrays(GL_LINE_STRIP, 0, gGLData.diskNumVertices/2);
+    
+    glBindVertexArrayOES(gGLData.diskOuterEdgeVAO);
+    glDrawArrays(GL_LINE_STRIP, 0, gGLData.diskNumVertices/2);
+    
+    // draw the images on the ring (a bunch of rects in a circle pattern)
+    glUseProgram(gGLData.photoProgram.program);
+    glBindVertexArrayOES(gGLData.squareVAO);
+    
+    glUniform1i(gGLData.photoProgram.imageTexLoc, 0);
+    glUniform1f(gGLData.photoProgram.imageAlphaLoc, inRing.ringAlpha);
+    glActiveTexture(GL_TEXTURE0);
+    // glBindTexture(GL_TEXTURE_2D, gGame.images[0].texID);
+#if 0
+    int masks[] = { 1, 2 };
+    glUniform1iv(gGLData.photoProgram.maskTexLoc, 2, masks);
+#endif
+    float kPi = 3.141592654f;
+    
+    int numImages = int(inRing.photos.size());
+    float halfNumImages = numImages * 0.5f;
+    float w0 = atanf((who::kR1-who::kR0)/(who::kR1+who::kR0));  // end angle for 0th photo
+    
+    float p = logf(w0/kPi) / logf(0.5f/halfNumImages);  // of f(x) = pi x^p
+    float radius = (who::kR0+who::kR1) * 0.5f;
+    
+    float (* spacingFn)(float, float *);
+    
+    if( numImages * w0 <= kPi ) {
+        spacingFn = who::LinearFn;
+    } else {  // space images out using t^p
+        spacingFn = who::SmoothFn;
+    }
+    
+    int startImageI = 0;
+    int endImageI = numImages;
+    
+    if( inZoomedIn )
+        // improve rendering performance by reducing the number of photos drawn when zoomed up close
+    {
+        if( inRing.selectedPhoto != -1 &&  inRing.selectedPhoto == inRing.currentPhoto ) {
+            startImageI = inRing.selectedPhoto;
+            endImageI = startImageI+1;
+        } else {
+            if( inRing.selectedPhoto < inRing.currentPhoto ) {  // if ring is rotating counter clockwise
+                startImageI = inRing.selectedPhoto;
+            } else {
+                startImageI = inRing.selectedPhoto-1;
+                if( startImageI < 0 ) {
+                    startImageI = numImages + startImageI;
+                }
+            }
+            endImageI = startImageI + 2;
+        }
+    }
+    startImageI  = glm::max(0, startImageI);
+    for( int imageI=startImageI; imageI<endImageI; imageI++ ) {
+        int i = imageI%numImages;
+        
+        float t = (i-inRing.currentPhoto)/float(halfNumImages);
+        float halfStep = 0.5f/halfNumImages;
+        
+        float angle0 = kPi * spacingFn(t-halfStep, &p);
+        float angle1 = kPi * spacingFn(t+halfStep, &p);
+        float angle = (angle0 + angle1) * 0.5f;
+        float dAngle = (angle1 - angle0) * 0.5f;
+        angle0 = angle - glm::min(w0, dAngle);
+        angle1 = angle + glm::min(w0, dAngle);
+        
+        float p0[] = { radius*cosf(angle0), radius*sinf(angle0) };  // top right point in world space
+        float p1[] = { radius*cosf(angle1), radius*sinf(angle1) };  // top left point in world space
+        float length = VEC2_Distance(p0, p1) / sqrtf(2.0);  // diagonal length of the image square
+        
+        who::Photo * photo = gGame.GetPhoto(inRing.photos[i]);
+        ImageInfo & image = gGame.images[photo->filename];
+        float aspect = image.originalWidth / float(image.originalHeight);
+        float w, h;
+        // compute world space width and height based on image's aspect ratio
+        if( aspect > 1 ) {
+            w = length;
+            h = length / aspect;
+        } else {
+            w = length * aspect;
+            h = length;
+        }
+        
+        // build the matrix that transforms normalzied image corners to world space
+        float mat[16];
+        MAT4_MakeScale(w, h, 1, mat);
+        MAT4_PreTranslate(0, radius, 0.01f, mat);
+        MAT4_PreRotate(0, 0, 1, -angle, mat);
+        MAT4_Equate(mat, photo->transform);
+        
+        MAT4_Multiply(inMVPMat, mat, mat);
+        
+        glUniformMatrix4fv(gGLData.photoProgram.mvpLoc, 1, GL_FALSE, mat);
+        glUniform1f(gGLData.photoProgram.scaleLoc, 1);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, image.texID);
+        glActiveTexture(GL_TEXTURE1);
+        
+        if( photo->maskImages.size() > 0 ) {
+            glBindTexture(GL_TEXTURE_2D, gGame.images[photo->maskImages[0]].texID);
+        }
+        glActiveTexture(GL_TEXTURE2);
+        if( photo->maskImages.size() > 1 ) {
+            glBindTexture(GL_TEXTURE_2D, gGame.images[photo->maskImages[1]].texID);
+        }
+        float maskWeights[2];
+        memset(maskWeights, 0, 2*sizeof(float));
+        
+        for_i( photo->maskWeights.size() ) {
+            maskWeights[i] = photo->maskWeights[i];
+        }
+        
+        glUniform1fv(gGLData.photoProgram.maskWeightLoc, 2, maskWeights);
+        
+        
+        glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, BUFFER_OFFSET(0));
+        
+        if( i == (inRing.selectedPhoto%inRing.photos.size()) )
+            // the selected photo has a red box around it
+        {
+            glUseProgram(gGLData.colorProgram.program);
+            glBindVertexArrayOES(gGLData.squareEdgeVAO);
+            glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, mat);
+            glUniform4f(gGLData.colorProgram.colorLoc, 1, 0, 0, inRing.ringAlpha);
+            glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, BUFFER_OFFSET(0));
+            
+            glUseProgram(gGLData.photoProgram.program);
+            glBindVertexArrayOES(gGLData.squareVAO);
+        }
+    }
+    
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    glLineWidth(1.0f);
+    
+    glBindVertexArrayOES(0);
+}
+
+void MarkupMask(float inRotation) {
+    // this function puts randomly placed dots on the mask
+    static float lastP[] = {
+        0, 0,
+        0, 0 };
+    
+    float currP[] = {
+        700 + 2*150*cosf(inRotation), 720 - 150*sinf(2*inRotation),
+        100 + 2*50*cosf(inRotation), 150 - 50*sin(2*inRotation) };
+    
+    if( lastP[0] == 0 ) {
+        memcpy(lastP, currP, 4*sizeof(float));
+    }
+    
+    SprayPaintArgs spa;
+    spa.r = 1;
+    spa.g = 0;
+    spa.b = 0;
+    spa.pressure = 20;
+    spa.brushSize = 40;
+    //spa.erase = true;
+    IMG_SprayPaint(gGame.images[gGLData.mask0], lastP[0], lastP[1], currP[0], currP[1], spa);
+    spa.r = 0;
+    spa.g = 1;
+    spa.b = 0;
+    spa.pressure = 35;
+    spa.brushSize = 10;
+    //spa.erase = true;
+    IMG_SprayPaint(gGame.images[gGLData.mask1], lastP[2], lastP[3], currP[2], currP[3], spa);
+    
+    memcpy(lastP, currP, 4*sizeof(float));
+}
+
+

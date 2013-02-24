@@ -10,6 +10,11 @@
 		1D20D92316D9213900292CE8 /* CreateNewAccount.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1D20D92216D9213900292CE8 /* CreateNewAccount.xib */; };
 		1D20D92416D9215200292CE8 /* ToFriend.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D20D92016D9211D00292CE8 /* ToFriend.m */; };
 		1D20D92516D9216200292CE8 /* CreateNewAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D20D91D16D920E100292CE8 /* CreateNewAccount.m */; };
+		1D44BEC016D9CF88009F2C87 /* WhosWho.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1D44BEBF16D9CF88009F2C87 /* WhosWho.cpp */; };
+		1D44BEC316D9D387009F2C87 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1D44BEC116D9D386009F2C87 /* Parser.cpp */; };
+		1D44BEC616D9D513009F2C87 /* Animation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1D44BEC416D9D512009F2C87 /* Animation.cpp */; };
+		1D44BEC916D9D707009F2C87 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1D44BEC716D9D706009F2C87 /* Camera.cpp */; };
+		1D44BECC16D9D826009F2C87 /* Renderer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1D44BECA16D9D825009F2C87 /* Renderer.mm */; };
 		8916DB54169BAC1F00F9E3C6 /* ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 8916DB43169BAC1F00F9E3C6 /* ioapi.c */; };
 		8916DB56169BAC1F00F9E3C6 /* mztools.c in Sources */ = {isa = PBXBuildFile; fileRef = 8916DB46169BAC1F00F9E3C6 /* mztools.c */; };
 		8916DB58169BAC1F00F9E3C6 /* unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 8916DB49169BAC1F00F9E3C6 /* unzip.c */; };
@@ -51,7 +56,6 @@
 		89ED83C914FB575800B8B581 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 89ED83A214FB575800B8B581 /* Foundation.framework */; };
 		89ED83E114FB585A00B8B581 /* TViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 89ED83DE14FB585A00B8B581 /* TViewController.mm */; };
 		89ED83E214FB585A00B8B581 /* utilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89ED83DF14FB585A00B8B581 /* utilities.cpp */; };
-		89ED83E514FB588000B8B581 /* gfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89ED83E314FB588000B8B581 /* gfx.cpp */; };
 		89ED83FB14FB595000B8B581 /* photo.fs in Resources */ = {isa = PBXBuildFile; fileRef = 89ED83F514FB594F00B8B581 /* photo.fs */; };
 		89ED83FC14FB595000B8B581 /* photo.vs in Resources */ = {isa = PBXBuildFile; fileRef = 89ED83F614FB594F00B8B581 /* photo.vs */; };
 		89ED83FF14FB595000B8B581 /* uniformColor.fs in Resources */ = {isa = PBXBuildFile; fileRef = 89ED83F914FB594F00B8B581 /* uniformColor.fs */; };
@@ -117,6 +121,16 @@
 		1D20D91F16D9211D00292CE8 /* ToFriend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ToFriend.h; sourceTree = "<group>"; };
 		1D20D92016D9211D00292CE8 /* ToFriend.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ToFriend.m; sourceTree = "<group>"; };
 		1D20D92216D9213900292CE8 /* CreateNewAccount.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CreateNewAccount.xib; sourceTree = "<group>"; };
+		1D44BEBE16D9CE61009F2C87 /* WhosWho.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhosWho.h; sourceTree = "<group>"; };
+		1D44BEBF16D9CF88009F2C87 /* WhosWho.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WhosWho.cpp; sourceTree = "<group>"; };
+		1D44BEC116D9D386009F2C87 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parser.cpp; sourceTree = "<group>"; };
+		1D44BEC216D9D386009F2C87 /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Parser.h; sourceTree = "<group>"; };
+		1D44BEC416D9D512009F2C87 /* Animation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Animation.cpp; sourceTree = "<group>"; };
+		1D44BEC516D9D512009F2C87 /* Animation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Animation.h; sourceTree = "<group>"; };
+		1D44BEC716D9D706009F2C87 /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
+		1D44BEC816D9D707009F2C87 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
+		1D44BECA16D9D825009F2C87 /* Renderer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Renderer.mm; sourceTree = "<group>"; };
+		1D44BECB16D9D825009F2C87 /* Renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Renderer.h; sourceTree = "<group>"; };
 		8916DB42169BAC1F00F9E3C6 /* crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = crypt.h; sourceTree = "<group>"; };
 		8916DB43169BAC1F00F9E3C6 /* ioapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ioapi.c; sourceTree = "<group>"; };
 		8916DB45169BAC1F00F9E3C6 /* ioapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ioapi.h; sourceTree = "<group>"; };
@@ -174,8 +188,6 @@
 		89ED83DE14FB585A00B8B581 /* TViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TViewController.mm; sourceTree = "<group>"; };
 		89ED83DF14FB585A00B8B581 /* utilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utilities.cpp; sourceTree = "<group>"; };
 		89ED83E014FB585A00B8B581 /* utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utilities.h; sourceTree = "<group>"; };
-		89ED83E314FB588000B8B581 /* gfx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gfx.cpp; sourceTree = "<group>"; };
-		89ED83E414FB588000B8B581 /* gfx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gfx.h; sourceTree = "<group>"; };
 		89ED83F514FB594F00B8B581 /* photo.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = photo.fs; sourceTree = "<group>"; };
 		89ED83F614FB594F00B8B581 /* photo.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = photo.vs; sourceTree = "<group>"; };
 		89ED83F914FB594F00B8B581 /* uniformColor.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = uniformColor.fs; sourceTree = "<group>"; };
@@ -337,20 +349,27 @@
 		89ED83AA14FB575800B8B581 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				89ED83E314FB588000B8B581 /* gfx.cpp */,
+				1D44BEC416D9D512009F2C87 /* Animation.cpp */,
+				1D44BEC716D9D706009F2C87 /* Camera.cpp */,
+				1D44BEC116D9D386009F2C87 /* Parser.cpp */,
 				89ED83DF14FB585A00B8B581 /* utilities.cpp */,
+				1D44BEBF16D9CF88009F2C87 /* WhosWho.cpp */,
+				1D44BEC516D9D512009F2C87 /* Animation.h */,
 				89ED83B314FB575800B8B581 /* AppDelegate.h */,
+				1D44BEC816D9D707009F2C87 /* Camera.h */,
 				1D20D91C16D920E100292CE8 /* CreateNewAccount.h */,
 				89ED841114FE98EF00B8B581 /* FriendsListController.h */,
 				8916DBA916A377F100F9E3C6 /* FromFriend.h */,
 				89ED840114FD538E00B8B581 /* GameDoneController.h */,
-				89ED83E414FB588000B8B581 /* gfx.h */,
 				89ED84801511B33A00B8B581 /* glUtilities.h */,
+				1D44BEC216D9D386009F2C87 /* Parser.h */,
 				89ED840614FE96B100B8B581 /* Registration.h */,
+				1D44BECB16D9D825009F2C87 /* Renderer.h */,
 				1D20D91F16D9211D00292CE8 /* ToFriend.h */,
 				89ED83DD14FB585A00B8B581 /* TViewController.h */,
 				8916DBAC16A3780C00F9E3C6 /* User.h */,
 				89ED83E014FB585A00B8B581 /* utilities.h */,
+				1D44BEBE16D9CE61009F2C87 /* WhosWho.h */,
 				89ED83B414FB575800B8B581 /* AppDelegate.m */,
 				1D20D91D16D920E100292CE8 /* CreateNewAccount.m */,
 				89ED841214FE98EF00B8B581 /* FriendsListController.m */,
@@ -360,6 +379,7 @@
 				1D20D92016D9211D00292CE8 /* ToFriend.m */,
 				8916DBAD16A3780C00F9E3C6 /* User.m */,
 				89ED847D1511B17F00B8B581 /* glUtilities.mm */,
+				1D44BECA16D9D825009F2C87 /* Renderer.mm */,
 				89ED83DE14FB585A00B8B581 /* TViewController.mm */,
 				8990FC541524AD7E000BD4CE /* FTP */,
 				89ED83F414FB594F00B8B581 /* Shaders */,
@@ -605,7 +625,6 @@
 				89ED83B514FB575800B8B581 /* AppDelegate.m in Sources */,
 				89ED83E114FB585A00B8B581 /* TViewController.mm in Sources */,
 				89ED83E214FB585A00B8B581 /* utilities.cpp in Sources */,
-				89ED83E514FB588000B8B581 /* gfx.cpp in Sources */,
 				89ED840414FD538F00B8B581 /* GameDoneController.m in Sources */,
 				89ED840914FE96B200B8B581 /* Registration.m in Sources */,
 				89ED841314FE98EF00B8B581 /* FriendsListController.m in Sources */,
@@ -623,6 +642,11 @@
 				8916DBAE16A3780C00F9E3C6 /* User.m in Sources */,
 				1D20D92416D9215200292CE8 /* ToFriend.m in Sources */,
 				1D20D92516D9216200292CE8 /* CreateNewAccount.m in Sources */,
+				1D44BEC016D9CF88009F2C87 /* WhosWho.cpp in Sources */,
+				1D44BEC316D9D387009F2C87 /* Parser.cpp in Sources */,
+				1D44BEC616D9D513009F2C87 /* Animation.cpp in Sources */,
+				1D44BEC916D9D707009F2C87 /* Camera.cpp in Sources */,
+				1D44BECC16D9D826009F2C87 /* Renderer.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

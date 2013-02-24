@@ -1,6 +1,8 @@
 // Contributors:
 //  Shirley Carter (shirley.carter66@gmail.com)
 
+// TODO should these functions be merged into Renderer.h and .mm?
+
 #include "glUtilities.h"
 
 

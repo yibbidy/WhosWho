@@ -158,35 +158,8 @@ bool OS_DeleteFile(const std::string & inFilename);
 bool OS_DoesFileExist(const std::string & inFilename);
 bool OS_SaveImageFile(const std::string & inFilename, ImageInfo & inImageInfo);
 
-float GetTick();
+int GL_LoadTextureFromText(std::string inText/*const NSString *text*/,ImageInfo & outImageInfo );
+int GL_LoadTextureFromFile(const char * inFileName, ImageInfo & outImageInfo);
 
-enum InterpolationType {
-	InterpolationTypeLinear,
-	InterpolationTypeSmooth,
-	InterpolationTypeSqrt
-};
-
-enum AnimationType {
-	AnimationTypeFloat
-};
-
-struct Animation {
-	AnimationType animationType;
-    
-	float * animationFloat;
-	float startValue;
-	float endValue;
-    
-	int startTick;
-	float duration;
-	InterpolationType interpolation;
-	int animationID;
-};
-
-bool ANM_UpdateAnimations(float inTick);
-int ANM_CreateFloatAnimation(float inStartValue, float inEndValue, float inDuration, 
-                                     InterpolationType inInterpolationType, float * inOutVariable);
-bool ANM_IsRunning(int inAnimationID);
-bool ANM_StopFloatAnimation(int inAnimationID);
 #endif
 

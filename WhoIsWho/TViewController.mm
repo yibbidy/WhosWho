@@ -43,6 +43,8 @@
 #import "ZipArchive/ZipArchive.h"
 #include <map>
 #include <fstream>
+#include "glm/glm.hpp"
+
 using namespace std;
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
@@ -83,7 +85,7 @@ struct GLData {
     GLuint diskVAO;  // run disk geometry through color program
     GLuint diskInnerEdgeVAO;  // to emphasize the inner edge of the ring
     GLuint diskOuterEdgeVAO;  // to emphasize the outer edge of the ring
-    GLuint diskVBO;  // disk geometry; vert[i] normal[i]
+    GLuint diskVBO;  // disk geometry; vert[i] normal[i] interleaved triangle_strip
     int diskNumVertices;
     float diskTransform[16];
     

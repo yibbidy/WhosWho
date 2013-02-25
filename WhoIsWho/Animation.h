@@ -10,12 +10,11 @@
 // entry is put into a list when you call ANM_CreateFloatAnimation and for every draw frame that list is updated.
 //
 // use animation like this:
-// ANM_CreateFloatAnimation(1, &myAnimationVariable, 0, 1, 2, InterpolationTypeSmooth);
+// AnimationSystem.CreateFloatAnimation(1, &myAnimationVariable, 0, 1, 2, InterpolationTypeSmooth);
 //
 // void MyDrawFunc() {
 //   drawPosition.x = myAnimationVaraible;  // drawPosition.x will slide from 0 to 1 over 2 seconds
 //   ...
-
 
 enum InterpolationType {
 	InterpolationTypeLinear,
@@ -40,19 +39,27 @@ struct Animation {
 	int animationID;
 };
 
+class AnimationSystem
+{
+public:
+    static bool UpdateAnimations(float inTick);
+    static int CreateFloatAnimation(float inStartValue, float inEndValue, float inDuration,
+                                 InterpolationType inInterpolationType, float * inOutVariable);
+    static bool IsRunning(int inAnimationID);
+    static bool StopFloatAnimation(int inAnimationID);
+    
+    
+private:
+    static Animation * GetAnimation(int inAnimationID);
+    static bool UpdateAnimation(float inTick, Animation & inOutAnimation);
+
+    static int _nextAnimationID;
+    static std::vector<Animation *> _animations;    
+};
+
 
 float GetTick();
 
-bool ANM_UpdateAnimations(float inTick);
-int ANM_CreateFloatAnimation(float inStartValue, float inEndValue, float inDuration,
-                             InterpolationType inInterpolationType, float * inOutVariable);
-bool ANM_IsRunning(int inAnimationID);
-bool ANM_StopFloatAnimation(int inAnimationID);
-
-
-extern int gNextAnimationID;
-extern std::vector<Animation *> gAnimations;
-extern int currentAnmID;
 
 
 

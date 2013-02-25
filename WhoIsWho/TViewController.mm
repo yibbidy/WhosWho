@@ -754,7 +754,7 @@ float gTick = 0;
     _rotation += self.timeSinceLastUpdate * 0.1f;
     gTick += self.timeSinceLastUpdate;
     
-    if( !ANM_IsRunning(currentAnmID) && !gGame.animations.empty() ) {
+    if( !AnimationSystem::IsRunning(gGame.currentAnmID) && !gGame.animations.empty() ) {
         
         std::string anm = gGame.animations.front();
         gGame.animations.pop_front();
@@ -767,7 +767,7 @@ float gTick = 0;
     //    MarkupMask(_rotation*3);
     //}
     
-    ANM_UpdateAnimations(gTick);
+    AnimationSystem::UpdateAnimations(gTick);
     
     std::vector<int> removedRingIndices;
     

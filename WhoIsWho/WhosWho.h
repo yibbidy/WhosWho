@@ -150,6 +150,7 @@ namespace who
         Game() {
             faceDropdownAnim = 0;
             zoomedToPhoto = false;
+            currentAnmID = 0;
         }
         
         void Execute(std::string inCommand, int inNumPairs = 0, ...);
@@ -172,7 +173,7 @@ namespace who
         std::map<std::string, void *> animationVars;  // animation variables - animation strings can reference these vars
         
         bool zoomedToPhoto;
-        
+        int currentAnmID;        
     };
     
     float SmoothFn(float inT, float * inParams);

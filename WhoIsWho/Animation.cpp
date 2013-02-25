@@ -6,15 +6,14 @@
 #include "utilities.h"
 
 // TODO these variables should have a home.. better than global space
-int gNextAnimationID = 1;
-int currentAnmID = 0;
+int AnimationSystem::_nextAnimationID = 1;
 
-std::vector<Animation *> gAnimations;
+std::vector<Animation *> AnimationSystem::_animations;
 
 
 // TODO ANM_ functinos should be in a class
 
-bool ANM_UpdateAnimation(float inTick, Animation & inOutAnimation)
+bool AnimationSystem::UpdateAnimation(float inTick, Animation & inOutAnimation)
 // this function is called to update an animation variable
 // returns true if animation still running
 {
@@ -36,22 +35,22 @@ bool ANM_UpdateAnimation(float inTick, Animation & inOutAnimation)
 	return t < 1;
 }
 
-bool ANM_UpdateAnimations(float inTick) {
+bool AnimationSystem::UpdateAnimations(float inTick) {
     
-    bool anyAnimations = !gAnimations.empty();
-    for_i( gAnimations.size() )
+    bool anyAnimations = !_animations.empty();
+    for_i( _animations.size() )
     // each animation will get updated and if it completes then we
     // will remove it from the list of animations
     {
-        Animation * a = gAnimations[i];
+        Animation * a = _animations[i];
         
-        if( !ANM_UpdateAnimation(inTick, *a) ) {
+        if( !UpdateAnimation(inTick, *a) ) {
             delete a;
-            if( i < gAnimations.size()-1 ) {
-                gAnimations[i] = gAnimations.back();
+            if( i < _animations.size()-1 ) {
+                _animations[i] = _animations.back();
                 i--;
             }
-            gAnimations.resize(gAnimations.size()-1);
+            _animations.resize(_animations.size()-1);
         }
     }
     
@@ -59,7 +58,7 @@ bool ANM_UpdateAnimations(float inTick) {
     
 }
 
-int ANM_CreateFloatAnimation(float inStartValue, float inEndValue, float inDuration,
+int AnimationSystem::CreateFloatAnimation(float inStartValue, float inEndValue, float inDuration,
                              InterpolationType inInterpolationType, float * inOutVariable)
 // Call this function to create an animation.  By that I mean that after calling this, the variable *inOutVariable
 // will go from inStartValue to inEndValue in inDuration seconds.  You should use your variable, *inOutVariable,
@@ -67,7 +66,7 @@ int ANM_CreateFloatAnimation(float inStartValue, float inEndValue, float inDurat
 // don't have to delete your animation - that will happen automatically when it finishes.
 {
 	Animation * a = new Animation();
-	a->animationID = gNextAnimationID++;
+	a->animationID = _nextAnimationID++;
 	a->animationType = AnimationTypeFloat;
 	a->animationFloat = inOutVariable;
 	a->startValue = inStartValue;
@@ -75,14 +74,14 @@ int ANM_CreateFloatAnimation(float inStartValue, float inEndValue, float inDurat
 	a->startTick = GetTick();
 	a->duration = inDuration;
 	a->interpolation = inInterpolationType;
-    gAnimations.push_back(a);
+    _animations.push_back(a);
     
     return a->animationID;
 }
 
-static Animation * ANM_GetAnimation(int inAnimationID) {
-    for_i( gAnimations.size() ) {
-        Animation * a = gAnimations[i];
+Animation * AnimationSystem::GetAnimation(int inAnimationID) {
+    for_i( _animations.size() ) {
+        Animation * a = _animations[i];
         if( a->animationID == inAnimationID ) {
             return a;
         }
@@ -90,22 +89,22 @@ static Animation * ANM_GetAnimation(int inAnimationID) {
     return 0;
 }
 
-bool ANM_IsRunning(int inAnimationID)
+bool AnimationSystem::IsRunning(int inAnimationID)
 // This function tells you whether inAnimationID is a running animation.  inAnimationID is the ID that was used in ANM_CreateFloatAnimation.
 {
-    return ANM_GetAnimation(inAnimationID) != 0;
+    return GetAnimation(inAnimationID) != 0;
 }
 
-bool ANM_StopFloatAnimation(int inAnimationID)
+bool AnimationSystem::StopFloatAnimation(int inAnimationID)
 // This function terminates an animation specified by inAnimationID.  inAnimationID should be a valid ID that was used in ANM_CreateFloatAnimation.
 {
-	for_i( gAnimations.size() ) {
-		if( gAnimations[i]->animationID == inAnimationID ) {
-			delete gAnimations[i];
-			if( i < gAnimations.size()-1 ) {
-				gAnimations[i] = gAnimations.back();
+	for_i( _animations.size() ) {
+		if( _animations[i]->animationID == inAnimationID ) {
+			delete _animations[i];
+			if( i < _animations.size()-1 ) {
+				_animations[i] = _animations.back();
 			}
-			gAnimations.resize(gAnimations.size()-1);
+			_animations.resize(_animations.size()-1);
 			return true;
 		}
 	}

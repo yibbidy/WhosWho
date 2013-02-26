@@ -5,13 +5,10 @@
 #include "glm/glm.hpp"
 #include "utilities.h"
 
-// TODO these variables should have a home.. better than global space
 int AnimationSystem::_nextAnimationID = 1;
 
 std::vector<Animation *> AnimationSystem::_animations;
 
-
-// TODO ANM_ functinos should be in a class
 
 bool AnimationSystem::UpdateAnimation(float inTick, Animation & inOutAnimation)
 // this function is called to update an animation variable

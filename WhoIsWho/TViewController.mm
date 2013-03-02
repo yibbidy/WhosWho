@@ -63,7 +63,7 @@ static const int kButtonHeightBig = 31;
 static void PopulateLocalGameNamesRing(who::Ring & inRing, void *) {
     who::GameName thisGame;
 	
-	NSFileManager* fileManager = [NSFileManager defaultManager];
+    NSFileManager* fileManager = [NSFileManager defaultManager];
 	
 	NSArray *paths = NSSearchPathForDirectoriesInDomains( NSDocumentDirectory, NSUserDomainMask, YES);
 	NSString *documentsDirectory = [paths objectAtIndex:0];

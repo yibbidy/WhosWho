@@ -179,7 +179,7 @@ int GLData::RenderScene()
         
         who::Ring & ring = gGame.rings.rings[gGame.rings.stackingOrder[i]];
         
-        glm::mat4 mvMat = glm::translate(mat, glm::vec3(0.0f, 0.0f, float(-i)));
+        glm::mat4 mvMat = glm::translate(mat, glm::vec3(0.0f, 0.0f, -float(i)));
         
         DrawRing(ring, gCameraData.zoomed==1, mvMat);
 #if 0
@@ -635,9 +635,6 @@ void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat) {
     
     // Draw the ring (a disc)
     glUseProgram(gGLData.colorProgram.program);
-    
-    glm::mat4 m = glm::perspective(65.0f, 0.75f, 0.01f, 100.0f) * glm::lookAt(glm::vec3(0, 0, 2), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-    //glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, &m[0][0]);
     
     glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, &inMVPMat[0][0]);
     glUniform4f(gGLData.colorProgram.colorLoc, 0.2f, 0.3f, 1, inRing.ringAlpha);//0.8f);

@@ -585,7 +585,7 @@ void WHO_InitApp()
             };
             
             if( GEO_RayTriangleIntersection(rayOrigin, rayDir, photoVerts+0, 0, intersectPt) ||
-               GEO_RayTriangleIntersection(rayOrigin, rayDir, photoVerts+3, 0, intersectPt) ) {
+               GEO_RayTriangleIntersection(rayOrigin, rayDir, photoVerts+1, 0, intersectPt) ) {
                 hitPhoto = photo;
             }
         }

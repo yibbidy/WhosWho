@@ -24,7 +24,7 @@ namespace who
     {
         Photo() {
             currentMask = -1;
-            MAT4_LoadIdentity(transform);
+            transform = glm::mat4x3(1);
             index = -1;
         }
         
@@ -40,7 +40,7 @@ namespace who
         std::vector<std::string> maskImages;  // ordered set of imageDef resource// maskImage[1] = image mask1.png;
         std::vector<float> maskWeights;  // the alpha of the mask, should be same size as maskImages
         
-        float transform[16];  // this transforms the unit square into on the XY plane into world space; it's algorithmetically computed when drawn
+        glm::mat4x3 transform;  // this transforms the unit square into on the XY plane into world space; it's algorithmetically computed when drawn
     };
     
     enum ERingType {
@@ -179,7 +179,7 @@ namespace who
     float SmoothFn(float inT, float * inParams);
     float LinearFn(float inT, float * /*inParams*/);
 
-    void ComputeTopPhotoCorners(who::Ring & inRing, float * outCorners);
+    void ComputeTopPhotoCorners(who::Ring & inRing, glm::vec3 * outCorners);
 }
 
 // *** the main global in this app ***

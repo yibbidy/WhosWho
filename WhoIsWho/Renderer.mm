@@ -9,6 +9,7 @@
 #include "WhosWho.h"
 #include "Camera.h"
 #include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
@@ -162,8 +163,7 @@ int GLData::RenderScene()
     glClearColor(0.65f, 0.65f, 0.65f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    float mat[16];
-    MAT4_Equate(gGLData.mvpMat, mat);
+    glm::mat4 mat = gCameraData._vpMat;
     
     int currentRingZ = gGame.rings.rings[gGame.rings.currentRing].stackingOrder;
     
@@ -179,9 +179,7 @@ int GLData::RenderScene()
         
         who::Ring & ring = gGame.rings.rings[gGame.rings.stackingOrder[i]];
         
-        float mvMat[16];
-        MAT4_Equate(mat, mvMat);
-        MAT4_PostTranslate(0, 0, -float(i), mvMat);
+        glm::mat4 mvMat = glm::translate(mat, glm::vec3(0.0f, 0.0f, float(-i)));
         
         DrawRing(ring, gCameraData.zoomed==1, mvMat);
 #if 0
@@ -221,17 +219,15 @@ void DrawFaceList(float inDropdownAnim) {
     
     int currentRingZ = gGame.rings.rings[gGame.rings.currentRing].stackingOrder;
     
-    float corners[3*4];
+    glm::vec3 corners[4];
     ComputeTopPhotoCorners(gGame.rings.rings[gGame.rings.currentRing], corners);
-    float top = (who::kR1+who::kR0)*0.5f + corners[2*3 + 1];
-    width = corners[0*3 + 0] - corners[1*3 + 0];
+    float top = (who::kR1+who::kR0)*0.5f + corners[2].y;
+    width = corners[0].x - corners[1].x;
     float dy = height * fabs(sinf(inDropdownAnim));
-    float mat[16];
-    MAT4_Equate(gGLData.mvpMat, mat);
-    MAT4_PostTranslate(0, top - dy*0.5f, -currentRingZ+0.01f, mat);
-    MAT4_PostScale(width, dy, 1, mat);
+    glm::mat4 mat = glm::scale(glm::translate(gCameraData._vpMat, glm::vec3(0, top-dy*0.5f, -currentRingZ+0.001f)),
+                               glm::vec3(width, dy, 1));
     glUniform4f(gGLData.colorProgram.colorLoc, 0.8f, 0.8f, 0.8f, 0.5f);
-    glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, mat);
+    glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
     
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
@@ -261,12 +257,10 @@ void DrawFaceList(float inDropdownAnim) {
     }
     
     for_i( numItems ) {
-        
-        MAT4_Equate(gGLData.mvpMat, mat);
-        MAT4_PostTranslate(centerX, top - dy*0.5f, -currentRingZ+0.01f, mat);
-        MAT4_PostScale(height, dy, 1, mat);
+        mat = glm::scale(glm::translate(mat, glm::vec3(centerX, top-dy*0.5f, -currentRingZ+0.01f)),
+                         glm::vec3(height, dy, 1));
         glUniform4f(gGLData.colorProgram.colorLoc, 0.8f, 0.8f, 0.8f, 1);
-        glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, mat);
+        glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
         glBindTexture(GL_TEXTURE_2D, gGame.images[gGame.faceList[i]].texID);
         glUniform1f(gGLData.colorProgram.imageWeight, 1);
         
@@ -302,17 +296,15 @@ void DrawToolList(float inRotation) {
     int currentRingZ = gGame.rings.rings[gGame.rings.currentRing].stackingOrder;
     
     who::Ring & editRing = gGame.rings.rings[gGame.rings.currentRing];
-    float corners[3*4];
+    glm::vec3 corners[4];
     ComputeTopPhotoCorners(editRing, corners);
-    float top = (who::kR0+who::kR1)*0.5f + corners[0*3 + 1] + height;
-    width = corners[0*3 + 0] - corners[1*3 + 0];
+    float top = (who::kR0+who::kR1)*0.5f + corners[0].y + height;
+    width = corners[0].x - corners[1].x;
     float dy = height * fabs(sinf(4*_rotation));
-    float mat[16];
-    MAT4_Equate(gGLData.mvpMat, mat);
-    MAT4_PostTranslate(0, top - dy*0.5f, -currentRingZ+0.01f, mat);
-    MAT4_PostScale(width, dy, 1, mat);
+    glm::mat4 mat = glm::scale(glm::translate(mat, glm::vec3(0, top-dy*0.5f, -currentRingZ+0.01f)),
+                               glm::vec3(width, dy, 1));
     glUniform4f(gGLData.colorProgram.colorLoc, 0.8f, 0.8f, 0.8f, 0.5f);
-    glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, mat);
+    glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
     
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
@@ -341,12 +333,10 @@ void DrawToolList(float inRotation) {
     };
     
     for_i( numItems ) {
-        
-        MAT4_Equate(gGLData.mvpMat, mat);
-        MAT4_PostTranslate(centerX, top - dy*0.5f, -currentRingZ+0.01f, mat);
-        MAT4_PostScale(height, dy, 1, mat);
+        mat = glm::scale(glm::translate(gCameraData._vpMat, glm::vec3(centerX, top-dy*0.5f, -currentRingZ+0.01f)),
+                         glm::vec3(height, dy, 1));
         glUniform4f(gGLData.colorProgram.colorLoc, 0.8f, 0.8f, 0.8f, 1);
-        glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, mat);
+        glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
         glBindTexture(GL_TEXTURE_2D, gGame.images[faceList[i]].texID);
         glUniform1f(gGLData.colorProgram.imageWeight, 1);
         
@@ -638,7 +628,7 @@ int GFX_LoadGLSLProgram(const char * inVS, const char * inFS, GLuint & outProgra
     
 }
 
-void DrawRing(who::Ring & inRing, bool inZoomedIn, float * inMVPMat) {
+void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat) {
     
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);//(GL_BLEND);
@@ -646,19 +636,21 @@ void DrawRing(who::Ring & inRing, bool inZoomedIn, float * inMVPMat) {
     // Draw the ring (a disc)
     glUseProgram(gGLData.colorProgram.program);
     
-    glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, inMVPMat);
+    glm::mat4 m = glm::perspective(65.0f, 0.75f, 0.01f, 100.0f) * glm::lookAt(glm::vec3(0, 0, 2), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+    //glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, &m[0][0]);
+    
+    glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, &inMVPMat[0][0]);
     glUniform4f(gGLData.colorProgram.colorLoc, 0.2f, 0.3f, 1, inRing.ringAlpha);//0.8f);
     glUniform1f(gGLData.colorProgram.imageWeight, 0);
     glUniform1i(gGLData.colorProgram.imageTexture, 0);
     glBindVertexArrayOES(gGLData.diskVAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, gGLData.diskNumVertices);
     
-    float mat[16];
-    MAT4_Equate(inMVPMat, mat);
-    MAT4_PostTranslate(0, 0, 0.001f, mat);
+    glm::mat4 mat = glm::translate(inMVPMat, glm::vec3(0, 0, 0.001f));
     glUseProgram(gGLData.colorProgram.program);
-    glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, mat);
-    glUniform4f(gGLData.colorProgram.colorLoc, 0, 0, 0, inRing.ringAlpha);
+    glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
+    glUniform4f(gGLData.colorProgram.colorLoc, 0, 0, 0, 1);
+        //glUniform4f(gGLData.colorProgram.colorLoc, 0, 0, 0, inRing.ringAlpha);
     glBindVertexArrayOES(gGLData.diskInnerEdgeVAO);
     glLineWidth(4.0f);
     glDrawArrays(GL_LINE_STRIP, 0, gGLData.diskNumVertices/2);
@@ -682,9 +674,9 @@ void DrawRing(who::Ring & inRing, bool inZoomedIn, float * inMVPMat) {
     
     int numImages = int(inRing.photos.size());
     float halfNumImages = numImages * 0.5f;
-    float w0 = atanf((who::kR1-who::kR0)/(who::kR1+who::kR0));  // end angle for 0th photo
+    float w0 = glm::atan((who::kR1-who::kR0)/(who::kR1+who::kR0));  // end angle for 0th photo
     
-    float p = logf(w0/kPi) / logf(0.5f/halfNumImages);  // of f(x) = pi x^p
+    float p = glm::log(w0/kPi) / glm::log(0.5f/halfNumImages);  // of f(x) = pi x^p
     float radius = (who::kR0+who::kR1) * 0.5f;
     
     float (* spacingFn)(float, float *);
@@ -730,9 +722,9 @@ void DrawRing(who::Ring & inRing, bool inZoomedIn, float * inMVPMat) {
         angle0 = angle - glm::min(w0, dAngle);
         angle1 = angle + glm::min(w0, dAngle);
         
-        float p0[] = { radius*cosf(angle0), radius*sinf(angle0) };  // top right point in world space
-        float p1[] = { radius*cosf(angle1), radius*sinf(angle1) };  // top left point in world space
-        float length = VEC2_Distance(p0, p1) / sqrtf(2.0);  // diagonal length of the image square
+        glm::vec2 p0 = glm::vec2(radius*glm::cos(angle0), radius*glm::sin(angle0));  // top right point in world space
+        glm::vec2 p1 = glm::vec2(radius*glm::cos(angle1), radius*glm::sin(angle1));  // top left point in world space
+        float length = glm::distance(p0, p1) / glm::sqrt(2.0f);  // diagonal length of the image square
         
         who::Photo * photo = gGame.GetPhoto(inRing.photos[i]);
         ImageInfo & image = gGame.images[photo->filename];
@@ -748,15 +740,21 @@ void DrawRing(who::Ring & inRing, bool inZoomedIn, float * inMVPMat) {
         }
         
         // build the matrix that transforms normalzied image corners to world space
-        float mat[16];
+        glm::mat4 mat = glm::mat4(glm::scale(glm::translate(glm::rotate(glm::mat4(1), -glm::degrees(angle), glm::vec3(0, 0, 1)),
+                                    glm::vec3(0, radius, 0.01f)),
+                                   glm::vec3(w, h, 1)));
+        /*float mat[16];
         MAT4_MakeScale(w, h, 1, mat);
         MAT4_PreTranslate(0, radius, 0.01f, mat);
         MAT4_PreRotate(0, 0, 1, -angle, mat);
-        MAT4_Equate(mat, photo->transform);
+        */
+        //MAT4_Equate(mat, photo->transform);
+        photo->transform = glm::mat4x3(mat);
         
-        MAT4_Multiply(inMVPMat, mat, mat);
+        //MAT4_Multiply(inMVPMat, mat, mat);
+        mat = inMVPMat * mat;
         
-        glUniformMatrix4fv(gGLData.photoProgram.mvpLoc, 1, GL_FALSE, mat);
+        glUniformMatrix4fv(gGLData.photoProgram.mvpLoc, 1, GL_FALSE, &mat[0][0]);
         glUniform1f(gGLData.photoProgram.scaleLoc, 1);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, image.texID);
@@ -786,7 +784,7 @@ void DrawRing(who::Ring & inRing, bool inZoomedIn, float * inMVPMat) {
         {
             glUseProgram(gGLData.colorProgram.program);
             glBindVertexArrayOES(gGLData.squareEdgeVAO);
-            glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, mat);
+            glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
             glUniform4f(gGLData.colorProgram.colorLoc, 1, 0, 0, inRing.ringAlpha);
             glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, BUFFER_OFFSET(0));
             

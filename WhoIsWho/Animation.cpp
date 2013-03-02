@@ -7,14 +7,15 @@
 
 int AnimationSystem::_nextAnimationID = 1;
 
-std::vector<Animation *> AnimationSystem::_animations;
+
+std::vector<AnimationBase *> AnimationSystem::_animations;
 
 
-bool AnimationSystem::UpdateAnimation(float inTick, Animation & inOutAnimation)
+bool AnimationSystem::UpdateAnimation(float inTick, AnimationBase & inOutAnimation)
 // this function is called to update an animation variable
 // returns true if animation still running
 {
-	Animation & a = inOutAnimation;
+	AnimationBase & a = inOutAnimation;
     
 	float t = (inTick - a.startTick) / a.duration;
 	t = glm::min(glm::max(t, 0.0f), 1.0f);
@@ -25,9 +26,7 @@ bool AnimationSystem::UpdateAnimation(float inTick, Animation & inOutAnimation)
 		t = sqrt(t);
 	}
 	
-	if( a.animationType == AnimationTypeFloat ) {
-		*(a.animationFloat) = (1-t)*a.startValue + t*a.endValue;
-	}
+    a.Blend(t);
 	
 	return t < 1;
 }
@@ -39,8 +38,8 @@ bool AnimationSystem::UpdateAnimations(float inTick) {
     // each animation will get updated and if it completes then we
     // will remove it from the list of animations
     {
-        Animation * a = _animations[i];
-        
+        AnimationBase * a = _animations[i];
+
         if( !UpdateAnimation(inTick, *a) ) {
             delete a;
             if( i < _animations.size()-1 ) {
@@ -55,30 +54,12 @@ bool AnimationSystem::UpdateAnimations(float inTick) {
     
 }
 
-int AnimationSystem::CreateFloatAnimation(float inStartValue, float inEndValue, float inDuration,
-                             InterpolationType inInterpolationType, float * inOutVariable)
-// Call this function to create an animation.  By that I mean that after calling this, the variable *inOutVariable
-// will go from inStartValue to inEndValue in inDuration seconds.  You should use your variable, *inOutVariable,
-// in some drawing code.  The camera transitions (switching from one ring to the next) use this function.  You
-// don't have to delete your animation - that will happen automatically when it finishes.
-{
-	Animation * a = new Animation();
-	a->animationID = _nextAnimationID++;
-	a->animationType = AnimationTypeFloat;
-	a->animationFloat = inOutVariable;
-	a->startValue = inStartValue;
-	a->endValue = inEndValue;
-	a->startTick = GetTick();
-	a->duration = inDuration;
-	a->interpolation = inInterpolationType;
-    _animations.push_back(a);
-    
-    return a->animationID;
-}
 
-Animation * AnimationSystem::GetAnimation(int inAnimationID) {
+
+AnimationBase * AnimationSystem::GetAnimation(int inAnimationID) {
     for_i( _animations.size() ) {
-        Animation * a = _animations[i];
+        AnimationBase * a = _animations[i];
+
         if( a->animationID == inAnimationID ) {
             return a;
         }

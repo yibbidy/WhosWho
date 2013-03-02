@@ -44,19 +44,12 @@ public:
     ColorProgram colorProgram;
     PhotoProgram photoProgram;
     
-    float viewMat[16];
-    float projectionMat[16];
-    float mvpMat[16];
-    float normalMat[16];
-    
-    int viewport[4];
-    
     GLuint diskVAO;  // run disk geometry through color program
     GLuint diskInnerEdgeVAO;  // to emphasize the inner edge of the ring
     GLuint diskOuterEdgeVAO;  // to emphasize the outer edge of the ring
     GLuint diskVBO;  // disk geometry; vert[i] normal[i] interleaved triangle_strip
     int diskNumVertices;
-    float diskTransform[16];
+    glm::mat4 diskTransform;
     
     GLuint squareVAO;  // used for photos with photo shader
     GLuint squareIBO;
@@ -69,8 +62,6 @@ public:
     
     std::string image; // image resource name (into gGame.images) of the image to bind for the photo shader
     std::string mask0, mask1;  // image resource names (into gGame.images) of the mask images
-    
-    
 };
 
 struct SprayPaintArgs {
@@ -97,7 +88,7 @@ int IMG_SprayPaint(ImageInfo & inImage, int inLastX, int inLastY, int inCurrX, i
 void DrawFaceList(float inDropdownAnim);
 void DrawToolList(float inRotation);
 
-void DrawRing(who::Ring & inRing, bool inZoomedIn, float * inMVPMat);
+void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat);
 void MarkupMask(float inRotation);
 
 

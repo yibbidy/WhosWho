@@ -48,6 +48,7 @@
 #include "Renderer.h"
 #include "Camera.h"
 #include "Parser.h"
+#include "utilities.h"
 
 static const int kButtonWidth = 24;
 static const int kButtonHeight = 21;
@@ -281,6 +282,9 @@ void WHO_InitApp()
         gGame.rings.currentRing = "title";
     }
     
+    gCameraData._lookAt = glm::vec3(0, 0, 0);
+    gCameraData._up = glm::vec3(0, 1, 0);
+    
     glEnable(GL_DEPTH_TEST);
     
 }
@@ -465,15 +469,14 @@ void WHO_InitApp()
         who::Ring * hitRing = gGame.GetCurrentRing();
         
        	float z = -hitRing->stackingOrder;
-        float cornerPt[] = {-.5, .5, z,1};
-        float cornerPt2[] = {.5, .5, z,1};
+        glm::vec4 cornerPt = glm::vec4(-.5, .5, z, 1);
+        glm::vec4 cornerPt2 = glm::vec4(.5, .5, z, 1);
         
-        MAT4_VEC4_Multiply(_currentLoadedGame->transform, cornerPt, cornerPt);
-        MAT4_VEC4_Multiply(_currentLoadedGame->transform, cornerPt2, cornerPt2);
-        MAT4_VEC4_Multiply(gGLData.mvpMat, cornerPt,cornerPt);
-        MAT4_VEC4_Multiply(gGLData.mvpMat, cornerPt2,cornerPt2);
-        int viewportWidth = gGLData.viewport[2];
-        int viewportHeight = gGLData.viewport[3];
+        cornerPt = gCameraData._vpMat * (_currentLoadedGame->transform * glm::vec3(cornerPt));
+        cornerPt2 = gCameraData._vpMat * (_currentLoadedGame->transform * glm::vec3(cornerPt2));
+        
+        int viewportWidth = gCameraData._viewport[2];
+        int viewportHeight = gCameraData._viewport[3];
         
         cornerPt[0] /= cornerPt[3];
         cornerPt[1] /= cornerPt[3];
@@ -533,20 +536,16 @@ void WHO_InitApp()
     UITouch * touch = [touches anyObject];
     CGPoint touchPoint = [touch  locationInView:self.view];
     
-    float viewPt[3];
-    viewPt[0] = float(touchPoint.x);
-    viewPt[1] = float(touchPoint.y);
-    viewPt[2] = 0;  // on near clip plane
+    glm::vec3 viewPt = glm::vec3(touchPoint.x, touchPoint.y, 0);
     
-    float rayOrigin[3];
-    float rayDir[3];
+    glm::vec3 rayOrigin, rayDir;
     
-    GEO_MakePickRay(gGLData.viewMat, gGLData.projectionMat, gGLData.viewport, viewPt, rayOrigin, rayDir);
+    GEO_MakePickRay(gCameraData._viewMat, gCameraData._projectionMat, gCameraData._viewport, viewPt, rayOrigin, rayDir);
     
     who::Ring * hitRing = 0;
     who::Ring * currentRing = gGame.GetCurrentRing();
     
-    float intersectPt[3];
+    glm::vec3 intersectPt;
     
     if( gGame.zoomedToPhoto ) {
         hitRing = currentRing;
@@ -554,15 +553,14 @@ void WHO_InitApp()
     else
     {
         
-        
         for( int i=glm::max(0, currentRing->stackingOrder-1); i<gGame.rings.stackingOrder.size() && hitRing==0; i++ ) {
             who::Ring * ring = gGame.GetRing(gGame.rings.stackingOrder[i]);
             
-            float ptOnPlane[3] = { 0, 0, -float(i) };
-            float planeNormal[3] = { 0, 0, 1 };
+            glm::vec3 ptOnPlane = glm::vec3(0, 0, -i);
+            glm::vec3 planeNormal = glm::vec3(0, 0, 1);
             
             if( GEO_RayPlaneIntersection(ptOnPlane, planeNormal, rayOrigin, rayDir, 0, intersectPt) ) {
-                float dist = VEC3_DistanceBetween(intersectPt, ptOnPlane);
+                float dist = glm::distance(intersectPt, ptOnPlane);
                 if( dist >= who::kR0 && dist <= who::kR1 ) {
                     hitRing = ring;
                 }
@@ -579,17 +577,12 @@ void WHO_InitApp()
             
             float z = -hitRing->stackingOrder;
             
-            float photoVerts[] = {
-                -0.5, -0.5, z,
-                0.5, -0.5, z,
-                -0.5, 0.5, z,
-                0.5, 0.5, z,
+            glm::vec3 photoVerts[] = {
+                photo->transform * glm::vec3(-0.5, -0.5, z),
+                photo->transform * glm::vec3(0.5, -0.5, z),
+                photo->transform * glm::vec3(-0.5, 0.5, z),
+                photo->transform * glm::vec3(0.5, 0.5, z)
             };
-            
-            MAT4_VEC3_Multiply(photo->transform, photoVerts+0, photoVerts+0);
-            MAT4_VEC3_Multiply(photo->transform, photoVerts+3, photoVerts+3);
-            MAT4_VEC3_Multiply(photo->transform, photoVerts+6, photoVerts+6);
-            MAT4_VEC3_Multiply(photo->transform, photoVerts+9, photoVerts+9);
             
             if( GEO_RayTriangleIntersection(rayOrigin, rayDir, photoVerts+0, 0, intersectPt) ||
                GEO_RayTriangleIntersection(rayOrigin, rayDir, photoVerts+3, 0, intersectPt) ) {
@@ -609,31 +602,12 @@ void WHO_InitApp()
 			//WHO_Execute("zoomToRing ring=ring2");
 			
 			float z = -hitRing->stackingOrder;
-			float cornerPt[] = {-.5, -.5, z,1};
-			float cornerPt2[] = {.5, -.5, z,1};
-			
-			MAT4_VEC4_Multiply(hitPhoto->transform, cornerPt, cornerPt);
-			MAT4_VEC4_Multiply(hitPhoto->transform, cornerPt2, cornerPt2);
-			MAT4_VEC4_Multiply(gGLData.mvpMat, cornerPt,cornerPt);
-			MAT4_VEC4_Multiply(gGLData.mvpMat, cornerPt2,cornerPt2);
-			int viewportWidth = gGLData.viewport[2];
-			int viewportHeight = gGLData.viewport[3];
-			
-			cornerPt[0] /= cornerPt[3];
-			cornerPt[1] /= cornerPt[3];
-			cornerPt[2] /= cornerPt[3];
-			
-			cornerPt2[0] /= cornerPt2[3];
-			cornerPt2[1] /= cornerPt2[3];
-			cornerPt2[2] /= cornerPt2[3];
-			
-			//  VEC3_Set(-.23, .39, .98, cornerPt);
-			cornerPt[0] = 0.5*viewportWidth*(cornerPt[0]+1.0);
-			cornerPt[1] = viewportHeight- 0.5*viewportHeight*(cornerPt[1]+1.0);
-			
-			cornerPt2[0] = 0.5*viewportWidth*(cornerPt2[0]+1.0);
-			cornerPt2[1] = viewportHeight- 0.5*viewportHeight*(cornerPt2[1]+1.0);
-			
+            glm::vec4 cornerPt = gCameraData._vpvMat * (hitPhoto->transform * glm::vec4(-0.5, -0.5, z, 1));
+            cornerPt /= cornerPt.w;
+            
+            glm::vec4 cornerPt2 = gCameraData._vpvMat * (hitPhoto->transform * glm::vec4(0.5, -0.5, z, 1));
+			cornerPt2 /= cornerPt2.w;
+            
 			// Add a delete button right below
 			CGRect buttonRect = CGRectMake(cornerPt[0], cornerPt[1], kButtonWidth, kButtonHeight);
 			deleteGameButton = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -734,23 +708,41 @@ float gTick = 0;
     // camera's data, not gGLData's matrices and viewport
     if ( gGame.rings.currentRing == "") return; 
     
-    gGLData.viewport[0] = 0;
-    gGLData.viewport[1] = 0;
-    gGLData.viewport[2] = self.view.bounds.size.width;
-    gGLData.viewport[3] = self.view.bounds.size.height;
+    gCameraData._viewport[0] = 0;
+    gCameraData._viewport[1] = 0;
+    gCameraData._viewport[2] = self.view.bounds.size.width;
+    gCameraData._viewport[3] = self.view.bounds.size.height;
     
-    float aspect = fabsf(self.view.bounds.size.width / self.view.bounds.size.height);
-    Camera::Setup(gCameraData, aspect);
-    MAT4_Equate(gCameraData.projectionMat, gGLData.projectionMat);
+    //float aspect = glm::abs(self.view.bounds.size.width / float(self.view.bounds.size.height));
+
+    
+    /*windowAspect = inWindowAspect;
+     fovY = MTH_DegToRad(65.0f);
+     halfNearPlaneHeight = 0.01f;
+     nearPlaneDistance = halfNearPlaneHeight / tanf(fovY*0.5f);
+     farPlaneDistance = 100;
+     halfNearPlaneWidth = halfNearPlaneHeight * windowAspect;
+     fovX = 2.0f * atanf(halfNearPlaneWidth / nearPlaneDistance);
+     MAT4_MakeFrustum(-halfNearPlaneWidth, halfNearPlaneWidth, -halfNearPlaneHeight, halfNearPlaneHeight, nearPlaneDistance, farPlaneDistance, projectionMat);
+     */
+    
+    float z = gCameraData.zoomed;
+    gCameraData = Camera(gCameraData._pos, gCameraData._lookAt, gCameraData._up, 65.0f,
+                         glm::vec2(0.01, 100.0), glm::ivec4(0, 0, self.view.bounds.size.width, self.view.bounds.size.height),
+                         glm::ivec2(self.view.bounds.size.width, self.view.bounds.size.height));
+    gCameraData.zoomed = z;
+    
+    gCameraData._projectionMat = gCameraData._projectionMat;
     
     //float mv[16];
-    MAT4_LoadIdentity(gGLData.viewMat);
-    MAT4_Translate(-gCameraData.camX, -gCameraData.camY, -gCameraData.camZ, gGLData.viewMat);
+    gCameraData._viewMat = glm::mat4x3(1);
+    gCameraData._viewMat[3] -= gCameraData._pos;
     
-    MAT4_Multiply(gGLData.projectionMat, gGLData.viewMat, gGLData.mvpMat);
-    MAT4_Equate(gGLData.viewMat, gGLData.normalMat);
-    VEC4_Set(0, 0, 0, 1, gGLData.normalMat+12);
+    gCameraData._vpMat = gCameraData._projectionMat * gCameraData._viewMat;
+    gCameraData._viewportMat = glm::viewportMatrix<float>(gCameraData._viewport);
+    gCameraData._vpvMat = gCameraData._viewportMat * gCameraData._vpMat;
     
+   
     _rotation += self.timeSinceLastUpdate * 0.1f;
     gTick += self.timeSinceLastUpdate;
     

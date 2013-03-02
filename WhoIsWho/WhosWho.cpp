@@ -68,15 +68,15 @@ namespace who
     // 0 to 1.  It's mirrored horizontally in the range 1 to 2
     // and the range 0 to 2 is repeated ad infinitum.
     {
-        float sign = (inT>=0) ? 1 : -1;
-        inT = fabs(inT);
+        float sign = glm::sign(inT);
+        inT = glm::abs(inT);
         
         if( inT > 2 ) {
-            return sign * (2 + pow(inT-2, inParams[0]));
+            return sign * (2 + glm::pow(inT-2, inParams[0]));
         } else if( inT > 1 ) {
-            return sign * (2 - powf(2-inT, inParams[0]));
+            return sign * (2 - glm::pow(2-inT, inParams[0]));
         } else {
-            return sign * (powf(inT, inParams[0]));
+            return sign * (glm::pow(inT, inParams[0]));
         }
     }
     
@@ -86,8 +86,8 @@ namespace who
     // 0 to 1.  It's mirrored horizontally in the range 1 to 2
     // and the range 0 to 2 is repeated ad infinitum.
     {
-        float sign = (inT>=0) ? 1 : -1;
-        inT = fabs(inT);
+        float sign = glm::sign(inT);
+        inT = glm::abs(inT);
         
         if( inT > 2 ) {
             return sign * (2 + (inT-2));
@@ -98,14 +98,14 @@ namespace who
         }
     }
     
-    void ComputeTopPhotoCorners(who::Ring & inRing, float * outCorners) {
+    void ComputeTopPhotoCorners(who::Ring & inRing, glm::vec3 * outCorners) {
         float kPi = 3.141592654f;
         
         int numImages = int(inRing.photos.size());
         float halfNumImages = numImages * 0.5f;
-        float w0 = atanf((kR1-kR0)/(kR1+kR0));  // end angle for 0th photo
+        float w0 = glm::atan((kR1-kR0)/(kR1+kR0));  // end angle for 0th photo
         
-        float p = logf(w0/kPi) / logf(0.5f/halfNumImages);  // of f(x) = pi x^p
+        float p = glm::log(w0/kPi) / glm::log(0.5f/halfNumImages);  // of f(x) = pi x^p
         float radius = (kR0+kR1) * 0.5f;
         
         float (* spacingFn)(float, float *);
@@ -127,13 +127,13 @@ namespace who
         angle0 = angle - glm::min(w0, dAngle);
         angle1 = angle + glm::min(w0, dAngle);
         
-        float p0[] = { radius*cosf(angle0), radius*sinf(angle0) };
-        float p1[] = { radius*cosf(angle1), radius*sinf(angle1) };
-        float length = VEC2_Distance(p0, p1) / sqrtf(2.0);
+        glm::vec2 p0 = glm::vec2(radius*glm::cos(angle0), radius*glm::sin(angle0));
+        glm::vec2 p1 = glm::vec2(radius*glm::cos(angle1), radius*glm::sin(angle1));
+        float length = glm::distance(p0, p1) / glm::sqrt(2.0f);
         
         who::Photo & photo = gGame.photos[inRing.photos[inRing.selectedPhoto]];
         ImageInfo & image = gGame.images[photo.filename];
-        float aspect = fabsf(image.originalHeight) > 0 ? (image.originalWidth / float(image.originalHeight)) : 1.0f;
+        float aspect = glm::abs(image.originalHeight) > 0 ? (image.originalWidth / float(image.originalHeight)) : 1.0f;
         float w, h;
         if( aspect > 1 ) {
             w = length;
@@ -147,14 +147,10 @@ namespace who
         h *= 0.5f;
         float z = 0.01f;
         
-        float corners[] = {
-            w, h, z,
-            -w, h, z,
-            w, -h, z,
-            -w, -h, z 
-        };
-        
-        memcpy(outCorners, corners, sizeof(float)*12);
-        
+        outCorners[0] = glm::vec3(w, h, z);
+        outCorners[1] = glm::vec3(-w, h, z);
+        outCorners[2] = glm::vec3(w, -h, z);
+        outCorners[3] = glm::vec3(-w, -h, z);
+       
     }
 }

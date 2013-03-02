@@ -26,41 +26,67 @@ enum AnimationType {
 	AnimationTypeFloat
 };
 
-struct Animation {
-	AnimationType animationType;
+float GetTick();
+
+class AnimationBase
+{
+public:
+    virtual void Blend(float inWeight) = 0;
+    virtual ~AnimationBase() {}
     
-	float * animationFloat;
-	float startValue;
-	float endValue;
-    
-	int startTick;
+    int startTick;
 	float duration;
 	InterpolationType interpolation;
 	int animationID;
 };
 
+template<typename T>
+class Animation : public AnimationBase
+{
+public:
+    virtual void Blend(float inWeight) { *(animationFloat) = (1-inWeight)*startValue + inWeight*endValue; }
+    T * animationFloat;
+	T startValue;
+	T endValue;
+};
+
+
 class AnimationSystem
 {
 public:
     static bool UpdateAnimations(float inTick);
-    static int CreateFloatAnimation(float inStartValue, float inEndValue, float inDuration,
-                                 InterpolationType inInterpolationType, float * inOutVariable);
+    
+    template<typename T> static int CreateFloatAnimation(T inStartValue, T inEndValue, float inDuration,
+        InterpolationType inInterpolationType, T * inOutVariable)
+    // Call this function to create an animation.  By that I mean that after calling this, the variable *inOutVariable
+    // will go from inStartValue to inEndValue in inDuration seconds.  You should use your variable, *inOutVariable,
+    // in some drawing code.  The camera transitions (switching from one ring to the next) use this function.  You
+    // don't have to delete your animation - that will happen automatically when it finishes.
+    {
+        Animation<T> * a = new Animation<T>();
+        a->animationID = AnimationSystem::_nextAnimationID++;
+        a->animationFloat = inOutVariable;
+        a->startValue = inStartValue;
+        a->endValue = inEndValue;
+        a->startTick = GetTick();
+        a->duration = inDuration;
+        a->interpolation = inInterpolationType;
+        AnimationSystem::_animations.push_back(a);
+        
+        return a->animationID;
+    }
+    
     static bool IsRunning(int inAnimationID);
     static bool StopFloatAnimation(int inAnimationID);
     
     
 private:
-    static Animation * GetAnimation(int inAnimationID);
-    static bool UpdateAnimation(float inTick, Animation & inOutAnimation);
+    static AnimationBase * GetAnimation(int inAnimationID);
+    static bool UpdateAnimation(float inTick, AnimationBase & inOutAnimation);
 
     static int _nextAnimationID;
-    static std::vector<Animation *> _animations;    
+    static std::vector<AnimationBase *> _animations;
 };
-
-
-float GetTick();
-
-
 
 
 #endif

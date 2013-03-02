@@ -1,43 +1,60 @@
 // Contributors:
 //  Justin Hutchison (yibbidy@gmail.com)
 
-#ifndef __WhoIsWho__Camera__
-#define __WhoIsWho__Camera__
+#ifndef Camera_h
+#define Camera_h
 
+#include "glm/glm.hpp"
 
-struct Camera {
+class Camera
+{
+public:
+    
     Camera() {
         zoomed = 0;
-        camX = 0;
-        camY = 0;
-        camZ = 10;
+        _pos = glm::vec3(0, 0, 10);
     }
     
     // TODO these 2 functions should be members of gGame
-    static void FlyToRing(float inRingZ, float inWindowAspect, float inFOVXRad, float inFOVYRad, float & outCamZ);
-    static void FlyToPhoto(float * inCorners, float inWindowAspect, float inFOVXRad, float inFOVYRad, float * outPos);
+    static void FlyToRing(float inRingZ, float inWindowAspect, const glm::vec2 & inFovXY, float & outCamZ);
+    static void FlyToPhoto(const glm::vec3 * inCorners, float inWindowAspect, const glm::vec2 & inFovXY, glm::vec3 & outPos);
+
     
-    // TODO this function should not be static
-    static void Setup(Camera & inCam, float inWindowAspect);
+    Camera(const glm::vec3 & inPos, const glm::vec3 & inLookAt, const glm::vec3 & inUp, float inFovY,
+           const glm::vec2 inNearFarDist, const glm::ivec4 & inViewport, const glm::ivec2 & inWindowSize);
+
+    glm::vec3 _pos, _lookAt, _up;
     
+    glm::vec2 _fovXY;
+    glm::vec2 _nearFarDist;
     
-    float camX, camY, camZ;
-    float windowAspect;
-    float nearPlaneDistance;
-    float farPlaneDistance;
-    float halfNearPlaneWidth;
-    float halfNearPlaneHeight;
-    float fovX;  // radians
-    float fovY;
+    glm::ivec4 _viewport;
+    float _viewportAspect;
     
+    glm::ivec2 _windowSize;
+    float _windowAspect;
+        
+    glm::mat4x3 _viewMat;  // world to eye
+    glm::mat4x3 _viewInvMat;
+    
+    glm::mat4 _projectionMat;  // eye to clip
+    glm::mat4 _projectionInvMat;
+    
+    glm::mat4 _viewportMat;  // ndc to viewport
+    glm::mat4 _viewportInvMat;
+    
+    glm::mat4 _vpMat;  // world to clip
+    glm::mat4 _vpMatInv;
+    
+    glm::mat4 _vpvMat;  // world to window
+    glm::mat4 _vpvInvMat;  // window to world
+    
+    // TODO move to gGame
     float zoomed;  // 1 when up close to a ring, 0 when further back, and inbetween
-    
-    // TODO projection matrix should be a glm::dmat4
-    float projectionMat[16];
 };
 
 // TODO gCameraData should be part of gGame
 extern Camera gCameraData;
 
 
-#endif /* defined(__WhoIsWho__Camera__) */
+#endif // Camera_h

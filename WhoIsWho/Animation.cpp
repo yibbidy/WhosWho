@@ -17,12 +17,12 @@ bool AnimationSystem::UpdateAnimation(float inTick, AnimationBase & inOutAnimati
 {
 	AnimationBase & a = inOutAnimation;
     
-	float t = (inTick - a.startTick) / a.duration;
+	float t = (inTick - a._startTick) / a._duration;
 	t = glm::min(glm::max(t, 0.0f), 1.0f);
     
-	if( a.interpolation == InterpolationTypeSmooth ) {
+	if( a._interpolation == InterpolationTypeSmooth ) {
 		t = 3*t*t - 2*t*t*t;
-	} else if( a.interpolation == InterpolationTypeSqrt ) {
+	} else if( a._interpolation == InterpolationTypeSqrt ) {
 		t = sqrt(t);
 	}
 	
@@ -60,7 +60,7 @@ AnimationBase * AnimationSystem::GetAnimation(int inAnimationID) {
     for_i( _animations.size() ) {
         AnimationBase * a = _animations[i];
 
-        if( a->animationID == inAnimationID ) {
+        if( a->_animationID == inAnimationID ) {
             return a;
         }
     }
@@ -77,7 +77,7 @@ bool AnimationSystem::StopFloatAnimation(int inAnimationID)
 // This function terminates an animation specified by inAnimationID.  inAnimationID should be a valid ID that was used in ANM_CreateFloatAnimation.
 {
 	for_i( _animations.size() ) {
-		if( _animations[i]->animationID == inAnimationID ) {
+		if( _animations[i]->_animationID == inAnimationID ) {
 			delete _animations[i];
 			if( i < _animations.size()-1 ) {
 				_animations[i] = _animations.back();

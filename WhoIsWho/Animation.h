@@ -34,20 +34,20 @@ public:
     virtual void Blend(float inWeight) = 0;
     virtual ~AnimationBase() {}
     
-    int startTick;
-	float duration;
-	InterpolationType interpolation;
-	int animationID;
+    int _startTick;
+	float _duration;
+	InterpolationType _interpolation;
+	int _animationID;
 };
 
 template<typename T>
 class Animation : public AnimationBase
 {
 public:
-    virtual void Blend(float inWeight) { *(animationFloat) = (1-inWeight)*startValue + inWeight*endValue; }
-    T * animationFloat;
-	T startValue;
-	T endValue;
+    virtual void Blend(float inWeight) { *(_animationFloat) = (1-inWeight)*_startValue + inWeight*_endValue; }
+    T * _animationFloat;
+	T _startValue;
+	T _endValue;
 };
 
 
@@ -64,16 +64,16 @@ public:
     // don't have to delete your animation - that will happen automatically when it finishes.
     {
         Animation<T> * a = new Animation<T>();
-        a->animationID = AnimationSystem::_nextAnimationID++;
-        a->animationFloat = inOutVariable;
-        a->startValue = inStartValue;
-        a->endValue = inEndValue;
-        a->startTick = GetTick();
-        a->duration = inDuration;
-        a->interpolation = inInterpolationType;
+        a->_animationID = AnimationSystem::_nextAnimationID++;
+        a->_animationFloat = inOutVariable;
+        a->_startValue = inStartValue;
+        a->_endValue = inEndValue;
+        a->_startTick = GetTick();
+        a->_duration = inDuration;
+        a->_interpolation = inInterpolationType;
         AnimationSystem::_animations.push_back(a);
         
-        return a->animationID;
+        return a->_animationID;
     }
     
     static bool IsRunning(int inAnimationID);

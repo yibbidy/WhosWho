@@ -9,9 +9,6 @@
 #include "utilities.h"
 #include "WhosWho.h"
 
-// TODO this variable should be a member of gGame
-Camera gCameraData;
-
 // TODO rename this function
 void Camera::FlyToRing(float inRingZ, float inWindowAspect, const glm::vec2 & inFovXY, float & outCamZ)
 // Call this function to have to camera animate from where it currently is up -close to 'inRing'

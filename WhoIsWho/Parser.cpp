@@ -115,22 +115,22 @@ bool WhoParser::ZoomToRing(const char * inStr, int & inOutPos) {
             
             who::Ring * ring = gGame.GetRing(ringName);
             if( ring != 0 ) {
-                gGame.rings.currentRing = ring->name;
+                gGame._rings._currentRing = ring->_name;
             }
         }
         
-        int ringZ = -gGame.rings.rings[gGame.rings.currentRing].stackingOrder;
-        float aspect = gCameraData._viewport[2] / float(gCameraData._viewport[3]);
+        int ringZ = -gGame._rings._rings[gGame._rings._currentRing]._stackingOrder;
+        float aspect = gGame._camera._viewport[2] / float(gGame._camera._viewport[3]);
         
         float endZ;
 
-        Camera::FlyToRing(ringZ, aspect, gCameraData._fovXY, endZ);
-        AnimationSystem::CreateFloatAnimation(gCameraData._pos.x, 0.0f, 2.0f, InterpolationTypeSmooth, &gCameraData._pos.x);
-        AnimationSystem::CreateFloatAnimation(gCameraData._pos.y, 0.0f, 2.0f, InterpolationTypeSmooth, &gCameraData._pos.y);
-        AnimationSystem::CreateFloatAnimation(gCameraData.zoomed, 0.0f, 2.0f, InterpolationTypeLinear, &gCameraData.zoomed);
-        gGame.currentAnmID = AnimationSystem::CreateFloatAnimation(gCameraData._pos.z, endZ, 2.0f, InterpolationTypeSmooth, &gCameraData._pos.z);
+        Camera::FlyToRing(ringZ, aspect, gGame._camera._fovXY, endZ);
+        AnimationSystem::CreateFloatAnimation(gGame._camera._pos.x, 0.0f, 2.0f, InterpolationTypeSmooth, &gGame._camera._pos.x);
+        AnimationSystem::CreateFloatAnimation(gGame._camera._pos.y, 0.0f, 2.0f, InterpolationTypeSmooth, &gGame._camera._pos.y);
+        AnimationSystem::CreateFloatAnimation(gGame._camera._zoomed, 0.0f, 2.0f, InterpolationTypeLinear, &gGame._camera._zoomed);
+        gGame._currentAnmID = AnimationSystem::CreateFloatAnimation(gGame._camera._pos.z, endZ, 2.0f, InterpolationTypeSmooth, &gGame._camera._pos.z);
         
-        gGame.zoomedToPhoto = false;
+        gGame._zoomedToPhoto = false;
         
         return true;
     }
@@ -152,24 +152,24 @@ bool WhoParser::ZoomToPhoto(const char * inStr, int & inOutPos) {
             PRS_Command(command, commandPos);
             
         }
-        int ringZ = -gGame.rings.rings[gGame.rings.currentRing].stackingOrder;
-        float aspect = gCameraData._viewport[2] / float(gCameraData._viewport[3]);
+        int ringZ = -gGame._rings._rings[gGame._rings._currentRing]._stackingOrder;
+        float aspect = gGame._camera._viewport[2] / float(gGame._camera._viewport[3]);
         
         glm::vec3 corners[4];
         glm::vec3 endPos;
         
-        ComputeTopPhotoCorners(gGame.rings.rings[gGame.rings.currentRing], corners);
-        Camera::FlyToPhoto(corners, aspect, gCameraData._fovXY, endPos);
+        ComputeTopPhotoCorners(gGame._rings._rings[gGame._rings._currentRing], corners);
+        Camera::FlyToPhoto(corners, aspect, gGame._camera._fovXY, endPos);
         
         endPos[2] += ringZ;
         endPos[1] += (kR1+kR0)*0.5f;
 
-        AnimationSystem::CreateFloatAnimation(gCameraData._pos.x, endPos[0], 2, InterpolationTypeSmooth, &gCameraData._pos.x);
-        AnimationSystem::CreateFloatAnimation(gCameraData._pos.y, endPos[1], 2, InterpolationTypeSmooth, &gCameraData._pos.y);
-        AnimationSystem::CreateFloatAnimation(gCameraData.zoomed, 1.0f, 2.0f, InterpolationTypeLinear, &gCameraData.zoomed);
-        gGame.currentAnmID = AnimationSystem::CreateFloatAnimation(gCameraData._pos.z, endPos[2], 2, InterpolationTypeSmooth, &gCameraData._pos.z);
+        AnimationSystem::CreateFloatAnimation(gGame._camera._pos.x, endPos[0], 2, InterpolationTypeSmooth, &gGame._camera._pos.x);
+        AnimationSystem::CreateFloatAnimation(gGame._camera._pos.y, endPos[1], 2, InterpolationTypeSmooth, &gGame._camera._pos.y);
+        AnimationSystem::CreateFloatAnimation(gGame._camera._zoomed, 1.0f, 2.0f, InterpolationTypeLinear, &gGame._camera._zoomed);
+        gGame._currentAnmID = AnimationSystem::CreateFloatAnimation(gGame._camera._pos.z, endPos[2], 2, InterpolationTypeSmooth, &gGame._camera._pos.z);
 
-        gGame.zoomedToPhoto = true;
+        gGame._zoomedToPhoto = true;
         return true;
     }
     
@@ -184,9 +184,9 @@ bool WhoParser::IncrementCurrentRing(const char * inStr, int & inOutPos) {
     if( Word(inStr, inOutPos) == "incrementCurrentRing" ) {
         
         
-        int currentRing = gGame.rings.rings[gGame.rings.currentRing].stackingOrder;
-        currentRing = glm::min(currentRing+1, int(gGame.rings.rings.size())-1);
-        gGame.rings.currentRing = gGame.rings.stackingOrder[currentRing];
+        int currentRing = gGame._rings._rings[gGame._rings._currentRing]._stackingOrder;
+        currentRing = glm::min(currentRing+1, int(gGame._rings._rings.size())-1);
+        gGame._rings._currentRing = gGame._rings._stackingOrder[currentRing];
         
         return true;
     }
@@ -201,9 +201,9 @@ bool WhoParser::DecrementCurrentRing(const char * inStr, int & inOutPos) {
     if( Word(inStr, inOutPos) == "decrementCurrentRing" ) {
         
         
-        int currentRing = gGame.rings.rings[gGame.rings.currentRing].stackingOrder;
+        int currentRing = gGame._rings._rings[gGame._rings._currentRing]._stackingOrder;
         currentRing = glm::max(currentRing-1, 0);
-        gGame.rings.currentRing = gGame.rings.stackingOrder[currentRing];
+        gGame._rings._currentRing = gGame._rings._stackingOrder[currentRing];
         
         return true;
     }
@@ -224,19 +224,19 @@ bool WhoParser::SetCurrentPhoto(const char * inStr, int & inOutPos) {
             
             who::Photo * photo = gGame.GetPhoto(value);
             
-            who::Ring & ring = gGame.rings.rings[gGame.rings.currentRing];
+            who::Ring & ring = gGame._rings._rings[gGame._rings._currentRing];
             
-            int startPhoto = ring.selectedPhoto;
+            int startPhoto = ring._selectedPhoto;
             
-            int indexDiff = photo->index - ring.selectedPhoto;
-            if( abs(indexDiff) > ring.photos.size()/2 ) {
+            int indexDiff = photo->_index - ring._selectedPhoto;
+            if( abs(indexDiff) > ring._photos.size()/2 ) {
                 int sign = (indexDiff > 0) ? 1 : -1;
-                startPhoto += sign*ring.photos.size();
+                startPhoto += sign*ring._photos.size();
             }
             
-            ring.selectedPhoto = photo->index;
+            ring._selectedPhoto = photo->_index;
             
-            gGame.currentAnmID = AnimationSystem::CreateFloatAnimation(float(startPhoto), float(ring.selectedPhoto), 2.0f, InterpolationTypeSmooth, &ring.currentPhoto);
+            gGame._currentAnmID = AnimationSystem::CreateFloatAnimation(float(startPhoto), float(ring._selectedPhoto), 2.0f, InterpolationTypeSmooth, &ring._currentPhoto);
             
             return true;
         }
@@ -251,17 +251,17 @@ bool WhoParser::DecrementCurrentPhoto(const char * inStr, int & inOutPos) {
     
     if( Word(inStr, inOutPos) == "decrementCurrentPhoto" ) {
         
-        who::Ring & ring = gGame.rings.rings[gGame.rings.currentRing];
+        who::Ring & ring = gGame._rings._rings[gGame._rings._currentRing];
         int startPhoto;
-        if( ring.selectedPhoto-1 < 0 ) {
-            startPhoto = ring.currentPhoto + ring.photos.size();
-            ring.selectedPhoto = ring.photos.size()-1;
+        if( ring._selectedPhoto-1 < 0 ) {
+            startPhoto = ring._currentPhoto + ring._photos.size();
+            ring._selectedPhoto = ring._photos.size()-1;
         } else {
-            startPhoto = ring.currentPhoto;
-            ring.selectedPhoto--;
+            startPhoto = ring._currentPhoto;
+            ring._selectedPhoto--;
         }
         
-        gGame.currentAnmID = AnimationSystem::CreateFloatAnimation(float(startPhoto), float(ring.selectedPhoto), 2, InterpolationTypeSmooth, &ring.currentPhoto);
+        gGame._currentAnmID = AnimationSystem::CreateFloatAnimation(float(startPhoto), float(ring._selectedPhoto), 2, InterpolationTypeSmooth, &ring._currentPhoto);
         
         return true;
     }
@@ -279,7 +279,7 @@ bool WhoParser::AddImageFromText(const char * inStr, int & inOutPos) {
        && KeyValue("name", inStr, inOutPos, name)
        && KeyValue("text", inStr, inOutPos, text) )
     {
-        GL_LoadTextureFromText(text, gGame.images[name]);
+        GL_LoadTextureFromText(text, gGame._images[name]);
         
         return true;
     }
@@ -298,7 +298,7 @@ bool WhoParser::AddImageFromFile(const char * inStr, int & inOutPos) {
        && KeyValue("name", inStr, inOutPos, name)
        && KeyValue("file", inStr, inOutPos, file) )
     {
-        GL_LoadTextureFromFile(file.c_str(), gGame.images[file]);//.back());
+        GL_LoadTextureFromFile(file.c_str(), gGame._images[file]);//.back());
         
         return true;
     }
@@ -321,14 +321,14 @@ bool WhoParser::AddPhotoToRing(const char * inStr, int & inOutPos) {
        && KeyValue("ring", inStr, inOutPos, ringStr))
     {
         who::Ring * ring = gGame.GetRing(ringStr);
-        ring->photos.push_back(name);
+        ring->_photos.push_back(name);
         
         who::Photo photo;
-        photo.filename = name;
+        photo._filename = name;
         // photo.image = image;
-        photo.ring = ringStr;
-        photo.index = ring->photos.size()-1;
-        gGame.photos[name] = photo;
+        photo._ring = ringStr;
+        photo._index = ring->_photos.size()-1;
+        gGame._photos[name] = photo;
         
         return true;
     }
@@ -351,8 +351,8 @@ bool WhoParser::AddMaskToPhoto(const char * inStr, int & inOutPos) {
     {
         who::Photo * photo = gGame.GetPhoto(photoStr);
         
-        photo->maskImages.push_back(image);
-        photo->maskWeights.push_back(1);
+        photo->_maskImages.push_back(image);
+        photo->_maskWeights.push_back(1);
         
         return true;
     }
@@ -375,28 +375,28 @@ bool WhoParser::NewBackRing(const char * inStr, int & inOutPos) {
        && KeyValue("begin", inStr, inOutPos, beginStr) )
     {
         
-        newBackRing_beginCallback beginCallback = (newBackRing_beginCallback)gGame.animationVars[beginStr];
+        newBackRing_beginCallback beginCallback = (newBackRing_beginCallback)gGame._animationVars[beginStr];
         
         void * args = 0;
         std::string argsStr;
         if( KeyValue("args", inStr, inOutPos, argsStr) ) {
-            args = gGame.animationVars[argsStr];
+            args = gGame._animationVars[argsStr];
         }
         
-        gGame.rings.rings[nameStr] = who::Ring(nameStr, who::eRingTypePlay);
+        gGame._rings._rings[nameStr] = who::Ring(nameStr, who::eRingTypePlay);
         
-        who::Ring & ring = gGame.rings.rings[nameStr];
+        who::Ring & ring = gGame._rings._rings[nameStr];
         
-        ring.stackingOrder = gGame.rings.stackingOrder.size();
+        ring._stackingOrder = gGame._rings._stackingOrder.size();
         
-        ring.currentPhoto = 0;
-        ring.selectedPhoto = 0;
+        ring._currentPhoto = 0;
+        ring._selectedPhoto = 0;
         
-        gGame.rings.stackingOrder.push_back(nameStr);
+        gGame._rings._stackingOrder.push_back(nameStr);
         
         beginCallback(ring, args);
         
-        AnimationSystem::CreateFloatAnimation(1e-7f, 1.0f, 2, InterpolationTypeSmooth, &ring.ringAlpha);
+        AnimationSystem::CreateFloatAnimation(1e-7f, 1.0f, 2, InterpolationTypeSmooth, &ring._ringAlpha);
         
         return true;
     }

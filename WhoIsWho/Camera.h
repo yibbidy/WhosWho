@@ -11,7 +11,7 @@ class Camera
 public:
     
     Camera() {
-        zoomed = 0;
+        _zoomed = 0;
         _pos = glm::vec3(0, 0, 10);
     }
     
@@ -50,11 +50,7 @@ public:
     glm::mat4 _vpvInvMat;  // window to world
     
     // TODO move to gGame
-    float zoomed;  // 1 when up close to a ring, 0 when further back, and inbetween
+    float _zoomed;  // 1 when up close to a ring, 0 when further back, and inbetween
 };
-
-// TODO gCameraData should be part of gGame
-extern Camera gCameraData;
-
 
 #endif // Camera_h

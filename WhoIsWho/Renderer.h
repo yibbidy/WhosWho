@@ -20,17 +20,17 @@ enum EGLSLBinding {
 int GFX_LoadGLSLProgram(const char * inVS, const char * inFS, GLuint & outProgram, ...);
 
 struct ColorProgram {
-    GLuint program;
-    GLint positionLoc, uvLoc;  // vertex attribute
-    GLint colorLoc, mvpMatLoc, imageTexture, imageWeight;  // uniforms
+    GLuint _program;
+    GLint _positionLoc, _uvLoc;  // vertex attribute
+    GLint _colorLoc, _mvpMatLoc, _imageTexture, _imageWeight;  // uniforms
 };
 
 struct PhotoProgram
 // this glsl program is used to draw the photos on the rings
 {
-    GLuint program;
-    GLint positionLoc, uvLoc;
-    GLint mvpLoc, scaleLoc, imageTexLoc, imageAlphaLoc, maskTexLoc, maskWeightLoc;
+    GLuint _program;
+    GLint _positionLoc, _uvLoc;
+    GLint _mvpLoc, _scaleLoc, _imageTexLoc, _imageAlphaLoc, _maskTexLoc, _maskWeightLoc;
 };
 
 
@@ -41,44 +41,44 @@ public:
     int DeInit();
     int RenderScene();
     
-    ColorProgram colorProgram;
-    PhotoProgram photoProgram;
+    ColorProgram _colorProgram;
+    PhotoProgram _photoProgram;
     
-    GLuint diskVAO;  // run disk geometry through color program
-    GLuint diskInnerEdgeVAO;  // to emphasize the inner edge of the ring
-    GLuint diskOuterEdgeVAO;  // to emphasize the outer edge of the ring
-    GLuint diskVBO;  // disk geometry; vert[i] normal[i] interleaved triangle_strip
-    int diskNumVertices;
-    glm::mat4 diskTransform;
+    GLuint _diskVAO;  // run disk geometry through color program
+    GLuint _diskInnerEdgeVAO;  // to emphasize the inner edge of the ring
+    GLuint _diskOuterEdgeVAO;  // to emphasize the outer edge of the ring
+    GLuint _diskVBO;  // disk geometry; vert[i] normal[i] interleaved triangle_strip
+    int _diskNumVertices;
+    glm::mat4 _diskTransform;
     
-    GLuint squareVAO;  // used for photos with photo shader
-    GLuint squareIBO;
-    GLuint squareVBO;
+    GLuint _squareVAO;  // used for photos with photo shader
+    GLuint _squareIBO;
+    GLuint _squareVBO;
     
-    GLuint squareEdgeVAO;  // used for selected photo
-    GLuint squareEdgeIBO;
+    GLuint _squareEdgeVAO;  // used for selected photo
+    GLuint _squareEdgeIBO;
     
-    GLuint faceListVAO;  // used for drawing the list of faces through the color program
+    GLuint _faceListVAO;  // used for drawing the list of faces through the color program
     
-    std::string image; // image resource name (into gGame.images) of the image to bind for the photo shader
-    std::string mask0, mask1;  // image resource names (into gGame.images) of the mask images
+    std::string _image; // image resource name (into gGame._images) of the image to bind for the photo shader
+    std::string _mask0, _mask1;  // image resource names (into gGame._images) of the mask images
 };
 
 struct SprayPaintArgs {
 	SprayPaintArgs() {
-		erase = false;
-		brushSize = 18;
-		pressure = 23;
+		_erase = false;
+		_brushSize = 18;
+		_pressure = 23;
         
-		r = 1;
-		g = 0;
-		b = 0;
+		_r = 1;
+		_g = 0;
+		_b = 0;
 	}
     
-	bool	erase;
-	int		brushSize;
-	int		pressure; // added (or subtracted if erase is true) to alpha
-	double	r, g, b;
+	bool	_erase;
+	int		_brushSize;
+	int		_pressure; // added (or subtracted if erase is true) to alpha
+	double	_r, _g, _b;
 };
 
 void IMG_Clear(ImageInfo & inImage);

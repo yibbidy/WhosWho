@@ -132,7 +132,7 @@ static NSString * kDefaultPutURLText = @"Hongbing%20Carter:hsc10266@localhost";/
 		
 		self.putNetworkStream = (__bridge NSOutputStream *) ftpStream;
 		
-		//   if (self.usernameText.text.length != 0) {
+		//   if (self._usernameText.text.length != 0) {
 #pragma unused (success) //Adding this to appease the static analyzer.
 		success = [self.putNetworkStream setProperty:@"Hongbing Carter" forKey:(id)kCFStreamPropertyFTPUserName];
 		assert(success);
@@ -196,7 +196,7 @@ static NSString * kDefaultPutURLText = @"Hongbing%20Carter:hsc10266@localhost";/
         
         self.createDirNetworkStream = (__bridge NSOutputStream *) ftpStream;
 		
-     //   if (self.usernameText.text.length != 0) {
+     //   if (self._usernameText.text.length != 0) {
 			#pragma unused (success) //Adding this to appease the static analyzer.
             success = [self.createDirNetworkStream setProperty:@"Hongbing Carter" forKey:(id)kCFStreamPropertyFTPUserName];
             assert(success);

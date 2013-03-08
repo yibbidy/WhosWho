@@ -59,7 +59,82 @@ static const int kButtonWidthBig = 34;
 static const int kButtonHeightBig = 31;
 
 
-
+static void LoadGame(NSString *gameNameWithFullPath)
+{
+	NSString *gameName = [[gameNameWithFullPath lastPathComponent] stringByDeletingPathExtension];
+	
+	NSString *gameFolderName = getGameDataFolderPath(gameName);
+	if (gameFolderName) {
+		NSLog(gameFolderName);
+        NSLog(gameNameWithFullPath);
+		ZipArchive *zip = [[ZipArchive alloc] init];
+		
+		if([zip UnzipOpenFile:gameNameWithFullPath]) {
+			//zip file is there
+			if ([zip UnzipFileTo:gameFolderName overWrite:YES]) {
+				//unzipped successfully
+				NSLog(@"Archive unzip Success");
+				
+				// Get game.txt file to load this game
+				NSString *gameTxtFile = [gameName  stringByAppendingPathExtension: @"txt"];
+				
+                //				LLoadGameDataNSStringToString(gameTxtFile));
+				
+                //				[self drawCurrentView];
+				//result= YES;
+			} else {
+				NSLog(@"Failure To Extract Archive, maybe password?");
+			}
+		} else  {
+			NSLog(@"Failure To Open Archive");
+		}
+		
+	}
+	
+}
+static BOOL SaveGameData( const std::string & inFilename) {
+    
+	std::ofstream out(inFilename.c_str(), std::ios::out);
+    
+	if( !out.is_open() ) {
+        return NO;
+	}
+    who::Ring * currentRing = gGame.GetCurrentRing();
+    ////////////////////////////////////////////////
+    
+    for( int i=0; i<currentRing->_photos.size(); i++ ) {
+        
+        who::Photo * aphoto = gGame.GetPhoto(currentRing->_photos[i]);
+        
+        if ( aphoto->_type=="face") {
+            out << "face \"" << aphoto->_filename <<" \""<<aphoto->_username <<"\"\n";
+        }
+    }
+    for( int i=0; i<currentRing->maskPhotos.size(); i++ ) {
+        
+        who::Photo * aphoto = gGame.GetPhoto(currentRing->maskPhotos[i]);
+        
+        if ( aphoto->_type=="mask") {
+            out << "mask \"" << aphoto->_filename <<" \""<<aphoto->_username <<"\"\n";
+        }
+    }
+    for( int i=0; i<currentRing->_photos.size(); i++ ) {
+        
+        who::Photo * aphoto = gGame.GetPhoto(currentRing->_photos[i]);
+        
+        if ( aphoto->_type =="photo") {
+            out<<"photo \""<< aphoto->_filename<<"\""<<" ";
+            for (int j = 0; j <aphoto->_maskImages.size(); j ++) {
+                out<<"\""<<aphoto->_maskImages[j]<<"\"" <<" ";
+            }
+            out <<"\n";
+            
+        }
+    }
+    
+	out.close();
+	return YES;
+}
 static void PopulateLocalGameNamesRing(who::Ring & inRing, void *) {
     who::GameName thisGame;
 	
@@ -104,21 +179,10 @@ static void PopulateLocalGameNamesRing(who::Ring & inRing, void *) {
                 //  photo.name = fileName.UTF8String;
                 //     ring._photos.push_back(photo);
                 //  ring.browseData.localGameNames.push_back(thisGame);
+
+                gGame._animations.push_back(std::string("addImageFromText name=")+nameString+std::string(" text=")+NSStringToString(fileName));
+                gGame._animations.push_back(std::string("addPhotoToRing name=")+nameString+std::string(" user=")+nameString+std::string(" type=photo ring=") + inRing._name);
                 
-                std::string commandString = "addImageFromText name=";
-                commandString += nameString;
-                commandString += " text=";
-                commandString +=NSStringToString(fileName);
-                
-                gGame._animations.push_back(commandString);
-                
-                std::string commandString2 = "addPhotoToRing name=";
-                commandString2 += nameString;
-                commandString2 +=" image=";
-                commandString2 +=nameString;
-                commandString2 +=" ring=";
-                
-                gGame._animations.push_back(commandString2 + inRing._name);
                 
 			}
 		}
@@ -186,29 +250,98 @@ static void displayAllLocalGameNames()
 void PopulateTitleRing(who::Ring & inRing, void *)
 // This function is the callback target to populate the title ring with items
 {
-    
     gGame._animations.push_back("addImageFromText name=play text=Play");
-    gGame._animations.push_back("addImageFromText name=edit text=Edit");
-    gGame._animations.push_back("addImageFromText name=create text=Create");
-    
-    gGame._animations.push_back(std::string("addPhotoToRing name=play image=play ring=") + inRing._name);
-    gGame._animations.push_back(std::string("addPhotoToRing name=edit image=edit ring=") + inRing._name);
-    gGame._animations.push_back(std::string("addPhotoToRing name=create image=create ring=") + inRing._name);
+    gGame._animations.push_back("addImageFromText name=editor text=Editor");
+
+    gGame._animations.push_back(std::string("addPhotoToRing name=play user=play type=photo ring=") + inRing._name);
+    gGame._animations.push_back(std::string("addPhotoToRing name=editor user=edit type=photo ring=") + inRing._name);
 }
 
-void PopulatePlayRing(who::Ring & inRing, void *)
+void PopulatePlayRing(who::Ring & inRing, void *argsStr)
 // this function is the callback target to populate the play ring
 {
+    std::string ring = inRing._name;
+
+#if 1
+
+    //////////////////////
+    NSString *gameName = (__bridge NSString *)argsStr;
+    gameName = [gameName stringByAppendingPathExtension: kFileExtension];
+    NSString *gameNameFullpath = getGameFileNameNSString(NSStringToString(gameName));
+    LoadGame(gameNameFullpath);
+   
+    NSString *gameNameFullPathNoExt = [gameNameFullpath stringByDeletingPathExtension];
+    NSString *gameNameTxtFullPath = [gameNameFullPathNoExt stringByAppendingPathExtension:@"txt"];
+    NSLog(gameNameFullPathNoExt);
+    NSLog(gameNameTxtFullPath);
+    const char *cString = NSStringToCString(gameNameTxtFullPath);
+     std::ifstream in(cString);
+    if( !in.is_open() ){
+        return ;
+    }
+    
+    std::string line;
+    while( getline(in, line) ) {
+        int pos = 0;
+        std::string command = ReadWord(line, pos);
+        
+        if( command == "face" ) {
+            std::string filename = ReadQuotedString(line, pos);
+            std::string userName = ReadQuotedString(line, pos);
+            
+            gGame.Execute(std::string("addImageFromFile name=")+filename+std::string("file=")+filename);
+            gGame.Execute(std::string("addPhotoToRing name=")+filename+std::string("user=")+userName+std::string("type=face ring=") + ring);
+    
+            
+        }else if( command == "mask" ) {
+            std::string filename = ReadQuotedString(line, pos);
+            std::string userName = ReadQuotedString(line, pos);
+            // Add mask to photo and then add to the ring
+            gGame.Execute(std::string("addImageFromFile name=")+filename+std::string(" file=")+filename);
+            gGame.Execute(std::string("addPhotoToRing name=")+filename+std::string(" user=")+userName+std::string(" type=mask ring=") + ring);
+            
+        }else if( command == "photo" ) {
+            std::string filename = ReadQuotedString(line, pos);
+            
+            gGame.Execute(std::string("addImageFromFile name=")+filename+std::string(" file=")+filename);
+            gGame.Execute(std::string("addPhotoToRing name=")+filename+std::string(" user=")+filename+std::string(" type=photo ring=") + ring);
+            
+            bool isEmptyString = false;
+            while( !isEmptyString ) {
+               std:: string maskname = ReadQuotedString(line, pos, &isEmptyString);
+                if( isEmptyString ) {
+                    break;
+                }
+                
+                gGame.Execute(std::string("addMaskToPhoto name=")+maskname+std::string(" image=")+maskname+std::string(" photo=")+filename);
+                
+            }
+        } else {
+         //   GenerateErrorCode(2);
+        }
+        
+    }
+    
+    in.close();
+    gGame.Execute("addImageFromFile name=addPhoto.png file=addPhoto.png");
+    gGame.Execute(std::string("addPhotoToRing name=addPhoto.png user=addPhoto.png type=photo ring=") + ring);
+#endif 
+
+    /////////////////////////
 #if 0 
     open game.txt
     read first line<#float inT#>, <#float *#>)
     if first line is "face"
+        addImageFromFile();
+        AddFace();
+        gGame.Execute("addImageFromFile name=face file=002.jpg");
+    
         raed filename read username
         ggme.execuge"addPhoto filename username face";
     else if first line is mask
         read filename then read username
         ggame.execute"addphot ofilename username mask"
-    else if line is who::Photo
+    else if line is Photo
         read photofilename
         "addphoto filename=photofilename"
         loop read maskfilename
@@ -218,11 +351,17 @@ void PopulatePlayRing(who::Ring & inRing, void *)
         
         
 #endif
-        
-    gGame.Execute("addImageFromFile name=joe file=001.jpg");
+  //  string ring = inRing.name;
+#if 0
+    gGame.Execute("addImageFromFile name=joe file=face 001.jpg");
+    gGame.Execute(string("addPhotoToRing name=face 001.jpg user=joe type=face ring=") + ring);
+    
     gGame.Execute("addImageFromFile name=\"002 face 001\" file=\"002 face 001.png\"");
     gGame.Execute("addImageFromFile name=\"002 face 001\" file=\"002 face 002.png\"");
+    gGame.Execute(string("addPhotoToRing name=\"002 face 001.png\" user=joe type=mask ring=") + ring);
+    gGame.Execute(string("addPhotoToRing name=\"002 face 002.png\" user=joe type=mask ring=") + ring);
     
+    gGame.Execute("addImageFromFile name=joe file=001.jpg");
     gGame.Execute("addImageFromFile name=002 file=002.jpg");
     gGame.Execute("addImageFromFile name=003 file=003.jpg");
     gGame.Execute("addImageFromFile name=004 file=004.jpg");
@@ -231,38 +370,230 @@ void PopulatePlayRing(who::Ring & inRing, void *)
     gGame.Execute("addImageFromFile name=007 file=007.jpg");
     gGame.Execute("addImageFromFile name=008 file=008.jpg");
     
-    std::string ring = inRing._name;
-    gGame.Execute(std::string("addPhotoToRing name=001.jpg image=001 ring=") + ring);
+   // string ring = inRing.name;
+    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
     
-    gGame.Execute(std::string("addPhotoToRing name=002.jpg image=002 ring=") + ring);
+    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
     
-    gGame.Execute(std::string("addPhotoToRing name=003.jpg image=003 ring=") + ring);
+    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
     
-    gGame.Execute(std::string("addPhotoToRing name=004.jpg image=004 ring=") + ring);
+    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
+    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
+    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
+    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
+    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
+    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
+    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
+    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
+    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
+    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
+    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
+    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
+    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
+    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
+    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
+    
+    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
+#endif
+    /*
+    gGame.Execute(string("addPhotoToRing name=004.jpg image=004 ring=") + ring);
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=004.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=004.jpg");
     
-    gGame.Execute(std::string("addPhotoToRing name=005.jpg image=005 ring=") + ring);
+    gGame.Execute(string("addPhotoToRing name=005.jpg image=005 ring=") + ring);
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=005.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=005.jpg");
     
-    gGame.Execute(std::string("addPhotoToRing name=006.jpg image=006 ring=") + ring);
+    gGame.Execute(string("addPhotoToRing name=006.jpg image=006 ring=") + ring);
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=006.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=006.jpg");
     
-    gGame.Execute(std::string("addPhotoToRing name=007.jpg image=007 ring=") + ring);
+    gGame.Execute(string("addPhotoToRing name=007.jpg image=007 ring=") + ring);
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=007.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=007.jpg");
     
-    gGame.Execute(std::string("addPhotoToRing name=008.jpg image=008 ring=") + ring);
+    gGame.Execute(string("addPhotoToRing name=008.jpg image=008 ring=") + ring);
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=008.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=008.jpg");
+     */
     
 }
 
@@ -457,7 +788,11 @@ void WHO_InitApp()
 
 - (IBAction) requestToLoadGame:(id) sender
 {
-    gGame.Execute("newBackRing name=local begin=PopulatePlayRing", 1, "PopulatePlayRing", PopulatePlayRing);
+    std::string commandStr = "newBackRing name=local begin=PopulatePlayRing";
+    commandStr +=" args=";
+    commandStr +=_currentLoadedGame->_filename;
+    
+    gGame.Execute(commandStr, 1, "PopulatePlayRing", PopulatePlayRing);
     gGame.Execute("zoomToRing ring=ring2");
     
     deleteGameButton.hidden = YES;
@@ -530,6 +865,54 @@ void WHO_InitApp()
     }
 }
 
+-(void) showImagePhotosPicker : (CGPoint) topLeftCorner
+{
+    
+	
+#if debug
+	NSString *modeStr = [[UIDevice currentDevice]model];
+	BOOL temp = [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary ];
+	BOOL temp2 = [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum ];
+#endif
+    
+    imagePickerController = [[UIImagePickerController alloc] init];
+	imagePickerController.delegate = self;
+    
+	imagePickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+	//imagePickerController.allowsImageEditing = NO;
+	imagePickerController.allowsEditing = YES;
+	//imagePickerController.wantsFullScreenLayout = YES;
+    
+	//[self.view addSubview:[imagePickerController view]];
+	//[self presentModalViewController:imagePickerController animated:NO];
+	
+    
+	UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:imagePickerController];
+	popover.delegate = self;
+	self.popoverController = popover;
+	
+	
+	[self.popoverController setPopoverContentSize:CGSizeMake(60,60) animated:NO];
+	CGRect selectedRect = CGRectMake(topLeftCorner.x,topLeftCorner.y,1,1);
+	[self.popoverController presentPopoverFromRect:selectedRect inView:[self view] permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
+    
+}
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    UIImage *image = [info valueForKey:UIImagePickerControllerOriginalImage];
+	
+	//if ( renderView )
+	//	[(AppView *)renderView addPickedImage : image];
+    
+	//[picker dismissModalViewControllerAnimated:NO];
+	//[self.popoverController dismissPopoverAnimated:NO];
+	
+	
+	[self.popoverController setPopoverContentSize:CGSizeMake(60,60) animated:NO];
+	//CGRect selectedRect = CGRectMake(topLeftCorner.x,topLeftCorner.y,1,1);
+	//[self.popoverController presentPopoverFromRect:selectedRect inView:[self view] permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
+}
+
 -(void ) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     
@@ -596,16 +979,20 @@ void WHO_InitApp()
     if( hitPhoto )
     {
         //_currentHitPhoto = hitPhoto;
-    	if( hitPhoto->_filename=="game2") {
+        if( hitPhoto && hitPhoto->_filename=="addPhoto.png" && hitRing->_name =="local") {
+            [self showImagePhotosPicker:touchPoint ];
+        }
+    	else if( hitPhoto && hitRing->_name =="ring1") {
             _currentLoadedGame = hitPhoto;
 			//  WHO_Execute("newBackRing name=ring2 begin=PopulatePlayRing", 1, "PopulatePlayRing", PopulatePlayRing);
 			//WHO_Execute("zoomToRing ring=ring2");
 			
 			float z = -hitRing->_stackingOrder;
-            glm::vec4 cornerPt = gGame._camera._vpvMat * (hitPhoto->_transform * glm::vec4(-0.5, -0.5, z, 1));
+			who::Photo * currentPhoto = gGame.GetPhoto(hitRing->_photos[hitRing->_selectedPhoto]);
+            glm::vec4 cornerPt = gGame._camera._vpvMat * (currentPhoto->_transform * glm::vec4(-0.5, -0.5, z, 1));
             cornerPt /= cornerPt.w;
             
-            glm::vec4 cornerPt2 = gGame._camera._vpvMat * (hitPhoto->_transform * glm::vec4(0.5, -0.5, z, 1));
+            glm::vec4 cornerPt2 = gGame._camera._vpvMat * (currentPhoto->_transform * glm::vec4(0.5, -0.5, z, 1));
 			cornerPt2 /= cornerPt2.w;
             
 			// Add a delete button right below
@@ -653,6 +1040,16 @@ void WHO_InitApp()
 			
 			gameName.textAlignment = UITextAlignmentCenter;
 			[self.view addSubview:gameName];
+            
+            if( gGame._zoomedToPhoto ) {
+                gGame.Execute("zoomToRing");
+                
+            } else {
+                sprintf(command, "setCurrentPhoto photo=%s", hitPhoto->_filename.c_str());
+                //sprintf(command, "zoomToPhoto photo=%s", hitPhoto->filename.c_str());
+                gGame.Execute(command);
+            }
+
     	}
     	else if( hitPhoto->_filename == "play" ) {
             gGame.Execute("deleteBackRing"); 
@@ -904,71 +1301,14 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
 }
 #endif
 
-static BOOL SaveGameData( const std::string & inFilename) {
-
-	std::ofstream out(inFilename.c_str(), std::ios::out);
-    
-	if( !out.is_open() ) {
-       return NO;
-	}
-    who::Ring * currentRing = gGame.GetCurrentRing();
-    ////////////////////////////////////////////////
-    
-    for( int i=0; i<currentRing->_photos.size(); i++ ) {
-        
-        who::Photo * aphoto = gGame.GetPhoto(currentRing->_photos[i]);
-        
-        if ( aphoto->_type=="face") {
-            out << "face \"" << aphoto->_filename <<" \""<<aphoto->_username <<"\"\n";
-        }
-    }
-    for( int i=0; i<currentRing->_photos.size(); i++ ) {
-        
-        who::Photo * aphoto = gGame.GetPhoto(currentRing->_photos[i]);
-        
-        if ( aphoto->_type=="mask") {
-            out << "mask \"" << aphoto->_filename <<" \""<<aphoto->_username <<"\"\n";
-        }
-    }
-    for( int i=0; i<currentRing->_photos.size(); i++ ) {
-        
-        who::Photo * aphoto = gGame.GetPhoto(currentRing->_photos[i]);
-        
-        if ( 1){//aphoto->_type =="photo") {
-            out<<"photo \""<< aphoto->_filename<<"\""<<" ";
-            for (int j = 0; j <aphoto->_maskImages.size(); j ++) {
-                out<<"\""<<aphoto->_maskImages[j]<<"\"" <<" ";
-            }
-           out <<"\n";
-
-        }
-    }
-    
-	out.close();
-	return YES; 
-}
-
 - (IBAction)requestToSaveGame:(id)sefnder {
     //gGame._images
     
-    NSArray *paths = NSSearchPathForDirectoriesInDomains( NSDocumentDirectory, NSUserDomainMask, YES);
-	NSString *documentsDirectory = [paths objectAtIndex:0];
-	
     NSString *gameNameText = [gameName text];
     NSString *gameTxtFile = [gameNameText  stringByAppendingPathExtension: @"txt"];
    
 
-    
-    NSString *gameFolderPath = [documentsDirectory stringByAppendingPathComponent:gameNameText];
-
-    if (![[NSFileManager defaultManager] fileExistsAtPath:gameFolderPath ]) {
-		BOOL ret = [[NSFileManager defaultManager] createDirectoryAtPath:gameFolderPath withIntermediateDirectories: YES attributes:nil error: nil];
-		
-		if ( !ret) {
-			NSLog(@"Fail to create a new director for this game.");
-			gameFolderPath = nil;
-		}
-	}
+    NSString *gameFolderPath = getGameDataFolderPath(gameNameText);
     gameFolderPath = [gameFolderPath  stringByAppendingPathComponent:gameNameText];
     
     NSString *gameTextFileNameWithFullPath = [gameFolderPath stringByAppendingPathExtension: @"txt"];
@@ -981,40 +1321,43 @@ static BOOL SaveGameData( const std::string & inFilename) {
 	[zip CreateZipFile2:gameFileNameWithFullPath];
     
     // add game.txt to the zip fle
-#if 0
-	[zip addFileToZip:gameTxtFile newname:gameTxtFile];
-	[fileManager removeItemAtPath:gameTxtFile error:NULL];
-	
-	// add all face mage files to the zip
+
+	[zip addFileToZip:gameTextFileNameWithFullPath newname:gameTxtFile];
+	[[NSFileManager defaultManager] removeItemAtPath:gameTextFileNameWithFullPath error:NULL];
+
+	// add all image files to the zip
+    NSArray *paths = NSSearchPathForDirectoriesInDomains( NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *documentsDirectory = [paths objectAtIndex:0];
+	NSString *tmpGameDataPath = documentsDirectory; // Need to change this later 
+    /////////////////////
+    who::Ring * currentRing = gGame.GetCurrentRing();
+    ////////////////////////////////////////////////
     
-	NSString *tmpGameDataPath =(NSString *) getGameDataFolderPath();
-	for( std::vector<GameFace *>::iterator it = app.gi.faces.begin(); it != app.gi.faces.end(); it++ ) {
-		GameFace * face = *it;
-		
-		std::string faceFileName = face->_filename;
-		
-		NSString *faceFileNamestd::string = [[NSString alloc] initWithUTF8String:faceFileName.c_str()];
-		NSString *facestd::string = [tmpGameDataPath stringByAppendingPathComponent:faceFileNamestd::string];
-		if ( faceFileNamestd::string )
-			[zip addFileToZip:facestd::string newname:faceFileNamestd::string];
-		
-		[faceFileNamestd::string release];
-		faceFileNamestd::string = nil;
-	}
-    
-	// add all photo image files to the zip file
-	for( std::vector<GamePhoto *>::iterator it = app.gi._photos.begin(); it != app.gi._photos.end(); it++ ) {
-		GamePhoto * photo = *it;
-		
-		std::string photoFileName = photo->_filename;
-		NSString *photoFileNamestd::string = [[NSString alloc] initWithUTF8String:photoFileName.c_str()];
-		NSString *photostd::string = [tmpGameDataPath stringByAppendingPathComponent:photoFileNamestd::string];
-		if ( photoFileNamestd::string)
-			[zip addFileToZip:photostd::string newname:photoFileNamestd::string];
+    for( int i=0; i<currentRing->maskPhotos.size(); i++ ) {
         
-		[photoFileNamestd::string release];
-		photoFileNamestd::string = nil;
-	}
+        who::Photo * aphoto = gGame.GetPhoto(currentRing->_photos[i]);
+        
+        std::string faceFileName = aphoto->_filename;
+        
+        NSString *faceFileNameString = StringToNSString(faceFileName);
+        NSString *faceString = [tmpGameDataPath stringByAppendingPathComponent:faceFileNameString];
+        if ( faceFileNameString )
+            [zip addFileToZip:faceString newname:faceFileNameString];
+        
+    }
+    for( int i=0; i<currentRing->_photos.size(); i++ ) {
+        
+        who::Photo * aphoto = gGame.GetPhoto(currentRing->_photos[i]);
+        
+        std::string faceFileName = aphoto->_filename;
+        
+        NSString *faceFileNameString = StringToNSString(faceFileName);
+        NSString *faceString = [tmpGameDataPath stringByAppendingPathComponent:faceFileNameString];
+        if ( faceFileNameString )
+            [zip addFileToZip:faceString newname:faceFileNameString];
+        
+    }
+    
     
 	if( ![zip CloseZipFile2] )
 	{
@@ -1022,8 +1365,8 @@ static BOOL SaveGameData( const std::string & inFilename) {
 		
 	}
 	
-	[zip release];
-#endif 
+	//[zip release];
+
 }
 
 - (IBAction)requestToUploadGame:(id)sende {

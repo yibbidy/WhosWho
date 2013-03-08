@@ -14,7 +14,8 @@
 
 @interface TViewController : GLKViewController<UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIPopoverControllerDelegate, UITextFieldDelegate, GameDoneControllerDelegate, RegistrationDelegate> {
    
-   float _rotation;
+    UIImagePickerController *imagePickerController;
+    float _rotation;
     UITextField *gameName;
     UIButton *deleteGameButton;
     UIButton *loadGameButton;

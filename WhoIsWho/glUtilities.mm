@@ -471,11 +471,11 @@ NSString *getGameDataFolderPath(NSString *thisGame)
 	
 	NSString *gameFolderPath = [documentsDirectory stringByAppendingPathComponent:@"WhoIsWho"]; 
 	gameFolderPath = [gameFolderPath stringByAppendingPathComponent:thisGame];
-	NSString *gameDataFolderPath = [gameFolderPath stringByAppendingPathComponent:@"Data"];
 	
-	
-	if (![[NSFileManager defaultManager] fileExistsAtPath:gameDataFolderPath ]) {
-		ret = [[NSFileManager defaultManager] createDirectoryAtPath:gameDataFolderPath withIntermediateDirectories: YES attributes:nil error: nil];
+	NSLog(gameFolderPath);
+    
+	if (![[NSFileManager defaultManager] fileExistsAtPath:gameFolderPath ]) {
+		ret = [[NSFileManager defaultManager] createDirectoryAtPath:gameFolderPath withIntermediateDirectories: YES attributes:nil error: nil];
 		
 		if ( !ret) {
 			NSLog(@"Fail to create a new director for this game.");
@@ -483,19 +483,30 @@ NSString *getGameDataFolderPath(NSString *thisGame)
 	}
 	
 	
-	return gameDataFolderPath; 
+	return gameFolderPath; 
 	
 }
-static const char *getGameFileName(std::string fileName)
+NSString *getGameFileNameNSString(std::string fileName)
 {
-	NSString *newFileName  = [NSString stringWithUTF8String: fileName.c_str()];	
-	NSString *newFileNameWithNoExt = [newFileName stringByDeletingPathExtension]; 
+    
+	NSString *newFileName  = [NSString stringWithUTF8String: fileName.c_str()];
+	NSString *newFileNameWithNoExt = [newFileName stringByDeletingPathExtension];
 	
-	NSString *gameDataFolderPath = (NSString *)getGameDataFolderPath(newFileNameWithNoExt); 
+	NSString *gameDataFolderPath = (NSString *)getGameDataFolderPath(newFileNameWithNoExt);
 	if ( gameDataFolderPath ) {
 		
-		newFileName = [ gameDataFolderPath stringByAppendingPathComponent: newFileName]; 
-		
+		newFileName = [ gameDataFolderPath stringByAppendingPathComponent: newFileName];
+		NSLog(newFileName);
+		return newFileName;
+	}
+	else
+		return nil;
+}
+const char *getGameFileName(std::string fileName)
+{
+	NSString *newFileName  = getGameFileNameNSString(fileName);
+    
+	if ( newFileName ) {
 		const char *cString = NSStringToCString(newFileName); // [newFileName cStringUsingEncoding: NSUTF8StringEncoding ]; 
 		
 		return cString; 
@@ -503,6 +514,7 @@ static const char *getGameFileName(std::string fileName)
 	else 
 		return nil; 
 }
+
 int GL_LoadTextureFromFile(const char * inFileName, ImageInfo & outImageInfo)
 {
     int errorCode = 0;
@@ -537,7 +549,7 @@ int GL_LoadTextureFromFile(const char * inFileName, ImageInfo & outImageInfo)
 	if ( uiImage ) {
 		
 		// Turn off this call to copy some images into photos folder in iPhone simulator. 
-		//UIImageWriteToSavedPhotosAlbum(uiImage, nil, nil, nil);
+		UIImageWriteToSavedPhotosAlbum(uiImage, nil, nil, nil);
 		
 		// Create OpenGL texture from uiImage
 		//float width = 0;

@@ -348,7 +348,69 @@ ImageInfo::ImageInfo(int width, int height, int bitDepth, int rowBytes, unsigned
 	texWidth = width; 
 	texHeight = height;
 }
+std::string ReadWord(std::string & line, int & pos) {
+	if( pos > (int)line.size() ) {
+        //	GenerateErrorCode(1);
+		return "";
+	}
+    
+	while( pos<(int)line.size() && line[pos] == ' ' && line[pos] != '\n' ) {
+		pos++;
+	}
+    
+	if( pos>=(int)line.size() || line[pos] == '\n' ) {
+		return "";
+	}
+    
+	int startPos = pos;
+	while( line[pos] != ' ' && line[pos] != '\n' ) {
+		pos++;
+	}
+    
+	std::string word = line.substr(startPos, pos-startPos);
+	return word;
+}
 
+std::string ReadQuotedString(std::string & line, int & pos, bool * outIsEmptyString) {
+	if( pos > (int)line.size() ) {
+        //	GenerateErrorCode(1);
+		return "";
+	}
+    
+	while( pos<(int)line.size() && line[pos] != '"' && line[pos] != '\n' ) {
+		pos++;
+	}
+    
+	if( outIsEmptyString ) {
+		*outIsEmptyString = true;
+	}
+    
+	if( pos>=(int)line.size() || line[pos] == '\n' ) {
+		return "";
+	}
+	
+	pos++;
+	int startPos = pos;
+	while( pos<(int)line.size() && line[pos] != '"' && line[pos] != '\n' ) {
+		if( outIsEmptyString ) {
+			if( line[pos] != ' ' ) {
+				*outIsEmptyString = false;
+			}
+		}
+		pos++;
+	}
+    
+	if( line[pos] == '"' ) {
+		pos++;
+	};
+    
+	std::string word;
+	if( pos - startPos >= 3 ) {
+		word = line.substr(startPos, pos-startPos-1);
+        
+	}
+	return word;
+}
 
 
 

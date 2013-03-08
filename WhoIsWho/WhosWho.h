@@ -89,7 +89,7 @@ namespace who
         int _selectedPhoto;
         float _currentPhoto;
         std::vector<std::string> _photos;
-        
+        std::vector<std::string> maskPhotos;
         float _ringAlpha;  // when new rings are created they fade in
         
         ERingType _ringType;

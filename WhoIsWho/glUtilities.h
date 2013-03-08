@@ -38,4 +38,6 @@ int GL_LoadTextureFromFile(const char * inFileName, ImageInfo & outImageInfo);
 
 NSString *getGameDataFolderPath();
 NSString *getGameDataFolderPath(NSString *thisGame);
+NSString *getGameFileNameNSString(std::string fileName);
+
 #endif

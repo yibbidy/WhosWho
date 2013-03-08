@@ -292,8 +292,10 @@ bool WhoParser::AddImageFromText(const char * inStr, int & inOutPos) {
 bool WhoParser::AddImageFromFile(const char * inStr, int & inOutPos) {
     int pos = inOutPos;
     
+    std::string name;
     std::string file;
     if( Word(inStr, inOutPos) == "addImageFromFile"
+       && KeyValue("name", inStr, inOutPos, name)
        && KeyValue("file", inStr, inOutPos, file) )
     {
         GL_LoadTextureFromFile(file.c_str(), gGame._images[file]);//.back());

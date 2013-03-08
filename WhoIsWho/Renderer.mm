@@ -1,7 +1,9 @@
 // Contributors:
 //  Justin Hutchison (yibbidy@gmail.com)
 
-// functions related to drawing the scene are in this file
+// TODO this file should be the one that issues opengl calls
+// functions related to drawing the scene are in here
+// TODO change math to use glm
 
 #include "Renderer.h"
 #include "WhosWho.h"

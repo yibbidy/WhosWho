@@ -143,11 +143,12 @@ namespace who
         DraggingFace _draggingFace;
     };
     
-    struct Game
+    class Game
     // *** the main structure in this app ***
     // contains the current state of the game.
-    // TODO should contain the camera
     {
+    public:
+        
         Game() {
             _faceDropdownAnim = 0;
             _zoomedToPhoto = false;

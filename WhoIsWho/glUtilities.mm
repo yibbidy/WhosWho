@@ -549,7 +549,7 @@ int GL_LoadTextureFromFile(const char * inFileName, ImageInfo & outImageInfo)
 	if ( uiImage ) {
 		
 		// Turn off this call to copy some images into photos folder in iPhone simulator. 
-		UIImageWriteToSavedPhotosAlbum(uiImage, nil, nil, nil);
+		//UIImageWriteToSavedPhotosAlbum(uiImage, nil, nil, nil);
 		
 		// Create OpenGL texture from uiImage
 		//float width = 0;

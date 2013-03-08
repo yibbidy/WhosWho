@@ -312,26 +312,36 @@ bool WhoParser::AddPhotoToRing(const char * inStr, int & inOutPos) {
     int pos = inOutPos;
     
     std::string name;
-    std::string image;
+    std::string user;
+    std::string type;
     std::string ringStr;
     
     if( Word(inStr, inOutPos) == "addPhotoToRing"
        && KeyValue("name", inStr, inOutPos, name)
-       && KeyValue("image", inStr, inOutPos, image)
+       && KeyValue("user", inStr, inOutPos, user)
+       && KeyValue("type", inStr, inOutPos, type)
        && KeyValue("ring", inStr, inOutPos, ringStr))
     {
-        who::Ring * ring = gGame.GetRing(ringStr);
-        ring->_photos.push_back(name);
-        
-        who::Photo photo;
+        Ring * ring = gGame.GetRing(ringStr);
+        Photo photo;
         photo._filename = name;
-        // photo.image = image;
+        photo._username = user;
+        photo._type = type;
         photo._ring = ringStr;
+        
+        if (type == "mask") {
+            ring->maskPhotos.push_back(name);
+        }
+        else {
+            ring->_photos.push_back(name);
+        }
+        
         photo._index = ring->_photos.size()-1;
         gGame._photos[name] = photo;
         
         return true;
     }
+
     inOutPos = pos;
     return false;
 }

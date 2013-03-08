@@ -262,7 +262,7 @@ void PopulatePlayRing(who::Ring & inRing, void *argsStr)
 {
     std::string ring = inRing._name;
 
-#if 1
+#if 0
 
     //////////////////////
     NSString *gameName = (__bridge NSString *)argsStr;
@@ -351,15 +351,15 @@ void PopulatePlayRing(who::Ring & inRing, void *argsStr)
         
         
 #endif
-  //  string ring = inRing.name;
-#if 0
-    gGame.Execute("addImageFromFile name=joe file=face 001.jpg");
-    gGame.Execute(string("addPhotoToRing name=face 001.jpg user=joe type=face ring=") + ring);
+    //std::string ring = inRing._name;
+#if 1
+    gGame.Execute("addImageFromFile name=joe file=\"face 001.png\"");
+    gGame.Execute(std::string("addPhotoToRing name=face 001.png user=joe type=face ring=") + ring);
     
     gGame.Execute("addImageFromFile name=\"002 face 001\" file=\"002 face 001.png\"");
     gGame.Execute("addImageFromFile name=\"002 face 001\" file=\"002 face 002.png\"");
-    gGame.Execute(string("addPhotoToRing name=\"002 face 001.png\" user=joe type=mask ring=") + ring);
-    gGame.Execute(string("addPhotoToRing name=\"002 face 002.png\" user=joe type=mask ring=") + ring);
+    gGame.Execute(std::string("addPhotoToRing name=\"002 face 001.png\" user=joe type=mask ring=") + ring);
+    gGame.Execute(std::string("addPhotoToRing name=\"002 face 002.png\" user=joe type=mask ring=") + ring);
     
     gGame.Execute("addImageFromFile name=joe file=001.jpg");
     gGame.Execute("addImageFromFile name=002 file=002.jpg");
@@ -370,230 +370,19 @@ void PopulatePlayRing(who::Ring & inRing, void *argsStr)
     gGame.Execute("addImageFromFile name=007 file=007.jpg");
     gGame.Execute("addImageFromFile name=008 file=008.jpg");
     
-   // string ring = inRing.name;
-    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
-    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
-    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
-    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
-    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
-    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
-    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
-    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
-    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
-    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
-    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
-    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
-    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
-    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
-    gGame.Execute(string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
+
 #endif
-    /*
-    gGame.Execute(string("addPhotoToRing name=004.jpg image=004 ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=004.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=004.jpg");
+    gGame.Execute(std::string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
     
-    gGame.Execute(string("addPhotoToRing name=005.jpg image=005 ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=005.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=005.jpg");
+    gGame.Execute(std::string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
     
-    gGame.Execute(string("addPhotoToRing name=006.jpg image=006 ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=006.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=006.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=007.jpg image=007 ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=007.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=007.jpg");
-    
-    gGame.Execute(string("addPhotoToRing name=008.jpg image=008 ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=008.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=008.jpg");
-     */
+    gGame.Execute(std::string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
     
 }
 
@@ -1055,7 +844,7 @@ void WHO_InitApp()
             gGame.Execute("deleteBackRing"); 
             
             gGame.Execute("setCurrentPhoto photo=play");
-            gGame.Execute("newBackRing name=ring1 begin=PopulateLocalGameNamesRing", 1, "PopulateLocalGameNamesRing", PopulateLocalGameNamesRing);
+            gGame.Execute("newBackRing name=ring1 begin=PopulatePlayRing", 1, "PopulatePlayRing", PopulatePlayRing);
             gGame.Execute("zoomToRing ring=ring1");
             
         } else if( hitRing != 0 ) {

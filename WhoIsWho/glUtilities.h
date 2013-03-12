@@ -9,12 +9,8 @@
 #include "utilities.h"
 
 // TODO this file should be merged into renderer.h i think
-
-
 const char *NSStringToCString( const NSString *thisNSString);
 std::string NSStringToString(NSString *thisNSString);
-NSString *StringToNSString(std::string aString);
-
 enum Texture2DPixelFormat {
 	kTexture2DPixelFormat_Automatic = 0,
 	kTexture2DPixelFormat_RGBA8888,
@@ -39,5 +35,4 @@ int GL_LoadTextureFromFile(const char * inFileName, ImageInfo & outImageInfo);
 NSString *getGameDataFolderPath();
 NSString *getGameDataFolderPath(NSString *thisGame);
 NSString *getGameFileNameNSString(std::string fileName);
-
 #endif

@@ -370,7 +370,6 @@ bool WhoParser::AddMaskToPhoto(const char * inStr, int & inOutPos) {
     inOutPos = pos;
     return false;
 }
-
 bool WhoParser::NewBackRing(const char * inStr, int & inOutPos) {
     typedef void (* newBackRing_beginCallback)(who::Ring & inRing, void * inArgs);
     
@@ -392,7 +391,9 @@ bool WhoParser::NewBackRing(const char * inStr, int & inOutPos) {
         if( KeyValue("args", inStr, inOutPos, argsStr) ) {
             args = gGame._animationVars[argsStr];
         }
-        
+        if (!args) {
+            args = StringToNSString(argsStr);
+        }
         gGame._rings._rings[nameStr] = who::Ring(nameStr, who::eRingTypePlay);
         
         who::Ring & ring = gGame._rings._rings[nameStr];

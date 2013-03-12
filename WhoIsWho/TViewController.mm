@@ -257,15 +257,16 @@ void PopulateTitleRing(who::Ring & inRing, void *)
     gGame._animations.push_back(std::string("addPhotoToRing name=editor user=edit type=photo ring=") + inRing._name);
 }
 
-void PopulatePlayRing(who::Ring & inRing, void *argsStr)
+static void PopulatePlayRing(who::Ring & inRing, void *argsStr)
 // this function is the callback target to populate the play ring
 {
     std::string ring = inRing._name;
 
-#if 0
+#if 1
 
     //////////////////////
     NSString *gameName = (__bridge NSString *)argsStr;
+    if ( !gameName) return; 
     gameName = [gameName stringByAppendingPathExtension: kFileExtension];
     NSString *gameNameFullpath = getGameFileNameNSString(NSStringToString(gameName));
     LoadGame(gameNameFullpath);
@@ -351,8 +352,13 @@ void PopulatePlayRing(who::Ring & inRing, void *argsStr)
         
         
 #endif
-    //std::string ring = inRing._name;
-#if 1
+}
+
+static void PopulateEditorRing(who::Ring & inRing, void *argsStr)
+// this function is the callback target to populate the play ring
+{
+    std::string ring = inRing._name;
+    
     gGame.Execute("addImageFromFile name=joe file=\"face 001.png\"");
     gGame.Execute(std::string("addPhotoToRing name=face 001.png user=joe type=face ring=") + ring);
     
@@ -370,8 +376,6 @@ void PopulatePlayRing(who::Ring & inRing, void *argsStr)
     gGame.Execute("addImageFromFile name=007 file=007.jpg");
     gGame.Execute("addImageFromFile name=008 file=008.jpg");
     
-
-#endif
     gGame.Execute(std::string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
@@ -384,8 +388,32 @@ void PopulatePlayRing(who::Ring & inRing, void *argsStr)
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
     
+    
+    /////////
+    gGame.Execute(std::string("addPhotoToRing name=004.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=004.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=004.jpg");
+    
+    gGame.Execute(std::string("addPhotoToRing name=005.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=005.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=005.jpg");
+    
+    gGame.Execute(std::string("addPhotoToRing name=006.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=006.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=006.jpg");
+    
+    gGame.Execute(std::string("addPhotoToRing name=007.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=007.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=007.jpg");
+    
+    gGame.Execute(std::string("addPhotoToRing name=008.jpg user=joe type=photo ring=") + ring);
+    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=008.jpg");
+    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=008.jpg");
+    
+    gGame.Execute("addImageFromFile name=addPhoto.png file=addPhoto.png");
+    gGame.Execute(std::string("addPhotoToRing name=addPhoto.png user=addPhoto.png type=photo ring=") + ring);
+    
 }
-
 void WHO_InitApp()
 // This function allocates static opengl resources (shader programs, vertex arrays, texture images) for the game
 // and creates the first ring - the Title ring.
@@ -561,7 +589,7 @@ void WHO_InitApp()
     gameName.font = [UIFont systemFontOfSize:fontSize];
     
     [gameName setBackgroundColor:[UIColor whiteColor]];
-    gameName.text = StringToNSString(_currentLoadedGame->_filename);
+    gameName.text = (__bridge NSString *)StringToNSString(_currentLoadedGame->_filename);
     
     gameName.adjustsFontSizeToFitWidth = YES;
     gameName.autocorrectionType = UITextAutocorrectionTypeNo;
@@ -577,12 +605,12 @@ void WHO_InitApp()
 
 - (IBAction) requestToLoadGame:(id) sender
 {
-    std::string commandStr = "newBackRing name=local begin=PopulatePlayRing";
+    std::string commandStr = "newBackRing name=playRing begin=PopulatePlayRing";
     commandStr +=" args=";
     commandStr +=_currentLoadedGame->_filename;
     
     gGame.Execute(commandStr, 1, "PopulatePlayRing", PopulatePlayRing);
-    gGame.Execute("zoomToRing ring=ring2");
+    gGame.Execute("zoomToRing ring=playRing");
     
     deleteGameButton.hidden = YES;
     loadGameButton.hidden = YES;
@@ -768,10 +796,10 @@ void WHO_InitApp()
     if( hitPhoto )
     {
         //_currentHitPhoto = hitPhoto;
-        if( hitPhoto && hitPhoto->_filename=="addPhoto.png" && hitRing->_name =="local") {
+        if( hitPhoto && hitPhoto->_filename=="addPhoto.png") {
             [self showImagePhotosPicker:touchPoint ];
         }
-    	else if( hitPhoto && hitRing->_name =="ring1") {
+    	else if( hitPhoto && hitRing->_name =="gameNamesRing") {
             _currentLoadedGame = hitPhoto;
 			//  WHO_Execute("newBackRing name=ring2 begin=PopulatePlayRing", 1, "PopulatePlayRing", PopulatePlayRing);
 			//WHO_Execute("zoomToRing ring=ring2");
@@ -818,7 +846,7 @@ void WHO_InitApp()
 			gameName.font = [UIFont systemFontOfSize:12.0];
 			
 			[gameName setBackgroundColor:[UIColor whiteColor]];
-			gameName.text = StringToNSString(hitPhoto->_filename);
+			gameName.text =(__bridge NSString *)StringToNSString(hitPhoto->_filename);
 			
 			gameName.adjustsFontSizeToFitWidth = YES;
 			gameName.autocorrectionType = UITextAutocorrectionTypeNo;
@@ -840,12 +868,20 @@ void WHO_InitApp()
             }
 
     	}
+        else if( hitPhoto->_filename == "editor" ) {
+            gGame.Execute("deleteBackRing");
+            
+            gGame.Execute("setCurrentPhoto photo=editor");
+            gGame.Execute("newBackRing name=playRing begin=PopulateEditorRing", 1, "PopulateEditorRing", PopulateEditorRing);
+            gGame.Execute("zoomToRing ring=playRing");
+            
+        }
     	else if( hitPhoto->_filename == "play" ) {
-            gGame.Execute("deleteBackRing"); 
+            gGame.Execute("deleteBackRing");
             
             gGame.Execute("setCurrentPhoto photo=play");
-            gGame.Execute("newBackRing name=ring1 begin=PopulatePlayRing", 1, "PopulatePlayRing", PopulatePlayRing);
-            gGame.Execute("zoomToRing ring=ring1");
+            gGame.Execute("newBackRing name=gameNamesRing begin=PopulateLocalGameNamesRing", 1, "PopulateLocalGameNamesRing", PopulateLocalGameNamesRing);
+            gGame.Execute("zoomToRing ring=gameNamesRing");
             
         } else if( hitRing != 0 ) {
             
@@ -1128,7 +1164,7 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
         
         std::string faceFileName = aphoto->_filename;
         
-        NSString *faceFileNameString = StringToNSString(faceFileName);
+        NSString *faceFileNameString = (__bridge NSString *)StringToNSString(faceFileName);
         NSString *faceString = [tmpGameDataPath stringByAppendingPathComponent:faceFileNameString];
         if ( faceFileNameString )
             [zip addFileToZip:faceString newname:faceFileNameString];
@@ -1140,7 +1176,7 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
         
         std::string faceFileName = aphoto->_filename;
         
-        NSString *faceFileNameString = StringToNSString(faceFileName);
+        NSString *faceFileNameString = (__bridge NSString *)StringToNSString(faceFileName);
         NSString *faceString = [tmpGameDataPath stringByAppendingPathComponent:faceFileNameString];
         if ( faceFileNameString )
             [zip addFileToZip:faceString newname:faceFileNameString];

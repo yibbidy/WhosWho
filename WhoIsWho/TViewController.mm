@@ -806,14 +806,21 @@ void WHO_InitApp()
 			
 			float z = -hitRing->_stackingOrder;
 			who::Photo * currentPhoto = gGame.GetPhoto(hitRing->_photos[hitRing->_selectedPhoto]);
-            glm::vec4 cornerPt = gGame._camera._vpvMat * (currentPhoto->_transform * glm::vec4(-0.5, -0.5, z, 1));
+            glm::vec4 cornerPt = gGame._camera._vpMat * (currentPhoto->_transform * glm::vec4(-0.5, -0.5, z, 1));
             cornerPt /= cornerPt.w;
+           
             
-            glm::vec4 cornerPt2 = gGame._camera._vpvMat * (currentPhoto->_transform * glm::vec4(0.5, -0.5, z, 1));
+            glm::vec4 cornerPt2 = gGame._camera._vpMat * (currentPhoto->_transform * glm::vec4(0.5, -0.5, z, 1));
 			cornerPt2 /= cornerPt2.w;
             
+            int viewportWidth = gGame._camera._viewport[2];
+			int viewportHeight =gGame._camera._viewport[3];
+            cornerPt.x = 0.5*viewportWidth*(cornerPt.x+1.0);
+			cornerPt.y = viewportHeight- 0.5*viewportHeight*(cornerPt.y+1.0);
+			cornerPt2.x = 0.5*viewportWidth*(cornerPt2.x+1.0);
+			cornerPt2.y = viewportHeight- 0.5*viewportHeight*(cornerPt2.y+1.0);
 			// Add a delete button right below
-			CGRect buttonRect = CGRectMake(cornerPt[0], cornerPt[1], kButtonWidth, kButtonHeight);
+			CGRect buttonRect = CGRectMake(cornerPt.x, cornerPt.y, kButtonWidth, kButtonHeight);
 			deleteGameButton = [UIButton buttonWithType:UIButtonTypeCustom];
 			
 			UIImage *uiImage  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"list_remove" ofType:@"png"]];
@@ -826,7 +833,7 @@ void WHO_InitApp()
 			[self.view addSubview:deleteGameButton];
 			
 			//Add a load button
-			buttonRect = CGRectMake(cornerPt[0]+kButtonWidth+kButtonOffsetX, cornerPt[1], kButtonWidth, kButtonHeight);
+			buttonRect = CGRectMake(cornerPt.x+kButtonWidth+kButtonOffsetX, cornerPt.y, kButtonWidth, kButtonHeight);
 			loadGameButton = [UIButton buttonWithType:UIButtonTypeCustom];
 			
 			uiImage  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"load2" ofType:@"png"]];

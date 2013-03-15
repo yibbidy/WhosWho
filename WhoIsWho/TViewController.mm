@@ -909,9 +909,30 @@ void WHO_InitApp()
             gGame.Execute("deleteBackRing");
             
             gGame.Execute("setCurrentPhoto photo=play");
+
             gGame.Execute("newBackRing name=gameNamesRing begin=PopulateLocalGameNamesRing", 1, "PopulateLocalGameNamesRing", PopulateLocalGameNamesRing);
             gGame.Execute("zoomToRing ring=gameNamesRing");
             
+
+        }
+        else if( hitPhoto->_filename == "editor" )
+        {
+            if( gGame._zoomedToPhoto )
+            {
+                gGame.Execute("newBackRing name=editorRing begin=PopulateEditorRing", 1, "PopulateEditorRing", PopulateEditorRing);
+                gGame.Execute("zoomToRing ring=editorRing");
+            }
+            else
+            {
+                sprintf(command, "zoomToPhoto photo=%s", hitPhoto->_filename.c_str());
+                gGame.Execute(command);
+            }
+        }
+        else if( hitPhoto->_filename == "addPhoto" )
+        {
+            gGame.Execute("showDrawer drawer=faces");
+        
+
         } else if( hitRing != 0 ) {
             
             if( gGame._zoomedToPhoto ) {

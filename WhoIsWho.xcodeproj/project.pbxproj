@@ -15,6 +15,7 @@
 		1D44BEC616D9D513009F2C87 /* Animation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1D44BEC416D9D512009F2C87 /* Animation.cpp */; };
 		1D44BEC916D9D707009F2C87 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1D44BEC716D9D706009F2C87 /* Camera.cpp */; };
 		1D44BECC16D9D826009F2C87 /* Renderer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1D44BECA16D9D825009F2C87 /* Renderer.mm */; };
+		1DEEAAC716ED3E5400340F1E /* Save.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8916DB61169C509600F9E3C6 /* Save.png */; };
 		8916DB54169BAC1F00F9E3C6 /* ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 8916DB43169BAC1F00F9E3C6 /* ioapi.c */; };
 		8916DB56169BAC1F00F9E3C6 /* mztools.c in Sources */ = {isa = PBXBuildFile; fileRef = 8916DB46169BAC1F00F9E3C6 /* mztools.c */; };
 		8916DB58169BAC1F00F9E3C6 /* unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 8916DB49169BAC1F00F9E3C6 /* unzip.c */; };
@@ -114,6 +115,19 @@
 			remoteInfo = WhoIsWho;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		1DEEAAC616ED3D9200340F1E /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 16;
+			files = (
+				1DEEAAC716ED3E5400340F1E /* Save.png in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1D20D91C16D920E100292CE8 /* CreateNewAccount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateNewAccount.h; sourceTree = "<group>"; };
@@ -466,6 +480,7 @@
 				89ED839814FB575800B8B581 /* Sources */,
 				89ED839914FB575800B8B581 /* Frameworks */,
 				89ED839A14FB575800B8B581 /* Resources */,
+				1DEEAAC616ED3D9200340F1E /* CopyFiles */,
 			);
 			buildRules = (
 			);

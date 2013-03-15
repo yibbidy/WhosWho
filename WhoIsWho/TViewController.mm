@@ -750,7 +750,6 @@ void WHO_InitApp()
 
 -(void ) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    
     UITouch * touch = [touches anyObject];
     CGPoint touchPoint = [touch  locationInView:self.view];
     
@@ -894,48 +893,54 @@ void WHO_InitApp()
 
     	}
         else if( hitPhoto->_filename == "editor" ) {
-            gGame.Execute("deleteBackRing");
-            
-            gGame.Execute("setCurrentPhoto photo=editor");
-            gGame.Execute("newBackRing name=playRing begin=PopulateEditorRing", 1, "PopulateEditorRing", PopulateEditorRing);
-
-            _currentLoadedGame = gGame.GetPhoto(hitRing->_photos[hitRing->_selectedPhoto]);
-           
-            [self displaySaveAndUploadButtons];
-          //  gGame.Execute("zoomToRing ring=playRing");
-            
-        }
-    	else if( hitPhoto->_filename == "play" ) {
-            gGame.Execute("deleteBackRing");
-            
-            gGame.Execute("setCurrentPhoto photo=play");
-
-            gGame.Execute("newBackRing name=gameNamesRing begin=PopulateLocalGameNamesRing", 1, "PopulateLocalGameNamesRing", PopulateLocalGameNamesRing);
-            gGame.Execute("zoomToRing ring=gameNamesRing");
-            
-
-        }
-        else if( hitPhoto->_filename == "editor" )
-        {
             if( gGame._zoomedToPhoto )
             {
-                gGame.Execute("newBackRing name=editorRing begin=PopulateEditorRing", 1, "PopulateEditorRing", PopulateEditorRing);
-                gGame.Execute("zoomToRing ring=editorRing");
+                gGame.Execute("deleteBackRing");
+                
+                gGame.Execute("setCurrentPhoto photo=editor");
+                gGame.Execute("newBackRing name=playRing begin=PopulateEditorRing", 1, "PopulateEditorRing", PopulateEditorRing);
+                
+                _currentLoadedGame = gGame.GetPhoto(hitRing->_photos[hitRing->_selectedPhoto]);
+                
+                [self displaySaveAndUploadButtons];
+                //  gGame.Execute("zoomToRing ring=playRing");
+                
             }
             else
             {
                 sprintf(command, "zoomToPhoto photo=%s", hitPhoto->_filename.c_str());
                 gGame.Execute(command);
             }
+            
+            
+        }
+    	else if( hitPhoto->_filename == "play" ) {
+            if( gGame._zoomedToPhoto )
+            {
+                gGame.Execute("deleteBackRing");
+                
+                gGame.Execute("setCurrentPhoto photo=play");
+
+                gGame.Execute("newBackRing name=gameNamesRing begin=PopulateLocalGameNamesRing", 1, "PopulateLocalGameNamesRing", PopulateLocalGameNamesRing);
+                gGame.Execute("zoomToRing ring=gameNamesRing");
+            }
+            else
+            {
+                gGame.Execute("zoomToPhoto photo=play");
+            }
+
         }
         else if( hitPhoto->_filename == "addPhoto" )
         {
             gGame.Execute("showDrawer drawer=faces");
         
 
-        } else if( hitRing != 0 ) {
+        }
+        else if( hitRing != 0 )
+        {
             
-            if( gGame._zoomedToPhoto ) {
+            if( gGame._zoomedToPhoto )
+            {
                 gGame.Execute("zoomToRing");
                 
             } else {

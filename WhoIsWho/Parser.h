@@ -30,11 +30,12 @@ private:
     static bool SetCurrentPhoto(const char * inStr, int & inOutPos);
     static bool DecrementCurrentPhoto(const char * inStr, int & inOutPos);
     static bool AddImageFromText(const char * inStr, int & inOutPos);
+    static bool AddImageFromTextAndImage(const char * inStr, int & inOutPos);
     static bool AddImageFromFile(const char * inStr, int & inOutPos);
     static bool AddPhotoToRing(const char * inStr, int & inOutPos);
     static bool AddMaskToPhoto(const char * inStr, int & inOutPos);
     static bool NewBackRing(const char * inStr, int & inOutPos);
-    static bool DeleteBackRing(const char * inStr, int &inOutPos);
+    static bool DeleteRingsAfter(const char * inStr, int &inOutPos);
     
 };
 

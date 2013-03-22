@@ -13,7 +13,7 @@
 #include <OpenGLES/ES2/glext.h>
 #include <fstream>
 #include "glm/glm.hpp"
-
+#define kThumbnailImageFileName @"thumbnail.png"
 #define for_i(size) for( size_t i=0; i<size; i++ )
 #define for_j(size) for( size_t j=0; j<size; j++ )
 #define for_k(size) for( size_t k=0; k<size; k++ )
@@ -56,8 +56,9 @@ bool OS_DoesFileExist(const std::string & inFilename);
 bool OS_SaveImageFile(const std::string & inFilename, ImageInfo & inImageInfo);
 
 int GL_LoadTextureFromText(std::string inText/*const NSString *text*/,ImageInfo & outImageInfo );
+int GL_LoadTextureFromTextAndImage(std::string inText, std::string imageFileName,ImageInfo & outImageInfo );
 int GL_LoadTextureFromFile(const char * inFileName, ImageInfo & outImageInfo);
-
+void *GL_GetUIImageFromFile(const char * inFileName);
 
 
 // point transform - assuming the matrix has an implicit bottom row of (0, 0, 0, 1) and
@@ -164,6 +165,7 @@ std::string ReadQuotedString(std::string & line, int & pos, bool * outIsEmptyStr
 void *StringToNSString(std::string aString);
 
 void *StringToNSString(std::string aString);
+void turnOffAllButtons();
 
 #endif
 

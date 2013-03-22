@@ -28,10 +28,10 @@ enum Texture2DPixelFormat {
 };
 GLuint GL_CreateOpenGLTexture(const void *data, Texture2DPixelFormat pixelFormat, NSUInteger width,  NSUInteger height);
 GLuint GL_ConvertUIImageToOpenGLTexture(const UIImage *uiImage, int &imageWidth, int &imageHeight, int &width, int &height, unsigned char *&imageData);
-//int GL_LoadTextureFromText(const NSString *text,ImageInfo & outImageInfo );
 int GL_LoadTextureFromText(std::string inText/*const NSString *text*/,ImageInfo & outImageInfo);
+int GL_LoadTextureFromTextAndImage(std::string inText,std::string imageFile,ImageInfo & outImageInfo);
 int GL_LoadTextureFromFile(const char * inFileName, ImageInfo & outImageInfo);
-
+void *GL_GetUIImageFromFile(const char * inFileName);
 NSString *getGameDataFolderPath();
 NSString *getGameDataFolderPath(NSString *thisGame);
 NSString *getGameFileNameNSString(std::string fileName);

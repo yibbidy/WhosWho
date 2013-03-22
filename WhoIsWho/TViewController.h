@@ -11,16 +11,20 @@
 #import "CreateNewAccount.h"
 
 #define kFileExtension @"who"
+UITextField *gameName;
+UITextField *gameNameOnPlayrRing;
+UITextField *gameNameOnNameRing;
+UIButton *deleteGameButton;
+UIButton *loadGameButton;
+UIButton *saveGameButton;
+UIButton *uploadButton;
+CGRect gameNameEditRectOnPlayRing;
+CGRect gameNameEditRectOnNameRing;
 
 @interface TViewController : GLKViewController<UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIPopoverControllerDelegate, UITextFieldDelegate, GameDoneControllerDelegate, RegistrationDelegate> {
    
     UIImagePickerController *imagePickerController;
     float _rotation;
-    UITextField *gameName;
-    UIButton *deleteGameButton;
-    UIButton *loadGameButton;
-    UIButton *saveGameButton;
-    UIButton *uploadButton; 
     
     UIPopoverController *popoverController;
     IBOutlet UIBarButtonItem *gameDoneButton;
@@ -36,6 +40,8 @@
 @property (nonatomic, retain) UIPopoverController *popoverController;
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) GLKBaseEffect *effect;
+@property (assign) BOOL requestToDisplayLoadAndDeleteButtons;
+@property (assign) BOOL requestToDisplaySaveAndUploadButtons;
 
 - (void)setupGL;
 - (void)tearDownGL;

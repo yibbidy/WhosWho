@@ -4,7 +4,7 @@
 // TODO should these functions be merged into Renderer.h and .mm?
 
 #include "glUtilities.h"
-
+#import "glUtilities.h"
 
 const char *NSStringToCString( const NSString *thisNSString)
 {
@@ -514,38 +514,73 @@ const char *getGameFileName(std::string fileName)
 	else 
 		return nil; 
 }
-
-int GL_LoadTextureFromFile(const char * inFileName, ImageInfo & outImageInfo)
+void *GL_GetThumbailImageForGame(const char * gameName)
 {
-    int errorCode = 0;
-    outImageInfo.texID = 0;
-    
-	// convert c stirng to NSString first 
-	NSString *newFileName  = [NSString stringWithUTF8String: inFileName];	
-	// Check whether it is in the resource, if it is, should be no problem creating UIImage of it 
+    // convert c stirng to NSString first
+	NSString *newFileName  = [NSString stringWithUTF8String: gameName];
+	// Check whether it is in the resource, if it is, should be no problem creating UIImage of it
 	//=  [UIImage imageWithContentsOfFile:newFileName ];
-	newFileName = [newFileName lastPathComponent]; 
-	NSString *extension = [newFileName pathExtension]; 
-	NSString *newFileNameWithNoExtension = [newFileName stringByDeletingPathExtension]; 
+	newFileName = [newFileName lastPathComponent];
+	NSString *extension = [newFileName pathExtension];
+	NSString *newFileNameWithNoExtension = [newFileName stringByDeletingPathExtension];
 	
     UIImage *uiImage  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:newFileNameWithNoExtension ofType:extension]];
 	
 	if ( !uiImage ) {
-		NSString *gameDataFolderPath = (NSString *)getGameDataFolderPath(); 	
+		NSString *gameDataFolderPath = (NSString *)getGameDataFolderPath(newFileName);
 		
 		if (gameDataFolderPath) {
             
-			newFileName = [ gameDataFolderPath stringByAppendingPathComponent: newFileName]; 
+			//newFileName = [ gameDataFolderPath stringByAppendingPathComponent: newFileName];
+            newFileName = [ gameDataFolderPath stringByAppendingPathComponent: kThumbnailImageFileName];
             
-        	NSLog (newFileName); 
+        	NSLog (newFileName);
             uiImage =  [UIImage imageWithContentsOfFile:newFileName ];
             
-            ///Test send function 
-            //[viewController startSend:newFileName]; 
+            ///Test send function
+            //[viewController startSend:newFileName];
             
 		}
 	}
+    
+    return (__bridge void *)uiImage;
+}
+void *GL_GetUIImageFromFile(const char * inFileName)
+{
+    // convert c stirng to NSString first
+	NSString *newFileName  = [NSString stringWithUTF8String: inFileName];
+	// Check whether it is in the resource, if it is, should be no problem creating UIImage of it
+	//=  [UIImage imageWithContentsOfFile:newFileName ];
+	newFileName = [newFileName lastPathComponent];
+	NSString *extension = [newFileName pathExtension];
+	NSString *newFileNameWithNoExtension = [newFileName stringByDeletingPathExtension];
 	
+    UIImage *uiImage  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:newFileNameWithNoExtension ofType:extension]];
+	
+	if ( !uiImage ) {
+		NSString *gameDataFolderPath = (NSString *)getGameDataFolderPath();
+		
+		if (gameDataFolderPath) {
+            
+			newFileName = [ gameDataFolderPath stringByAppendingPathComponent: newFileName];
+            
+        	NSLog (newFileName);
+            uiImage =  [UIImage imageWithContentsOfFile:newFileName ];
+            
+            ///Test send function
+            //[viewController startSend:newFileName];
+            
+		}
+	}
+
+    return (__bridge void *)uiImage;
+}
+int GL_LoadTextureFromFile(const char * inFileName, ImageInfo & outImageInfo)
+{
+    int errorCode = 0;
+    outImageInfo.texID = 0;
+
+	UIImage *uiImage = (__bridge UIImage *)GL_GetUIImageFromFile(inFileName);
 	if ( uiImage ) {
 		
 		// Turn off this call to copy some images into photos folder in iPhone simulator. 
@@ -654,6 +689,7 @@ int GL_LoadTextureFromText(std::string inText/*const NSString *text*/,ImageInfo 
 	CGColorSpaceRelease(colorSpace);
 
 	///////////////////////////////////
+#if 0 
     UIImage *testImage  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Title" ofType:@"png"]];
     CGSize size1 = testImage.size;
     CGSize size2 = uiImage.size;
@@ -667,6 +703,7 @@ int GL_LoadTextureFromText(std::string inText/*const NSString *text*/,ImageInfo 
     UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     uiImage = newImage;
+#endif 
 	if ( uiImage ) {
 		
 		// Turn off this call to copy some images into photos folder in iPhone simulator. 
@@ -689,3 +726,110 @@ int GL_LoadTextureFromText(std::string inText/*const NSString *text*/,ImageInfo 
 	
     return errorCode;
 }
+
+//////
+int GL_LoadTextureFromTextAndImage(std::string inText, std::string imageFileName,ImageInfo & outImageInfo )
+{
+    int errorCode = 0;
+    outImageInfo.texID = 0;
+    
+    NSString * text  = [NSString stringWithUTF8String: inText.c_str()];
+    
+	CGContextRef ctx;
+	CGColorSpaceRef            colorSpace;
+	
+	NSString *fontName = @"Helvetica-Bold";
+	int fontSize = 62;//22;
+	
+	UIFont *font = [UIFont fontWithName:fontName size:fontSize];
+	// Precalculate size of text and size of font so that text fits inside placard
+	CGSize textSize = [text sizeWithFont:font] ; //forWidth:320 lineBreakMode:UILineBreakModeWordWrap];
+	
+	int width =  textSize.width+30;
+	int height = textSize.height+15;
+	
+	/////
+	// Draw text first
+	colorSpace = CGColorSpaceCreateDeviceRGB();
+	ctx = CGBitmapContextCreate(NULL, width, height, 8, 4 * width, colorSpace, kCGImageAlphaPremultipliedLast);
+    
+	CGContextSetRGBFillColor(ctx, 0.0, 1.0, 0.0, 0.0f);
+    //CGContextSetAlpha(ctx, 0.5f);
+	CGContextSelectFont(ctx, "Helvetica-Bold", fontSize, kCGEncodingMacRoman);
+	//
+	CGContextSetTextDrawingMode(ctx, kCGTextFill);
+    CGRect rect;
+    rect.origin.x = 0;
+    rect.origin.y = 0;
+    rect.size = textSize;
+    
+	CGContextClearRect(ctx,  CGContextGetPathBoundingBox(ctx));
+	CGContextSetRGBFillColor(ctx, 0, 0, 0, 1); // red text
+	CGContextStrokePath(ctx);
+    CGContextSetBlendMode(ctx, kCGBlendModeNormal);
+    size_t temp = CGBitmapContextGetBitsPerPixel(ctx);
+    CGImageAlphaInfo info = CGBitmapContextGetAlphaInfo(ctx);
+	//rotate text
+	//CGContextSetTextMatrix(imageContext, CGAffineTransformMakeRotation( -M_PI/4 ));
+	
+	//CGContextShowTextAtPoint(ctx, 4, 52, text, strlen(text));
+	float xOffset = 0.5*(width - textSize.width);
+	float yOffset = 0.5*(height - textSize.height)+10;
+    
+    const char *cText = NSStringToCString(text);
+    
+	CGContextShowTextAtPoint(ctx, xOffset, yOffset,cText, strlen(cText));
+	CGImageRef imageMasked = CGBitmapContextCreateImage(ctx);
+	
+	UIImage *uiImage =  [UIImage imageWithCGImage:imageMasked];
+    
+	CGContextRelease(ctx);
+	CGColorSpaceRelease(colorSpace);
+    
+	///////////////////////////////////
+    UIImage *addedImage  =(__bridge UIImage *) GL_GetThumbailImageForGame(imageFileName.c_str());
+    if ( addedImage) {
+        CGSize size1 = addedImage.size;
+        CGSize size2 = uiImage.size;
+        CGSize size3;
+        size3.width = fmaxf(size1.width, size2.width);
+        
+        size1.height *= size3.width/size1.width;
+        size1.width = size3.width;
+        
+        size2.height *= size3.width/size2.width;
+        size2.width = size3.width;
+        
+        size3.height = size1.height+ size2.height;
+      
+        UIGraphicsBeginImageContext(size3);
+        [addedImage drawInRect:CGRectMake(0,0,size1.width,size1.height)];
+        
+        [uiImage drawInRect:CGRectMake(0,size1.height,size2.width,size2.height) blendMode:kCGBlendModeNormal alpha:1.0];
+        UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        uiImage = newImage;
+    }
+	if ( uiImage ) {
+		
+		// Turn off this call to copy some images into photos folder in iPhone simulator.
+		//UIImageWriteToSavedPhotosAlbum(uiImage, nil, nil, nil);
+		
+		// Create OpenGL texture from uiImage
+        
+        outImageInfo.texID = GL_ConvertUIImageToOpenGLTexture(uiImage, outImageInfo.originalWidth, outImageInfo.originalHeight,
+                                                              outImageInfo.texWidth, outImageInfo.texHeight, outImageInfo.image);
+        
+        
+        //outImageInfo.width = outImageInfo.texWidth;
+        //outImageInfo.height = outImageInfo.texHeight;
+		outImageInfo.bitDepth = 32;
+        outImageInfo.rowBytes = outImageInfo.bitDepth/8 * outImageInfo.texWidth;
+        
+	}else {
+        errorCode = 1;
+    }
+	
+    return errorCode;
+}
+//////

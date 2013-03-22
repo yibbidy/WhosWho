@@ -177,6 +177,7 @@ namespace who
         int _currentAnmID;
         
         Camera _camera;
+        
     };
     
     float SmoothFn(float inT, float * inParams);

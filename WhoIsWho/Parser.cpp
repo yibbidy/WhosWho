@@ -131,6 +131,7 @@ bool WhoParser::ZoomToRing(const char * inStr, int & inOutPos) {
         gGame._currentAnmID = AnimationSystem::CreateFloatAnimation(gGame._camera._pos.z, endZ, 2.0f, InterpolationTypeSmooth, &gGame._camera._pos.z);
         
         gGame._zoomedToPhoto = false;
+        turnOffAllButtons();
         
         return true;
     }
@@ -287,7 +288,25 @@ bool WhoParser::AddImageFromText(const char * inStr, int & inOutPos) {
     inOutPos = pos;
     return false;
 }
-
+bool WhoParser::AddImageFromTextAndImage(const char * inStr, int & inOutPos) {
+    int pos = inOutPos;
+    
+    std::string name;
+    std::string text;
+    std::string imageFile;
+    if( Word(inStr, inOutPos) == "addImageFromTextAndImage"
+       && KeyValue("name", inStr, inOutPos, name)
+       && KeyValue("text", inStr, inOutPos, text)
+       && KeyValue("imageFile", inStr, inOutPos, imageFile))
+    {
+        GL_LoadTextureFromTextAndImage(text, imageFile, gGame._images[name]);
+        
+        return true;
+    }
+    
+    inOutPos = pos;
+    return false;
+}
 
 bool WhoParser::AddImageFromFile(const char * inStr, int & inOutPos) {
     int pos = inOutPos;
@@ -416,7 +435,40 @@ bool WhoParser::NewBackRing(const char * inStr, int & inOutPos) {
     return false;
     
 }
+    
+bool WhoParser::DeleteRingsAfter(const char * inStr, int & inOutPos) {
+   
+    int pos = inOutPos;
+    
+    std::string keepRing;
+    
+           
+    if( Word(inStr, inOutPos) == "deleteRingsAfter"
+       && KeyValue("ring", inStr, inOutPos, keepRing) )
+    {
+        int keepRingI = 0;
+        for( keepRingI=0; keepRingI<gGame._rings._stackingOrder.size(); keepRingI++ )
+            if( gGame._rings._stackingOrder[keepRingI] == keepRing )
+                break;
+        
+        keepRingI++;
+        if( keepRingI < gGame._rings._stackingOrder.size() )
+        {
+            while( gGame._rings._stackingOrder.back() != keepRing )
+            {
+                gGame._rings._rings.erase(gGame._rings._stackingOrder.back());
+                gGame._rings._stackingOrder.pop_back();
+            }
+        }
+       
+        return true;
+    }
+    
+    inOutPos = pos;
+    return false;
 
+    
+}
 bool WhoParser::PRS_Command(const char * inStr, int & inOutPos) {
     int pos = inOutPos;
     
@@ -433,10 +485,14 @@ bool WhoParser::PRS_Command(const char * inStr, int & inOutPos) {
     } else if( DecrementCurrentPhoto(inStr, inOutPos) ) {
         
     } else if( NewBackRing(inStr, inOutPos) ) {
+    
+    } else if( DeleteRingsAfter(inStr, inOutPos) ) {
         
     } else if( AddImageFromFile(inStr, inOutPos) ) {
         
     } else if( AddImageFromText(inStr, inOutPos) ) {
+    
+    } else if( AddImageFromTextAndImage(inStr, inOutPos) ) {
         
     } else if( AddPhotoToRing(inStr, inOutPos) ) {
         

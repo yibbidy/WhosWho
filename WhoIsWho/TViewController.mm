@@ -170,19 +170,8 @@ static void PopulateLocalGameNamesRing(who::Ring & inRing, void *) {
                 thisGame._imageI = gGame._images.size();
                 
                 std::string nameString = fileName.UTF8String;
-                //gGame._images.push_back(ImageInfo());
-                //   GL_LoadTextureFromText(fileName,  gGame._images[fileName.UTF8String]);//.back());
-                // gGame._animations.push_back("addImageFromText name=create text=Create");
-                //  gGame._animations.push_back("addImageFromText name= namestd::string text=fileName);
                 
-                // name=\"002 face 001\" file=\"002 face 001.png\"
-                
-                //  who::Photo photo;
-                //  photo.name = fileName.UTF8String;
-                //     ring._photos.push_back(photo);
-                //  ring.browseData.localGameNames.push_back(thisGame);
-                
-                gGame._animations.push_back(std::string("addImageFromText name=")+nameString+std::string(" text=")+NSStringToString(fileName));
+                gGame._animations.push_back(std::string("addImageFromTextAndImage name=")+nameString+std::string(" text=")+NSStringToString(fileName)+std::string(" imageFile=")+nameString);
                 gGame._animations.push_back(std::string("addPhotoToRing name=")+nameString+std::string(" user=")+nameString+std::string(" type=photo ring=") + inRing._name);
                 
                 
@@ -230,15 +219,6 @@ static void displayAllLocalGameNames()
 				thisGame._isEditable = true;
                 thisGame._imageI = gGame._images.size();
                 
-                
-                //gGame._images.push_back(ImageInfo());
-                //   GL_LoadTextureFromText(fileName,  gGame._images[fileName.UTF8String]);//.back());
-                // gGame._animations.push_back("addImageFromText name=create text=Create");
-                gGame._animations.push_back("addImageFromText name=fileName.UTF8String text=fileName");
-                
-                //  gGame._animations.push_back(std::string("addPhotoToRing name=fileName.UTF8String image=fileName.UTF8String ring=") + inRing.name);
-                
-                
                 who::Photo photo;
                 photo._filename = fileName.UTF8String;
                 //     ring._photos.push_back(photo);
@@ -264,9 +244,6 @@ static void PopulatePlayRing(who::Ring & inRing, void *argsStr)
 {
     std::string ring = inRing._name;
 
-#if 1
-
-    //////////////////////
     NSString *gameName = (__bridge NSString *)argsStr;
     if ( !gameName) return; 
     gameName = [gameName stringByAppendingPathExtension: kFileExtension];
@@ -328,7 +305,6 @@ static void PopulatePlayRing(who::Ring & inRing, void *argsStr)
     in.close();
     gGame.Execute("addImageFromFile name=addPhoto.png file=addPhoto.png");
     gGame.Execute(std::string("addPhotoToRing name=addPhoto.png user=addPhoto.png type=photo ring=") + ring);
-#endif 
 
     /////////////////////////
 #if 0 
@@ -415,6 +391,7 @@ static void PopulateEditorRing(who::Ring & inRing, void *argsStr)
     gGame.Execute("addImageFromFile name=addPhoto.png file=addPhoto.png");
     gGame.Execute(std::string("addPhotoToRing name=addPhoto.png user=addPhoto.png type=photo ring=") + ring);
     
+    
 }
 void WHO_InitApp()
 // This function allocates static opengl resources (shader programs, vertex arrays, texture images) for the game
@@ -427,15 +404,49 @@ void WHO_InitApp()
     if( !errorCode )
         // create and show the Title ring
     {
-        gGame.Execute("newBackRing name=title begin=PopulateTitleRing", 1, "PopulateTitleRing", PopulateTitleRing);
-        gGame.Execute("zoomToRing ring=title");
-        gGame._rings._currentRing = "title";
+        gGame.Execute("newBackRing name=titleRing begin=PopulateTitleRing", 1, "PopulateTitleRing", PopulateTitleRing);
+        gGame.Execute("zoomToRing ring=titleRing");
+        gGame._rings._currentRing = "titleRing";
     }
     
     gGame._camera._lookAt = glm::vec3(0, 0, 0);
     gGame._camera._up = glm::vec3(0, 1, 0);
     
     glEnable(GL_DEPTH_TEST);
+    
+}
+
+void turnOffAllButtons()
+{
+    who::Ring * hitRing = gGame.GetCurrentRing();
+    
+    if (hitRing->_name =="playRing") {
+        deleteGameButton.hidden = YES;
+        loadGameButton.hidden = YES;
+        saveGameButton.hidden = NO;
+        uploadButton.hidden = NO;
+        gameName.hidden = NO;
+        gameName = gameNameOnPlayrRing;
+        gameName.frame = gameNameEditRectOnPlayRing;
+    }
+    
+    if (hitRing->_name =="gameNamesRing") {
+        saveGameButton.hidden = YES;
+        uploadButton.hidden = YES;
+        deleteGameButton.hidden = NO;
+        loadGameButton.hidden = NO;
+        gameName.hidden = NO;
+        gameName= gameNameOnNameRing;
+        gameName.frame = gameNameEditRectOnNameRing;
+    }
+    if (hitRing->_name =="titleRing") {
+        gameName.hidden = YES;
+        saveGameButton.hidden = YES;
+        uploadButton.hidden = YES;
+        deleteGameButton.hidden = YES;
+        loadGameButton.hidden = YES;
+    }
+    
     
 }
 
@@ -500,9 +511,72 @@ void WHO_InitApp()
     }
 
     gameName = nil;
+    
     deleteGameButton = nil;
     loadGameButton = nil;
     
+    // Instantiate the load button 
+    loadGameButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    UIImage * uiImage  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"load2" ofType:@"png"]];
+    [loadGameButton setImage:uiImage forState:UIControlStateNormal];
+    [loadGameButton setBackgroundColor:[UIColor clearColor]];
+    [loadGameButton setBackgroundImage:nil forState:UIControlStateNormal];
+    [loadGameButton addTarget:self action:@selector(requestToLoadGame:) forControlEvents:UIControlEventTouchUpInside];
+    loadGameButton.frame =CGRectMake(0, 0, 5, 5);
+    [loadGameButton setHidden:YES];
+    [self.view addSubview:loadGameButton];
+    
+    
+  
+     // Instantiate the delete button
+    deleteGameButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    uiImage  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"list_remove" ofType:@"png"]];
+    [deleteGameButton setImage:uiImage forState:UIControlStateNormal];
+    [deleteGameButton setBackgroundColor:nil];
+    [deleteGameButton setBackgroundImage:nil forState:UIControlStateNormal];
+    deleteGameButton.frame =CGRectMake(0, 0, 5, 5);
+    [deleteGameButton setHidden:YES];
+    [self.view addSubview:deleteGameButton];
+    
+    
+    //////
+    gameName = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 5, 5)];
+    gameName.delegate = self;
+    gameName.font = [UIFont systemFontOfSize:12.0];
+    [gameName setBackgroundColor:[UIColor whiteColor]];
+    gameName.adjustsFontSizeToFitWidth = YES;
+    gameName.autocorrectionType = UITextAutocorrectionTypeNo;
+    gameName.borderStyle = UITextBorderStyleRoundedRect;
+    gameName.textAlignment = UITextAlignmentCenter;
+    [gameName setHidden:YES];
+    [self.view addSubview:gameName];
+    
+    
+    saveGameButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    uiImage  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Save" ofType:@"png"]];
+    
+    [saveGameButton setImage:uiImage forState:UIControlStateNormal];
+    [saveGameButton setBackgroundColor:nil];
+    [saveGameButton setBackgroundImage:nil forState:UIControlStateNormal];
+    
+    saveGameButton.frame =CGRectMake(0, 0, 5, 5);
+    [saveGameButton addTarget:self action:@selector(requestToSaveGame:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:saveGameButton];
+    
+    
+    uploadButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    
+    uiImage  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"go_up" ofType:@"png"]];
+    
+    [uploadButton setImage:uiImage forState:UIControlStateNormal];
+    [uploadButton setBackgroundColor:nil];
+    [uploadButton setBackgroundImage:nil forState:UIControlStateNormal];
+    
+    uploadButton.frame = CGRectMake(0, 0, 5, 5);
+    [uploadButton addTarget:self action:@selector(requestToUploadGame:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:uploadButton];
+    
+    ///////
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
 	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
@@ -565,10 +639,6 @@ void WHO_InitApp()
 			thisGame._isEditable = true;
             thisGame._imageI = gGame._images.size();
             
-           
-            //gGame._images.push_back(ImageInfo());
-        //    GL_LoadTextureFromText(fileName,  gGame._images[fileName.UTF8String]);//.back()); 
-            
             who::Photo photo;
             photo._filename = fileName.UTF8String;
             //photo.imageI = thisGame.imageI;
@@ -584,20 +654,28 @@ void WHO_InitApp()
 
 }
 
--(void) createGameNameEditBox:(CGRect)textEditRect fontSize:(CGFloat)fontSize
+-(void) createGameNameEditBox:(CGRect)textEditRect fontSize: (CGFloat) fontSize
 {
+     who::Ring * hitRing = gGame.GetCurrentRing();
+    who::Photo * currentPhoto = _currentLoadedGame;// gGame.GetPhoto(hitRing->_photos[hitRing->_selectedPhoto]);
+    
+    if (hitRing->_name =="playRing")
+        gameNameEditRectOnPlayRing = textEditRect;
+    else if (hitRing->_name == "gameNamesRing")
+        gameNameEditRectOnNameRing = textEditRect;
+    
     gameName = [[UITextField alloc] initWithFrame:textEditRect];
-    gameName.delegate = self;
+    
     gameName.font = [UIFont systemFontOfSize:fontSize];
     [gameName setBackgroundColor:[UIColor whiteColor]];
-    who::Ring * hitRing = gGame.GetCurrentRing();
+    gameNameOnPlayrRing = gameName;
     
     if (hitRing->_name=="title" ) {
         gameName.text = @"Choose Your Game Name";
         [gameName setTextColor:[UIColor orangeColor]];
     }
      else {
-        gameName.text = (__bridge NSString *)StringToNSString(_currentLoadedGame->_filename);
+        gameName.text = (__bridge NSString *)StringToNSString(currentPhoto->_filename);
         [gameName setTextColor:[UIColor blackColor]];
      }
     gameName.adjustsFontSizeToFitWidth = YES;
@@ -608,16 +686,15 @@ void WHO_InitApp()
     gameName.borderStyle = UITextBorderStyleRoundedRect;
     
     gameName.textAlignment = UITextAlignmentCenter;
-    [self.view addSubview:gameName];
 
 }
-- (void) displaySaveAndUploadButtons
+-(void) displaySaveAndUploadButtons
 {
     who::Ring * hitRing = gGame.GetCurrentRing();
     
     if (hitRing ) {
         
-        who::Photo * currentPhoto = gGame.GetPhoto(hitRing->_photos[hitRing->_selectedPhoto]);
+        who::Photo * currentPhoto =_currentLoadedGame;// gGame.GetPhoto(hitRing->_photos[hitRing->_selectedPhoto]);
        //if (!_currentLoadedGame)
          //   _currentLoadedGame = currentPhoto;
         
@@ -625,8 +702,8 @@ void WHO_InitApp()
         glm::vec4 cornerPt = glm::vec4(-.5, .5, z, 1);
         glm::vec4 cornerPt2 = glm::vec4(.5, .5, z, 1);
         
-        cornerPt = gGame._camera._vpMat * (_currentLoadedGame->_transform * glm::vec3(cornerPt));
-        cornerPt2 = gGame._camera._vpMat * (_currentLoadedGame->_transform * glm::vec3(cornerPt2));
+        cornerPt = gGame._camera._vpMat * (currentPhoto->_transform * glm::vec3(cornerPt));
+        cornerPt2 = gGame._camera._vpMat * (currentPhoto->_transform * glm::vec3(cornerPt2));
         
         int viewportWidth = gGame._camera._viewport[2];
         int viewportHeight = gGame._camera._viewport[3];
@@ -651,35 +728,22 @@ void WHO_InitApp()
         
         float offsetY = 20;
         CGRect textEditRect = CGRectMake(textStartX, offsetY, textWidth+100, kGameNameTextEditHeightBig);
-        [self createGameNameEditBox:textEditRect fontSize:26];
+      //  gameNameEditRectOnPlayRing.hidden = NO;
+        //gameNameEditRectOnPlayRing.frame = textEditRect;
+        
+        [self createGameNameEditBox:textEditRect fontSize: 26];
         
         // add a save game button on the left
         CGRect buttonRect = CGRectMake(textEditRect.origin.x -kButtonWidthBig-kButtonOffsetX,offsetY, kButtonWidthBig, kButtonHeightBig);
-        saveGameButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        
-        UIImage *uiImage  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Save" ofType:@"png"]];
-        
-        [saveGameButton setImage:uiImage forState:UIControlStateNormal];
-        [saveGameButton setBackgroundColor:nil];
-        [saveGameButton setBackgroundImage:nil forState:UIControlStateNormal];
         
         saveGameButton.frame = buttonRect;
-        [saveGameButton addTarget:self action:@selector(requestToSaveGame:) forControlEvents:UIControlEventTouchUpInside];
-        [self.view addSubview:saveGameButton];
+        saveGameButton.hidden = NO; 
         
         //Add a upload button on the right
         buttonRect = CGRectMake(textEditRect.origin.x+textEditRect.size.width+kButtonOffsetX,offsetY, kButtonWidthBig, kButtonHeightBig);
-        uploadButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        
-        uiImage  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"go_up" ofType:@"png"]];
-        
-        [uploadButton setImage:uiImage forState:UIControlStateNormal];
-        [uploadButton setBackgroundColor:nil];
-        [uploadButton setBackgroundImage:nil forState:UIControlStateNormal];
         
         uploadButton.frame = buttonRect;
-        [uploadButton addTarget:self action:@selector(requestToUploadGame:) forControlEvents:UIControlEventTouchUpInside];
-        [self.view addSubview:uploadButton];
+        uploadButton.hidden = NO; 
         gGame.Execute("zoomToRing ring=playRing");
     }
 }
@@ -697,7 +761,7 @@ void WHO_InitApp()
     gameName.hidden = YES;
     
     if (_currentLoadedGame)
-        [self displaySaveAndUploadButtons];
+        self.requestToDisplaySaveAndUploadButtons = YES;
 }
 
 -(void) showImagePhotosPicker : (CGPoint) topLeftCorner
@@ -747,7 +811,6 @@ void WHO_InitApp()
 	//CGRect selectedRect = CGRectMake(topLeftCorner.x,topLeftCorner.y,1,1);
 	//[self.popoverController presentPopoverFromRect:selectedRect inView:[self view] permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
 }
-
 -(void ) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     UITouch * touch = [touches anyObject];
@@ -818,69 +881,6 @@ void WHO_InitApp()
         }
     	else if( hitRing->_name =="gameNamesRing") {
             _currentLoadedGame = hitPhoto;
-			//  WHO_Execute("newBackRing name=ring2 begin=PopulatePlayRing", 1, "PopulatePlayRing", PopulatePlayRing);
-			//WHO_Execute("zoomToRing ring=ring2");
-			
-			float z = -hitRing->_stackingOrder;
-			who::Photo * currentPhoto = gGame.GetPhoto(hitRing->_photos[hitRing->_selectedPhoto]);
-            glm::vec4 cornerPt = gGame._camera._vpMat * (currentPhoto->_transform * glm::vec4(-0.5, -0.5, z, 1));
-            cornerPt /= cornerPt.w;
-           
-            
-            glm::vec4 cornerPt2 = gGame._camera._vpMat * (currentPhoto->_transform * glm::vec4(0.5, -0.5, z, 1));
-			cornerPt2 /= cornerPt2.w;
-            
-            int viewportWidth = gGame._camera._viewport[2];
-			int viewportHeight =gGame._camera._viewport[3];
-            cornerPt.x = 0.5*viewportWidth*(cornerPt.x+1.0);
-			cornerPt.y = viewportHeight- 0.5*viewportHeight*(cornerPt.y+1.0);
-			cornerPt2.x = 0.5*viewportWidth*(cornerPt2.x+1.0);
-			cornerPt2.y = viewportHeight- 0.5*viewportHeight*(cornerPt2.y+1.0);
-			// Add a delete button right below
-			CGRect buttonRect = CGRectMake(cornerPt.x, cornerPt.y, kButtonWidth, kButtonHeight);
-			deleteGameButton = [UIButton buttonWithType:UIButtonTypeCustom];
-			
-			UIImage *uiImage  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"list_remove" ofType:@"png"]];
-			
-			[deleteGameButton setImage:uiImage forState:UIControlStateNormal];
-			[deleteGameButton setBackgroundColor:nil];
-			[deleteGameButton setBackgroundImage:nil forState:UIControlStateNormal];
-			
-			deleteGameButton.frame = buttonRect;
-			[self.view addSubview:deleteGameButton];
-			
-			//Add a load button
-			buttonRect = CGRectMake(cornerPt.x+kButtonWidth+kButtonOffsetX, cornerPt.y, kButtonWidth, kButtonHeight);
-			loadGameButton = [UIButton buttonWithType:UIButtonTypeCustom];
-			
-			uiImage  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"load2" ofType:@"png"]];
-			
-			[loadGameButton setImage:uiImage forState:UIControlStateNormal];
-			[loadGameButton setBackgroundColor:[UIColor clearColor]];
-			[loadGameButton setBackgroundImage:nil forState:UIControlStateNormal];
-			loadGameButton.frame = buttonRect;
-			[loadGameButton addTarget:self action:@selector(requestToLoadGame:) forControlEvents:UIControlEventTouchUpInside];
-			
-			[self.view addSubview:loadGameButton];
-			
-			//Add a text edit box for game name
-			float textWidth = cornerPt2[0]-cornerPt[0];
-			gameName = [[UITextField alloc] initWithFrame:CGRectMake(cornerPt[0], cornerPt[1]-kGameNameTextEditHeight, textWidth, kGameNameTextEditHeight)];
-			gameName.delegate = self;
-			gameName.font = [UIFont systemFontOfSize:12.0];
-			
-			[gameName setBackgroundColor:[UIColor whiteColor]];
-			gameName.text =(__bridge NSString *)StringToNSString(hitPhoto->_filename);
-			
-			gameName.adjustsFontSizeToFitWidth = YES;
-			gameName.autocorrectionType = UITextAutocorrectionTypeNo;
-			
-			[gameName setEnabled: YES];
-			
-			gameName.borderStyle = UITextBorderStyleRoundedRect;
-			
-			gameName.textAlignment = UITextAlignmentCenter;
-			[self.view addSubview:gameName];
             
             if( gGame._zoomedToPhoto ) {
                 gGame.Execute("zoomToRing");
@@ -889,20 +889,23 @@ void WHO_InitApp()
                 sprintf(command, "setCurrentPhoto photo=%s", hitPhoto->_filename.c_str());
                 //sprintf(command, "zoomToPhoto photo=%s", hitPhoto->filename.c_str());
                 gGame.Execute(command);
+                _requestToDisplayLoadAndDeleteButtons = YES;
+              //  gGame.Execute("displayLoadAndDeleteButtons loadButton= deleteButton= editTextField=");
             }
 
     	}
         else if( hitPhoto->_filename == "editor" ) {
+
             if( gGame._zoomedToPhoto )
             {
-                gGame.Execute("deleteBackRing");
+                gGame.Execute("deleteRingsAfter ring=" + hitRing->_name);
                 
                 gGame.Execute("setCurrentPhoto photo=editor");
                 gGame.Execute("newBackRing name=playRing begin=PopulateEditorRing", 1, "PopulateEditorRing", PopulateEditorRing);
                 
                 _currentLoadedGame = gGame.GetPhoto(hitRing->_photos[hitRing->_selectedPhoto]);
                 
-                [self displaySaveAndUploadButtons];
+              //  [self displaySaveAndUploadButtons];
                 //  gGame.Execute("zoomToRing ring=playRing");
                 
             }
@@ -917,7 +920,7 @@ void WHO_InitApp()
     	else if( hitPhoto->_filename == "play" ) {
             if( gGame._zoomedToPhoto )
             {
-                gGame.Execute("deleteBackRing");
+                gGame.Execute("deleteRingsAfter ring=" + hitRing->_name);
                 
                 gGame.Execute("setCurrentPhoto photo=play");
 
@@ -938,7 +941,6 @@ void WHO_InitApp()
         }
         else if( hitRing != 0 )
         {
-            
             if( gGame._zoomedToPhoto )
             {
                 gGame.Execute("zoomToRing");
@@ -1123,13 +1125,62 @@ float GetTick() {
 
 - (void) drawFirstTierScreen
 {}
+void displayLoadAndDeleteButtons()
+{
+   // _currentLoadedGame = hitPhoto;
+    //  WHO_Execute("newBackRing name=ring2 begin=PopulatePlayRing", 1, "PopulatePlayRing", PopulatePlayRing);
+    //WHO_Execute("zoomToRing ring=ring2");
+    who::Ring * hitRing = gGame.GetCurrentRing();
+    float z = -hitRing->_stackingOrder;
+    who::Photo * currentPhoto = gGame.GetPhoto(hitRing->_photos[hitRing->_selectedPhoto]);
+    glm::vec4 cornerPt = gGame._camera._vpMat * (currentPhoto->_transform * glm::vec4(-0.5, -0.5, z, 1));
+    cornerPt /= cornerPt.w;
+    
+    
+    glm::vec4 cornerPt2 = gGame._camera._vpMat * (currentPhoto->_transform * glm::vec4(0.5, -0.5, z, 1));
+    cornerPt2 /= cornerPt2.w;
+    
+    int viewportWidth = gGame._camera._viewport[2];
+    int viewportHeight =gGame._camera._viewport[3];
+    cornerPt.x = 0.5*viewportWidth*(cornerPt.x+1.0);
+    cornerPt.y = viewportHeight- 0.5*viewportHeight*(cornerPt.y+1.0);
+    cornerPt2.x = 0.5*viewportWidth*(cornerPt2.x+1.0);
+    cornerPt2.y = viewportHeight- 0.5*viewportHeight*(cornerPt2.y+1.0);
+    // Add a delete button right below
+    CGRect buttonRect = CGRectMake(cornerPt.x, cornerPt.y, kButtonWidth, kButtonHeight);
+    deleteGameButton.frame = buttonRect;
+    [deleteGameButton setHidden:NO];
+    
+    //Add a load button
+    buttonRect = CGRectMake(cornerPt.x+kButtonWidth+kButtonOffsetX, cornerPt.y, kButtonWidth, kButtonHeight);
+    loadGameButton.frame = buttonRect;
+    [loadGameButton setHidden:NO];
+    
+    //Add a text edit box for game name
+    float textWidth = cornerPt2[0]-cornerPt[0];
+    gameNameEditRectOnNameRing = CGRectMake(cornerPt[0], cornerPt[1]-kGameNameTextEditHeight, textWidth, kGameNameTextEditHeight);
+    [gameName setFrame:gameNameEditRectOnNameRing];
+    gameName.text =(__bridge NSString *)StringToNSString(currentPhoto->_filename);
+    [gameName setEnabled: YES];
+    [gameName setHidden:NO];
+    gameNameOnNameRing = gameName;
 
+}
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 // this function draws the rings and photos
 {
     [self update];
     
     gGLData.RenderScene();
+    
+    if (_requestToDisplayLoadAndDeleteButtons) {
+        _requestToDisplayLoadAndDeleteButtons = NO;
+       displayLoadAndDeleteButtons() ;
+    }
+    if ( _requestToDisplaySaveAndUploadButtons) {
+        _requestToDisplaySaveAndUploadButtons = NO;
+       [self displaySaveAndUploadButtons];
+    }
 }
 
 -(void) dissmissPopoverController
@@ -1180,7 +1231,31 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
 	return GenerateErrorCode(0);
 }
 #endif
+-(void) saveThumbnailImage:(NSString *)fileName
+{
+    UIImage *orgImage =(__bridge UIImage *)GL_GetUIImageFromFile(fileName.UTF8String);
+    
+    NSString *fontName = @"Helvetica-Bold";
+	int fontSize = 62;//22;
 
+	UIFont *font = [UIFont fontWithName:fontName size:fontSize];
+	// Precalculate size of text and size of font so that text fits inside placard
+	//CGSize thumbnailSize = [[gameName text] sizeWithFont:font] ; //forWidth:320 lineBreakMode:UILineBreakModeWordWrap];
+    CGSize thumbnailSize = CGSizeMake(118, 66);
+    UIGraphicsBeginImageContext(thumbnailSize);
+    [orgImage drawInRect:CGRectMake(0,0,thumbnailSize.width,thumbnailSize.height)];
+    UIImage *thumbnailImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    NSData *imageData= UIImagePNGRepresentation(thumbnailImage);
+    NSString *gameFolderPath = getGameDataFolderPath([gameName text]);
+    NSString *thumbnailFile = [gameFolderPath stringByAppendingPathComponent:kThumbnailImageFileName];
+    
+    //NSLog(thumbnailFile);
+    if ( imageData)
+        [imageData writeToFile:thumbnailFile atomically:YES];
+    
+}
 - (IBAction)requestToSaveGame:(id)sefnder {
     //gGame._images
     
@@ -1225,19 +1300,24 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
             [zip addFileToZip:faceString newname:faceFileNameString];
         
     }
+    NSString *firstPhotoFile = nil; 
     for( int i=0; i<currentRing->_photos.size(); i++ ) {
         
         who::Photo * aphoto = gGame.GetPhoto(currentRing->_photos[i]);
         
-        std::string faceFileName = aphoto->_filename;
-        if (faceFileName != "addPhoto.png") {
-            NSString *faceFileNameString = (__bridge NSString *)StringToNSString(faceFileName);
-            NSString *faceString = [tmpGameDataPath stringByAppendingPathComponent:faceFileNameString];
-            if ( faceFileNameString )
-             [zip addFileToZip:faceString newname:faceFileNameString];
+        std::string fileName = aphoto->_filename;
+        if (fileName != "addPhoto.png") {
+            NSString *fileNameString = (__bridge NSString *)StringToNSString(fileName);
+            NSString *fileString = [tmpGameDataPath stringByAppendingPathComponent:fileNameString];
+            if ( fileNameString )
+             [zip addFileToZip:fileString newname:fileNameString];
+            
+            if (!firstPhotoFile)
+                firstPhotoFile = fileNameString;
         }
         
     }
+    
     
     
 	if( ![zip CloseZipFile2] )
@@ -1245,11 +1325,10 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
 		// error handler here
 		
 	}
-	
-	//[zip release];
-
+    
+    // Then save a thumbnail image for this game
+    [self saveThumbnailImage:firstPhotoFile];
 }
-
 - (IBAction)requestToUploadGame:(id)sende {
     int nn = 100; 
 }
@@ -1515,9 +1594,11 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
 		[self.popoverController dismissPopoverAnimated:YES];
          who::Ring * hitRing = gGame.GetCurrentRing();
         if ( _currentLoadedGame && _currentLoadedGame->_filename !="play" && _currentLoadedGame->_filename !="editor") {
+            std::string oldName = _currentLoadedGame->_filename;
             _currentLoadedGame->_filename = NSStringToString( (NSString *)sender.text);
             //gGame._images[_currentHitPhoto->name].originalWidth = 20;
-            GL_LoadTextureFromText(_currentLoadedGame->_filename, gGame._images[_currentLoadedGame->_filename]);
+            GL_LoadTextureFromTextAndImage(_currentLoadedGame->_filename, oldName, gGame._images[_currentLoadedGame->_filename]);
+    
         }
         
 		return YES;

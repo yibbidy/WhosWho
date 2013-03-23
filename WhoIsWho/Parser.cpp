@@ -104,7 +104,18 @@ bool WhoParser::KeyValue(const char * inKey, const char * inStr, int & inOutPos,
     
 }
 
-
+    
+void WhoParser::AnimationCompleted(const char * inStr, int & inOutPos, AnimationCompletedCallback & outCompleted, std::string & outArgs)
+{
+    std::string completedStr;
+    if( KeyValue("completed", inStr, inOutPos, completedStr) )
+    {
+        outCompleted = (AnimationCompletedCallback)gGame._animationVars[completedStr];
+        
+        KeyValue("args", inStr, inOutPos, outArgs);
+    }
+}
+    
 bool WhoParser::ZoomToRing(const char * inStr, int & inOutPos) {
     int pos = inOutPos;
     
@@ -119,6 +130,10 @@ bool WhoParser::ZoomToRing(const char * inStr, int & inOutPos) {
             }
         }
         
+        AnimationCompletedCallback completed = 0;
+        std::string args;
+        AnimationCompleted(inStr, inOutPos, completed, args);
+        
         int ringZ = -gGame._rings._rings[gGame._rings._currentRing]._stackingOrder;
         float aspect = gGame._camera._viewport[2] / float(gGame._camera._viewport[3]);
         
@@ -128,7 +143,8 @@ bool WhoParser::ZoomToRing(const char * inStr, int & inOutPos) {
         AnimationSystem::CreateFloatAnimation(gGame._camera._pos.x, 0.0f, 2.0f, InterpolationTypeSmooth, &gGame._camera._pos.x);
         AnimationSystem::CreateFloatAnimation(gGame._camera._pos.y, 0.0f, 2.0f, InterpolationTypeSmooth, &gGame._camera._pos.y);
         AnimationSystem::CreateFloatAnimation(gGame._camera._zoomed, 0.0f, 2.0f, InterpolationTypeLinear, &gGame._camera._zoomed);
-        gGame._currentAnmID = AnimationSystem::CreateFloatAnimation(gGame._camera._pos.z, endZ, 2.0f, InterpolationTypeSmooth, &gGame._camera._pos.z);
+        gGame._currentAnmID = AnimationSystem::CreateFloatAnimation(gGame._camera._pos.z, endZ, 2.0f, InterpolationTypeSmooth, &gGame._camera._pos.z,
+                                                                    completed, args.c_str());
         
         gGame._zoomedToPhoto = false;
         turnOffAllButtons();
@@ -153,6 +169,11 @@ bool WhoParser::ZoomToPhoto(const char * inStr, int & inOutPos) {
             PRS_Command(command, commandPos);
             
         }
+        
+        AnimationCompletedCallback completed = 0;
+        std::string args;
+        AnimationCompleted(inStr, inOutPos, completed, args);
+        
         int ringZ = -gGame._rings._rings[gGame._rings._currentRing]._stackingOrder;
         float aspect = gGame._camera._viewport[2] / float(gGame._camera._viewport[3]);
         
@@ -168,7 +189,8 @@ bool WhoParser::ZoomToPhoto(const char * inStr, int & inOutPos) {
         AnimationSystem::CreateFloatAnimation(gGame._camera._pos.x, endPos[0], 2, InterpolationTypeSmooth, &gGame._camera._pos.x);
         AnimationSystem::CreateFloatAnimation(gGame._camera._pos.y, endPos[1], 2, InterpolationTypeSmooth, &gGame._camera._pos.y);
         AnimationSystem::CreateFloatAnimation(gGame._camera._zoomed, 1.0f, 2.0f, InterpolationTypeLinear, &gGame._camera._zoomed);
-        gGame._currentAnmID = AnimationSystem::CreateFloatAnimation(gGame._camera._pos.z, endPos[2], 2, InterpolationTypeSmooth, &gGame._camera._pos.z);
+        gGame._currentAnmID = AnimationSystem::CreateFloatAnimation(gGame._camera._pos.z, endPos[2], 2, InterpolationTypeSmooth, &gGame._camera._pos.z,
+                                                                    completed, args.c_str());
 
         gGame._zoomedToPhoto = true;
         return true;
@@ -466,9 +488,95 @@ bool WhoParser::DeleteRingsAfter(const char * inStr, int & inOutPos) {
     
     inOutPos = pos;
     return false;
-
+}
+    
+bool WhoParser::NewDrawer(const char * inStr, int & inOutPos)
+{
+    int pos = inOutPos;
+    
+    typedef void (* newDrawer_populateCallback)(who::Drawer & inOutDrawer, void * inArgs);
+    
+    std::string drawerName;
+    std::string populate;
+    
+    if( Word(inStr, inOutPos) == "newDrawer"
+       && KeyValue("name", inStr, inOutPos, drawerName)
+       && KeyValue("populate", inStr, inOutPos, populate) )
+    {
+        newDrawer_populateCallback populateCallback = (newDrawer_populateCallback)gGame._animationVars[populate];
+        
+        who::Drawer & newDrawer = gGame._drawers[drawerName];
+        newDrawer._name = drawerName;
+        
+        populateCallback(newDrawer, 0);
+        
+        return true;
+    }
+    
+    inOutPos = pos;
+    return false;
+        
+}
+    
+    
+bool WhoParser::AddPhotoToDrawer(const char * inStr, int & inOutPos)
+{
+    int pos = inOutPos;
+    
+    std::string drawerName;
+    std::string photoName;
+    
+    if( Word(inStr, inOutPos) == "addPhotoToDrawer"
+       && KeyValue("drawer", inStr, inOutPos, drawerName)
+       && KeyValue("photo", inStr, inOutPos, photoName) )
+    {
+        who::Drawer & drawer = gGame._drawers[drawerName];
+        drawer._photos.push_back(photoName);
+        
+        return true;
+    }
+    
+    inOutPos = pos;
+    return false;
     
 }
+
+    
+bool WhoParser::ShowDrawer(const char * inStr, int & inOutPos)
+{
+    int pos = inOutPos;
+    
+    std::string drawerName;
+    
+    if( Word(inStr, inOutPos) == "showDrawer"
+       && KeyValue("drawer", inStr, inOutPos, drawerName) )
+    {
+        gGame._currentDrawer = drawerName;
+        AnimationSystem::CreateFloatAnimation(1e-7f, 1.0f, 2, InterpolationTypeSmooth, &gGame._drawerDropAnim);
+        return true;
+    }
+    
+    inOutPos = pos;
+    return false;
+}
+    
+    
+bool WhoParser::HideDrawer(const char * inStr, int & inOutPos)
+{
+    int pos = inOutPos;
+    
+    std::string drawerName;
+    
+    if( Word(inStr, inOutPos) == "hideDrawer" )
+    {
+        AnimationSystem::CreateFloatAnimation(gGame._drawerDropAnim, 0.0f, 2, InterpolationTypeSmooth, &gGame._drawerDropAnim);
+        return true;
+    }
+    
+    inOutPos = pos;
+    return false;
+}
+    
 bool WhoParser::PRS_Command(const char * inStr, int & inOutPos) {
     int pos = inOutPos;
     
@@ -498,6 +606,13 @@ bool WhoParser::PRS_Command(const char * inStr, int & inOutPos) {
         
     } else if( AddMaskToPhoto(inStr, inOutPos) ) {
         
+    } else if( NewDrawer(inStr, inOutPos) ) {
+        
+    } else if( AddPhotoToDrawer(inStr, inOutPos) ) {
+        
+    } else if( ShowDrawer(inStr, inOutPos) ) {
+        
+    } else if( HideDrawer(inStr, inOutPos) ) {
         
     } else {
         inOutPos = pos;

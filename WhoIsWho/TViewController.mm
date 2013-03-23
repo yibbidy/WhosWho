@@ -393,6 +393,15 @@ static void PopulateEditorRing(who::Ring & inRing, void *argsStr)
     
     
 }
+
+
+void Reanimate(const std::string & inArgs)
+// this is an animaton completed callback that just issues another animation.
+// it can be used to chain animations together
+{
+    gGame.Execute(inArgs);
+}
+
 void WHO_InitApp()
 // This function allocates static opengl resources (shader programs, vertex arrays, texture images) for the game
 // and creates the first ring - the Title ring.
@@ -404,8 +413,10 @@ void WHO_InitApp()
     if( !errorCode )
         // create and show the Title ring
     {
+        gGame._animationVars["reanimate"] = (void *)Reanimate;
+        
         gGame.Execute("newBackRing name=titleRing begin=PopulateTitleRing", 1, "PopulateTitleRing", PopulateTitleRing);
-        gGame.Execute("zoomToRing ring=titleRing");
+        gGame.Execute("zoomToRing ring=titleRing completed=reanimate args=\"setCurrentPhoto photo=editor\"");
         gGame._rings._currentRing = "titleRing";
     }
     
@@ -811,6 +822,15 @@ void turnOffAllButtons()
 	//CGRect selectedRect = CGRectMake(topLeftCorner.x,topLeftCorner.y,1,1);
 	//[self.popoverController presentPopoverFromRect:selectedRect inView:[self view] permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
 }
+
+void PopulateEditorDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
+{
+    gGame.Execute("addPhotoToDrawer drawer=" + inOutDrawer._name + " photo=play");
+
+    
+}
+
+
 -(void ) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     UITouch * touch = [touches anyObject];
@@ -901,10 +921,11 @@ void turnOffAllButtons()
                 gGame.Execute("deleteRingsAfter ring=" + hitRing->_name);
                 
                 gGame.Execute("setCurrentPhoto photo=editor");
-                gGame.Execute("newBackRing name=playRing begin=PopulateEditorRing", 1, "PopulateEditorRing", PopulateEditorRing);
-                
+                //gGame.Execute("newBackRing name=editRing begin=PopulateEditorRing", 1, "PopulateEditorRing", PopulateEditorRing);
                 //gGame.Execute("showTextEdit");
                 
+                gGame.Execute("newDrawer name=EditorDrawer populate=PopulateEditorDrawer", 1, "PopulateEditorDrawer", PopulateEditorDrawer);
+                gGame.Execute("showDrawer drawer=EditorDrawer");
                 
 
                 //  [self displaySaveAndUploadButtons];
@@ -913,7 +934,6 @@ void turnOffAllButtons()
             }
             else
             {
-                
                 sprintf(command, "zoomToPhoto photo=%s", hitPhoto->_filename.c_str());
                 gGame.Execute(command);
                 
@@ -955,6 +975,8 @@ void turnOffAllButtons()
             }
         }
     } else if( hitRing ) {
+        gGame.Execute("hideDrawer");
+        
         sprintf(command, "zoomToRing ring=%s", hitRing->_name.c_str());
         gGame.Execute(command);
     }
@@ -1029,7 +1051,9 @@ float gTick = 0;
     _rotation += self.timeSinceLastUpdate * 0.1f;
     gTick += self.timeSinceLastUpdate;
     
-    if( !AnimationSystem::IsRunning(gGame._currentAnmID) && !gGame._animations.empty() ) {
+    if( !AnimationSystem::IsRunning(gGame._currentAnmID) && !gGame._animations.empty() )
+    // The primary animation blocks subsequent animatinos from starting until it completes.
+    {
         
         std::string anm = gGame._animations.front();
         gGame._animations.pop_front();

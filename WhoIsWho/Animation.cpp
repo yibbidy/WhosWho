@@ -10,6 +10,18 @@ int AnimationSystem::_nextAnimationID = 1;
 
 std::vector<AnimationBase *> AnimationSystem::_animations;
 
+//======== AnimationBase
+
+AnimationBase::AnimationBase()
+{
+    _startTick = 0;
+    _duration = 0;
+    _interpolation = InterpolationTypeLinear;
+    _animationID = 0;
+    _completed = 0;
+}
+
+//========== AnimationSystem
 
 bool AnimationSystem::UpdateAnimation(float inTick, AnimationBase & inOutAnimation)
 // this function is called to update an animation variable
@@ -41,6 +53,9 @@ bool AnimationSystem::UpdateAnimations(float inTick) {
         AnimationBase * a = _animations[i];
 
         if( !UpdateAnimation(inTick, *a) ) {
+            if( a->_completed )
+                (*a->_completed)(a->_completedArgs);
+            
             delete a;
             if( i < _animations.size()-1 ) {
                 _animations[i] = _animations.back();

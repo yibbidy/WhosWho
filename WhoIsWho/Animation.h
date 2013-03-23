@@ -5,6 +5,7 @@
 #define Animation_h
 
 #include <vector>
+#include <string>
 
 // This section has functions to set up a float variable animation over time.  The way this works is that an animation
 // entry is put into a list when you call ANM_CreateFloatAnimation and for every draw frame that list is updated.
@@ -28,16 +29,22 @@ enum AnimationType {
 
 float GetTick();
 
+typedef void (* AnimationCompletedCallback)(const std::string & inArgs);
+
 class AnimationBase
 {
 public:
-    virtual void Blend(float inWeight) = 0;
+    AnimationBase();
     virtual ~AnimationBase() {}
+    virtual void Blend(float inWeight) = 0;
+    
     
     int _startTick;
 	float _duration;
 	InterpolationType _interpolation;
 	int _animationID;
+    AnimationCompletedCallback _completed;
+    std::string _completedArgs;
 };
 
 template<typename T>
@@ -57,7 +64,8 @@ public:
     static bool UpdateAnimations(float inTick);
     
     template<typename T> static int CreateFloatAnimation(T inStartValue, T inEndValue, float inDuration,
-        InterpolationType inInterpolationType, T * inOutVariable)
+        InterpolationType inInterpolationType, T * inOutVariable,
+        AnimationCompletedCallback inCompleted = 0, const char * inCompletedArgs = 0)
     // Call this function to create an animation.  By that I mean that after calling this, the variable *inOutVariable
     // will go from inStartValue to inEndValue in inDuration seconds.  You should use your variable, *inOutVariable,
     // in some drawing code.  The camera transitions (switching from one ring to the next) use this function.  You
@@ -71,6 +79,9 @@ public:
         a->_startTick = GetTick();
         a->_duration = inDuration;
         a->_interpolation = inInterpolationType;
+        a->_completed = inCompleted;
+        if( inCompletedArgs )
+            a->_completedArgs = inCompletedArgs;
         AnimationSystem::_animations.push_back(a);
         
         return a->_animationID;

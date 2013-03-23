@@ -143,6 +143,12 @@ namespace who
         DraggingFace _draggingFace;
     };
     
+    struct Drawer
+    {
+        std::string _name;
+        std::vector<std::string> _photos;
+    };
+    
     struct Game
     // *** the main structure in this app ***
     // contains the current state of the game.
@@ -152,6 +158,9 @@ namespace who
             _faceDropdownAnim = 0;
             _zoomedToPhoto = false;
             _currentAnmID = 0;
+            
+            _currentDrawer = "";
+            _drawerDropAnim = 0;
         }
         
         void Execute(std::string inCommand, int inNumPairs = 0, ...);
@@ -172,6 +181,10 @@ namespace who
         
         std::list<std::string> _animations;  // the list of sequential animations
         std::map<std::string, void *> _animationVars;  // animation variables - animation strings can reference these vars
+        
+        std::map<std::string, Drawer> _drawers;
+        std::string _currentDrawer;  // == "" for no drawer
+        float _drawerDropAnim;
         
         bool _zoomedToPhoto;
         int _currentAnmID;

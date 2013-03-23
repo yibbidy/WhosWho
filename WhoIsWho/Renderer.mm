@@ -156,6 +156,82 @@ int GLData::DeInit()
     return errorCode;
 }
 
+
+void DrawDrawer(float inDropdownAnim)
+{
+    
+    // draw face list
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    glUseProgram(gGLData._colorProgram._program);
+    glBindVertexArrayOES(gGLData._squareVAO);
+    glUniform4f(gGLData._colorProgram._colorLoc, 0, 0, 1, 1);
+    glUniform1f(gGLData._colorProgram._imageWeight, 0);
+    glUniform1i(gGLData._colorProgram._imageTexture, 0);
+    glActiveTexture(GL_TEXTURE0);
+    
+    float height = 0.07f;
+    float width = 0.1f;
+    
+    int currentRingZ = gGame._rings._rings[gGame._rings._currentRing]._stackingOrder;
+    
+    glm::vec3 corners[4];
+    ComputeTopPhotoCorners(gGame._rings._rings[gGame._rings._currentRing], corners);
+    float top = (who::kR1+who::kR0)*0.5f + corners[2].y;
+    width = corners[0].x - corners[1].x;
+    float dy = height * glm::abs(glm::sin(inDropdownAnim));
+    glm::mat4 mat = glm::scale(glm::translate(gGame._camera._vpMat, glm::vec3(0, top-dy*0.5f, -currentRingZ+0.001f)),
+                               glm::vec3(width, dy, 1));
+    glUniform4f(gGLData._colorProgram._colorLoc, 0.8f, 0.8f, 0.8f, 0.5f);
+    glUniformMatrix4fv(gGLData._colorProgram._mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
+    
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    
+    int numItems = int(gGame._drawers[gGame._currentDrawer]._photos.size());
+    
+    int xSpacing = 0;
+    float centerX = -width*0.5f + height*0.5f;
+    float xInc = height + xSpacing;
+    
+    centerX += xSpacing;
+    if( width / height >= numItems )
+        // simple layout of faces
+    {
+        xInc = width / numItems;
+        centerX = -width*0.5f + xInc - 0.5*xInc;
+        
+    }
+    else
+        // shrink face images down to fit them all
+    {
+        xInc = width / numItems;
+        centerX = -width*0.5f + xInc - 0.5*xInc;
+        
+        height = xInc;
+        dy = height * glm::abs(glm::sin(inDropdownAnim));
+        
+    }
+    
+    for_i( numItems ) {
+        mat = glm::scale(glm::translate(gGame._camera._vpMat, glm::vec3(centerX, top-dy*0.5f, -currentRingZ+0.01f)),
+                         glm::vec3(height, dy, 1));
+        glUniform4f(gGLData._colorProgram._colorLoc, 0.8f, 0.8f, 0.8f, 1);
+        glUniformMatrix4fv(gGLData._colorProgram._mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
+        glBindTexture(GL_TEXTURE_2D, gGame._images[gGame._drawers[gGame._currentDrawer]._photos[i]].texID);
+        glUniform1f(gGLData._colorProgram._imageWeight, 1);
+        
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        
+        centerX += xInc;
+    }
+    
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+    
+}
+
 int GLData::RenderScene()
 {
     int errorCode = 0;
@@ -182,96 +258,16 @@ int GLData::RenderScene()
         glm::mat4 mvMat = glm::translate(mat, glm::vec3(0.0f, 0.0f, -float(i)));
         
         DrawRing(ring, gGame._camera._zoomed==1, mvMat);
-#if 0
-        if( gGame._rings._currentRing==i && gGame.faceDropdownAnim>0 && gGame._camera.zoomed==1 ) {
-            if( ring._ringType == eRingTypeEdit ) {
-                DrawFaceList(gGame.faceDropdownAnim);
-                DrawToolList(gGame.faceDropdownAnim);
-            } else if(ring._ringType == eRingTypePlay ) {
-                DrawFaceList(gGame.faceDropdownAnim);
-            }
+
+        if( gGame._currentDrawer != "" && gGame._drawerDropAnim>0 )
+        {
+            DrawDrawer(gGame._drawerDropAnim);
         }
-#endif
+
         
     }
     
     return errorCode;
-}
-
-
-//-(void) draw
-void DrawFaceList(float inDropdownAnim) {
-    
-    // draw face list
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
-    glUseProgram(gGLData._colorProgram._program);
-    glBindVertexArrayOES(gGLData._squareVAO);
-    glUniform4f(gGLData._colorProgram._colorLoc, 0, 0, 1, 1);
-    glUniform1f(gGLData._colorProgram._imageWeight, 0);
-    glUniform1i(gGLData._colorProgram._imageTexture, 0);
-    glActiveTexture(GL_TEXTURE0);
-    
-    float height = 0.07f;
-    float width = 0.1f;
-    
-    int currentRingZ = gGame._rings._rings[gGame._rings._currentRing]._stackingOrder;
-    
-    glm::vec3 corners[4];
-    ComputeTopPhotoCorners(gGame._rings._rings[gGame._rings._currentRing], corners);
-    float top = (who::kR1+who::kR0)*0.5f + corners[2].y;
-    width = corners[0].x - corners[1].x;
-    float dy = height * fabs(sinf(inDropdownAnim));
-    glm::mat4 mat = glm::scale(glm::translate(gGame._camera._vpMat, glm::vec3(0, top-dy*0.5f, -currentRingZ+0.001f)),
-                               glm::vec3(width, dy, 1));
-    glUniform4f(gGLData._colorProgram._colorLoc, 0.8f, 0.8f, 0.8f, 0.5f);
-    glUniformMatrix4fv(gGLData._colorProgram._mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
-    
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    
-    int numItems = int(gGame._faceList.size());
-    
-    int xSpacing = 0;
-    float centerX = -width*0.5f + height*0.5f;
-    float xInc = height + xSpacing;
-    
-    centerX += xSpacing;
-    if( width / height >= numItems )
-    // simple layout of faces
-    {
-        xInc = width / numItems;
-        centerX = -width*0.5f + xInc - 0.5*xInc;
-        
-    }
-    else
-    // shrink face images down to fit them all
-    {
-        xInc = width / numItems;
-        centerX = -width*0.5f + xInc - 0.5*xInc;
-        
-        height = xInc;
-        dy = height * fabs(sinf(inDropdownAnim));
-        
-    }
-    
-    for_i( numItems ) {
-        mat = glm::scale(glm::translate(mat, glm::vec3(centerX, top-dy*0.5f, -currentRingZ+0.01f)),
-                         glm::vec3(height, dy, 1));
-        glUniform4f(gGLData._colorProgram._colorLoc, 0.8f, 0.8f, 0.8f, 1);
-        glUniformMatrix4fv(gGLData._colorProgram._mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
-        glBindTexture(GL_TEXTURE_2D, gGame._images[gGame._faceList[i]].texID);
-        glUniform1f(gGLData._colorProgram._imageWeight, 1);
-        
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-        
-        centerX += xInc;
-    }
-    
-    glEnable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
-    
 }
 
 void DrawToolList(float inRotation) {

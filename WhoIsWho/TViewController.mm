@@ -903,16 +903,20 @@ void turnOffAllButtons()
                 gGame.Execute("setCurrentPhoto photo=editor");
                 gGame.Execute("newBackRing name=playRing begin=PopulateEditorRing", 1, "PopulateEditorRing", PopulateEditorRing);
                 
-                _currentLoadedGame = gGame.GetPhoto(hitRing->_photos[hitRing->_selectedPhoto]);
+                //gGame.Execute("showTextEdit");
                 
-              //  [self displaySaveAndUploadButtons];
+                
+
+                //  [self displaySaveAndUploadButtons];
                 //  gGame.Execute("zoomToRing ring=playRing");
                 
             }
             else
             {
+                
                 sprintf(command, "zoomToPhoto photo=%s", hitPhoto->_filename.c_str());
                 gGame.Execute(command);
+                
             }
             
             

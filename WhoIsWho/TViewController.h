@@ -18,8 +18,6 @@ UIButton *deleteGameButton;
 UIButton *loadGameButton;
 UIButton *saveGameButton;
 UIButton *uploadButton;
-CGRect gameNameEditRectOnPlayRing;
-CGRect gameNameEditRectOnNameRing;
 
 @interface TViewController : GLKViewController<UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIPopoverControllerDelegate, UITextFieldDelegate, GameDoneControllerDelegate, RegistrationDelegate> {
    

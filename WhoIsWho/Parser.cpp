@@ -147,7 +147,6 @@ bool WhoParser::ZoomToRing(const char * inStr, int & inOutPos) {
                                                                     completed, args.c_str());
         
         gGame._zoomedToPhoto = false;
-        turnOffAllButtons();
         
         return true;
     }
@@ -235,8 +234,22 @@ bool WhoParser::DecrementCurrentRing(const char * inStr, int & inOutPos) {
     return false;
     
 }
-
-
+    
+    
+bool WhoParser::DisplayControlsForRing(const char * inStr, int & inOutPos) {
+    int pos = inOutPos;
+    
+    if( Word(inStr, inOutPos) == "DisplayControlsForRing" ) {
+        
+        PopulateControlsForRing();
+        
+        return true;
+    }
+    
+    inOutPos = pos;
+    return false;
+    
+}
 bool WhoParser::SetCurrentPhoto(const char * inStr, int & inOutPos) {
     int pos = inOutPos;
     
@@ -596,7 +609,9 @@ bool WhoParser::PRS_Command(const char * inStr, int & inOutPos) {
     
     } else if( DeleteRingsAfter(inStr, inOutPos) ) {
         
-    } else if( AddImageFromFile(inStr, inOutPos) ) {
+    } else if( DisplayControlsForRing(inStr, inOutPos) ) {
+        
+    }else if( AddImageFromFile(inStr, inOutPos) ) {
         
     } else if( AddImageFromText(inStr, inOutPos) ) {
     

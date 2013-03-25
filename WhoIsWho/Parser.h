@@ -39,10 +39,13 @@ private:
     static bool AddMaskToPhoto(const char * inStr, int & inOutPos);
     static bool NewBackRing(const char * inStr, int & inOutPos);
     static bool DeleteRingsAfter(const char * inStr, int &inOutPos);
+
     static bool NewDrawer(const char * inStr, int & inOutPos);
     static bool AddPhotoToDrawer(const char * inStr, int & inOutPos);
     static bool ShowDrawer(const char * inStr, int & inOutPos);
     static bool HideDrawer(const char * inStr, int & inOutPos);
+
+    static bool DisplayControlsForRing(const char * inStr, int &inOutPos);
 };
 
 }

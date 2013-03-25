@@ -165,7 +165,6 @@ std::string ReadQuotedString(std::string & line, int & pos, bool * outIsEmptyStr
 void *StringToNSString(std::string aString);
 
 void *StringToNSString(std::string aString);
-void turnOffAllButtons();
-
+void PopulateControlsForRing();
 #endif
 

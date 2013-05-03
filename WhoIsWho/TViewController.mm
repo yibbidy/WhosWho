@@ -769,7 +769,7 @@ UITextField *CreateTextEdit(CGRect rect, CGFloat fontSize )
     commandStr +=" args=";
     commandStr +=_currentLoadedGame->_filename;
     
-    _originalGameName = (__bridge NSString *)StringToNSString( _currentLoadedGame->_filename);
+    gOriginalGameName = (__bridge NSString *)StringToNSString( _currentLoadedGame->_filename);
     
     gGame.Execute(commandStr, 1, "PopulatePlayRing", PopulatePlayRing);
     gGame.Execute("zoomToRing ring=playRing");
@@ -1336,7 +1336,7 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
 	[[NSFileManager defaultManager] removeItemAtPath:gameTextFileNameWithFullPath error:NULL];
 
 	// add all image files to the zip
-	NSString *curGameDataPath = getGameDataFolderPath(_originalGameName);
+	NSString *curGameDataPath = getGameDataFolderPath(gOriginalGameName);
    
     
     /////////////////////

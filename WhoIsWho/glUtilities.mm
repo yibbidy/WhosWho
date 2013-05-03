@@ -558,7 +558,7 @@ void *GL_GetUIImageFromFile(const char * inFileName)
     UIImage *uiImage  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:newFileNameWithNoExtension ofType:extension]];
 	
 	if ( !uiImage ) {
-		NSString *gameDataFolderPath = (NSString *)getGameDataFolderPath();
+		NSString *gameDataFolderPath = (NSString *)getGameDataFolderPath(gOriginalGameName);
 		
 		if (gameDataFolderPath) {
             

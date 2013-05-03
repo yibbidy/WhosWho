@@ -20,6 +20,7 @@ UIButton *deleteGameButton;
 UIButton *loadGameButton;
 UIButton *saveGameButton;
 UIButton *uploadButton;
+NSString *gOriginalGameName;
 
 @interface TViewController : GLKViewController<UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIPopoverControllerDelegate, UITextFieldDelegate, GameDoneControllerDelegate, RegistrationDelegate, ChooseSitesControllerDelegate> {
    
@@ -42,7 +43,6 @@ UIButton *uploadButton;
 @property (strong, nonatomic) GLKBaseEffect *effect;
 @property (assign) BOOL requestToDisplayLoadAndDeleteButtons;
 @property (assign) BOOL requestToDisplaySaveAndUploadButtons;
-@property (strong, nonatomic) NSString *originalGameName;
 
 - (void)setupGL;
 - (void)tearDownGL;

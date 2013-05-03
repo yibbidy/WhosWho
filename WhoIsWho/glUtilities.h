@@ -37,4 +37,6 @@ void *GL_GetUIImageFromFile(const char * inFileName);
 NSString *getGameDataFolderPath();
 NSString *getGameDataFolderPath(NSString *thisGame);
 NSString *getGameFileNameNSString(std::string fileName);
+extern NSString *gOriginalGameName;
+
 #endif

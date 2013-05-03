@@ -575,39 +575,54 @@ void *GL_GetUIImageFromFile(const char * inFileName)
 
     return (__bridge void *)uiImage;
 }
-int GL_LoadTextureFromFile(const char * inFileName, ImageInfo & outImageInfo)
+static void GL_InitImageInfo(ImageInfo &image)
+{
+
+    image.bitDepth = 0;
+    image.image = nil;
+    image.originalHeight = 0;
+    image.originalWidth = 0;
+    image.rowBytes = 0;
+    image.texHeight = 0;
+    image.texWidth= 0;
+    image.texID = 0;
+}
+int GL_LoadTextureFromUIImage(UIImage *uiImage, ImageInfo & outImageInfo)
 {
     int errorCode = 0;
-    outImageInfo.texID = 0;
-
-	UIImage *uiImage = (__bridge UIImage *)GL_GetUIImageFromFile(inFileName);
+    GL_InitImageInfo(outImageInfo);
+    
 	if ( uiImage ) {
 		
-		// Turn off this call to copy some images into photos folder in iPhone simulator. 
+		// Turn off this call to copy some images into photos folder in iPhone simulator.
 		//UIImageWriteToSavedPhotosAlbum(uiImage, nil, nil, nil);
 		
-		// Create OpenGL texture from uiImage
-		//float width = 0;
-		//float height = 0;
-		//int texWidth  = 0; 
-		//int texHeight = 0; 
 		
 		//unsigned char * imageData = nil;
-        outImageInfo.texID = GL_ConvertUIImageToOpenGLTexture(uiImage, outImageInfo.originalWidth, outImageInfo.originalHeight, 
-                                                              outImageInfo.texWidth, outImageInfo.texHeight, outImageInfo.image); 
-        memcpy(outImageInfo.originalFilename, inFileName, 256);
+        outImageInfo.texID = GL_ConvertUIImageToOpenGLTexture(uiImage, outImageInfo.originalWidth, outImageInfo.originalHeight,
+                                                              outImageInfo.texWidth, outImageInfo.texHeight, outImageInfo.image);
+        
         //outImageInfo.width = outImageInfo.texWidth;
         //outImageInfo.height = outImageInfo.texHeight;
 		outImageInfo.bitDepth = 32;
         outImageInfo.rowBytes = outImageInfo.bitDepth/8 * outImageInfo.texWidth;
 		//outImageInfo = ImageInfo(width, height, 32, width*4, imageData);
         
-		//outImageInfo.texWidth = texWidth; 
-		//outImageInfo.texHeight = texHeight; 
+		//outImageInfo.texWidth = texWidth;
+		//outImageInfo.texHeight = texHeight;
 	} else {
         errorCode = 1;
     }
 	
+    return errorCode;
+}
+int GL_LoadTextureFromFile(const char * inFileName, ImageInfo & outImageInfo)
+{
+	UIImage *uiImage = (__bridge UIImage *)GL_GetUIImageFromFile(inFileName);
+    int errorCode =  GL_LoadTextureFromUIImage(uiImage, outImageInfo);
+    if ( errorCode == 0 )
+        memcpy(outImageInfo.originalFilename, inFileName, 256);
+    
     return errorCode;
 }
 

@@ -31,6 +31,8 @@ GLuint GL_ConvertUIImageToOpenGLTexture(const UIImage *uiImage, int &imageWidth,
 int GL_LoadTextureFromText(std::string inText/*const NSString *text*/,ImageInfo & outImageInfo);
 int GL_LoadTextureFromTextAndImage(std::string inText,std::string imageFile,ImageInfo & outImageInfo);
 int GL_LoadTextureFromFile(const char * inFileName, ImageInfo & outImageInfo);
+int GL_LoadTextureFromUIImage(UIImage * uiImage, ImageInfo & outImageInfo);
+
 void *GL_GetUIImageFromFile(const char * inFileName);
 NSString *getGameDataFolderPath();
 NSString *getGameDataFolderPath(NSString *thisGame);

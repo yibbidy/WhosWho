@@ -35,6 +35,7 @@ private:
     static bool AddImageFromText(const char * inStr, int & inOutPos);
     static bool AddImageFromTextAndImage(const char * inStr, int & inOutPos);
     static bool AddImageFromFile(const char * inStr, int & inOutPos);
+    static bool AddImageFromUIImage(const char * inStr, int & inOutPos);
     static bool AddPhotoToRing(const char * inStr, int & inOutPos);
     static bool AddMaskToPhoto(const char * inStr, int & inOutPos);
     static bool NewBackRing(const char * inStr, int & inOutPos);

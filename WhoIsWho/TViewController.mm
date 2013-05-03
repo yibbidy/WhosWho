@@ -460,7 +460,7 @@ static void PopulateEditorRing(who::Ring & inRing, void *argsStr)
 // this function is the callback target to populate the play ring
 {
     std::string ring = inRing._name;
-    
+#if 0 
     gGame.Execute("addImageFromFile name=joe file=\"face 001.png\"");
     gGame.Execute(std::string("addPhotoToRing name=face 001.png user=joe type=face ring=") + ring);
     
@@ -511,7 +511,7 @@ static void PopulateEditorRing(who::Ring & inRing, void *argsStr)
     gGame.Execute(std::string("addPhotoToRing name=008.jpg user=joe type=photo ring=") + ring);
     gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=008.jpg");
     gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=008.jpg");
-    
+#endif 
     gGame.Execute("addImageFromFile name=addPhoto.png file=addPhoto.png");
     gGame.Execute(std::string("addPhotoToRing name=addPhoto.png user=addPhoto.png type=photo ring=") + ring);
     
@@ -769,6 +769,8 @@ UITextField *CreateTextEdit(CGRect rect, CGFloat fontSize )
     commandStr +=" args=";
     commandStr +=_currentLoadedGame->_filename;
     
+    _originalGameName = (__bridge NSString *)StringToNSString( _currentLoadedGame->_filename);
+    
     gGame.Execute(commandStr, 1, "PopulatePlayRing", PopulatePlayRing);
     gGame.Execute("zoomToRing ring=playRing");
     
@@ -779,12 +781,32 @@ UITextField *CreateTextEdit(CGRect rect, CGFloat fontSize )
 -(void) showImagePhotosPicker : (CGPoint) topLeftCorner
 {
     
+	// Set the pull-down menu size when "Done" button is clicked.
+    CGRect frameRect = self.view.frame;
+	frameRect.origin.y = topLeftCorner.y;
+	frameRect.origin.x = topLeftCorner.x;
+	frameRect.size.height = 120;
+	frameRect.size.width = 356;
 	
+	
+	ChooseImagesSitesViewController *controller = nil;
+	controller = [[ChooseImagesSitesViewController alloc] initWithNibName:@"ChooseImagesSitesViewController" bundle:nil];
+	controller.delegate = self;
+	
+	UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:controller];
+	popover.delegate = self;
+	self.popoverController = popover;
+	
+	[self.popoverController setPopoverContentSize:frameRect.size animated:NO];
+    
+	CGRect selectedRect = CGRectMake(frameRect.origin.x,frameRect.origin.y,1,1);
+	
+	[self.popoverController presentPopoverFromRect:selectedRect inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
+    
 #if debug
 	NSString *modeStr = [[UIDevice currentDevice]model];
 	BOOL temp = [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary ];
 	BOOL temp2 = [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum ];
-#endif
     
     imagePickerController = [[UIImagePickerController alloc] init];
 	imagePickerController.delegate = self;
@@ -796,7 +818,7 @@ UITextField *CreateTextEdit(CGRect rect, CGFloat fontSize )
     
 	//[self.view addSubview:[imagePickerController view]];
 	//[self presentModalViewController:imagePickerController animated:NO];
-	
+	/*
     
 	UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:imagePickerController];
 	popover.delegate = self;
@@ -806,7 +828,8 @@ UITextField *CreateTextEdit(CGRect rect, CGFloat fontSize )
 	[self.popoverController setPopoverContentSize:CGSizeMake(60,60) animated:NO];
 	CGRect selectedRect = CGRectMake(topLeftCorner.x,topLeftCorner.y,1,1);
 	[self.popoverController presentPopoverFromRect:selectedRect inView:[self view] permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
-    
+    */
+#endif 
 }
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
@@ -921,11 +944,12 @@ static void PopulateEditorDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
                 gGame.Execute("deleteRingsAfter ring=" + hitRing->_name);
                 
                 gGame.Execute("setCurrentPhoto photo=editor");
-                //gGame.Execute("newBackRing name=editRing begin=PopulateEditorRing", 1, "PopulateEditorRing", PopulateEditorRing);
+                gGame.Execute("newBackRing name=editRing begin=PopulateEditorRing", 1, "PopulateEditorRing", PopulateEditorRing);
+                gGame.Execute("zoomToRing ring=playRing");
                 //gGame.Execute("showTextEdit");
                 
-                gGame.Execute("newDrawer name=EditorDrawer populate=PopulateEditorDrawer", 1, "PopulateEditorDrawer", PopulateEditorDrawer);
-                gGame.Execute("showDrawer drawer=EditorDrawer");
+               // gGame.Execute("newDrawer name=EditorDrawer populate=PopulateEditorDrawer", 1, "PopulateEditorDrawer", PopulateEditorDrawer);
+               // gGame.Execute("showDrawer drawer=EditorDrawer");
                 
 
                 //  [self displaySaveAndUploadButtons];
@@ -1006,7 +1030,58 @@ static void PopulateEditorDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
 
 float gTick = 0;
 
+static bool PhotoNameExists(NSString *thisPhotoname)
+{
+    bool findName = false; 
+    who::Ring * currentRing = gGame.GetCurrentRing();
+    for( size_t i=0; i<currentRing->_photos.size() && !findName; i++ ) {
+        who::Photo * photo = gGame.GetPhoto(currentRing->_photos[i]);
+        NSString *photoName = (__bridge NSString *)StringToNSString(photo->_filename);
+        findName = [thisPhotoname isEqualToString:photoName];
+    }
+    
+    return findName;
+}
 
+- (void)addImageToPhotos:(NSData *)data photoName:(NSString *)name
+{
+    UIImage *image = [[UIImage alloc] initWithData:data];
+    
+    std::string nameString = NSStringToString(name);
+    
+    if (PhotoNameExists(name)) {
+        NSString *newName = [name stringByDeletingPathExtension];
+        NSString *extString = [name pathExtension];
+        
+        
+        nameString  = NSStringToString(newName)+std::string("-2.")+NSStringToString(extString);
+    }
+    NSString *gameFolderPath = nil;
+    if ( gameName) 
+    
+        gameFolderPath = getGameDataFolderPath([gameName text]);
+    else
+        gameFolderPath = getGameDataFolderPath(@"New game");
+    NSString *nameNSString = (__bridge NSString *)StringToNSString(nameString);
+    
+    NSString *imageFilePath = [gameFolderPath stringByAppendingPathComponent:nameNSString];
+    NSLog(imageFilePath);
+    NSError *error = nil;
+    
+    BOOL didSave = [data writeToFile:imageFilePath
+                             options:NSAtomicWrite
+                               error:&error];
+    
+    
+    if (didSave) {
+    
+        who::Ring * currentRing = gGame.GetCurrentRing();
+        std::string ring = currentRing->_name;
+        
+        GL_LoadTextureFromUIImage(image, gGame._images[nameString]);
+        gGame.Execute(std::string("addPhotoToRing name=")+nameString+std::string(" user=")+nameString+std::string(" type=photo ring=") + ring);
+    }
+}
 - (void)update
 // This function animates stuff
 {
@@ -1165,7 +1240,7 @@ float GetTick() {
 
 -(void) dissmissPopoverController
 {
-    [self lock]; 
+    [self lock];
     [popoverController dismissPopoverAnimated:NO];
     [self dismissViewControllerAnimated:NO completion:nil]; 
 	//[self dismissModalViewControllerAnimated:NO];
@@ -1261,9 +1336,9 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
 	[[NSFileManager defaultManager] removeItemAtPath:gameTextFileNameWithFullPath error:NULL];
 
 	// add all image files to the zip
-    NSArray *paths = NSSearchPathForDirectoriesInDomains( NSDocumentDirectory, NSUserDomainMask, YES);
-	NSString *documentsDirectory = [paths objectAtIndex:0];
-	NSString *tmpGameDataPath = documentsDirectory; // Need to change this later 
+	NSString *curGameDataPath = getGameDataFolderPath(_originalGameName);
+   
+    
     /////////////////////
     who::Ring * currentRing = gGame.GetCurrentRing();
     ////////////////////////////////////////////////
@@ -1275,7 +1350,7 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
         std::string faceFileName = aphoto->_filename;
         
         NSString *faceFileNameString = (__bridge NSString *)StringToNSString(faceFileName);
-        NSString *faceString = [tmpGameDataPath stringByAppendingPathComponent:faceFileNameString];
+        NSString *faceString = [curGameDataPath stringByAppendingPathComponent:faceFileNameString];
         if ( faceFileNameString )
             [zip addFileToZip:faceString newname:faceFileNameString];
         
@@ -1288,7 +1363,7 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
         std::string fileName = aphoto->_filename;
         if (fileName != "addPhoto.png") {
             NSString *fileNameString = (__bridge NSString *)StringToNSString(fileName);
-            NSString *fileString = [tmpGameDataPath stringByAppendingPathComponent:fileNameString];
+            NSString *fileString = [curGameDataPath stringByAppendingPathComponent:fileNameString];
             if ( fileNameString )
              [zip addFileToZip:fileString newname:fileNameString];
             
@@ -1392,7 +1467,47 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
     
     [popoverController presentPopoverFromRect:selectedRect inView:[self view] permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
 }
+- (void)commandPicker:(ChooseImagesSitesViewController *)controller didChooseCommand:(NSString *)commandNameStr
+// Called by the gameDoneController when the user chooses a command .
+{
+    int nn = 0; 
+    if (commandNameStr != nil &&  [commandNameStr compare: @"Picasa..." options:NSCaseInsensitiveSearch] == NSOrderedAscending)  {
+        // Set the pull-down menu size when "Done" button is clicked.
+        CGRect frameRect = self.view.frame;
+        frameRect.origin.y = 0;
+        frameRect.origin.x = 0;
+        frameRect.size.height = 536;
+        frameRect.size.width = 457;
+        
+        
+        PicasaViewController *controller = nil;
+        controller = [[PicasaViewController alloc] initWithNibName:@"PicasaViewController" bundle:nil];
+      //  controller.delegate = self;
+        [self dissmissPopoverController];
+        
+        UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:controller];
+        popover.delegate = self;
+        
+        self.popoverController = popover;
+        
+        [self.popoverController setPopoverContentSize:frameRect.size animated:NO];
+        
+        controller.popoverController= popover;
+        controller.hostViewController = self;
+        CGRect selectedRect = CGRectMake(frameRect.origin.x,frameRect.origin.y,1,1);
+        
+        [self.popoverController presentPopoverFromRect:selectedRect inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
+        
+     }
+    else if (commandNameStr != nil &&  [commandNameStr compare: @"Picasa..." options:NSCaseInsensitiveSearch] == NSOrderedSame)  {
+         nn = 100;
+    }
+    else if (commandNameStr != nil &&  [commandNameStr compare: @"Picasa..." options:NSCaseInsensitiveSearch] == NSOrderedDescending)  {
+         nn = 200; 
+    }
 
+}
+/*
 - (void)commandPicker:(GameDoneController *)controller didChooseCommand:(NSString *)commandNameStr
 // Called by the gameDoneController when the user chooses a command .
 {
@@ -1482,6 +1597,7 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
         [self unlock]; 
 	}
 }
+ */
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController  
 {  
     popoverController = nil;  

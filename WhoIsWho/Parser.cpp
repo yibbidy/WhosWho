@@ -352,7 +352,12 @@ bool WhoParser::AddImageFromFile(const char * inStr, int & inOutPos) {
        && KeyValue("name", inStr, inOutPos, name)
        && KeyValue("file", inStr, inOutPos, file) )
     {
-        GL_LoadTextureFromFile(file.c_str(), gGame._images[file]);//.back());
+        ImageInfo image;
+        
+        GL_LoadTextureFromFile(file.c_str(), image);//.back());
+       
+            
+        gGame._images[file] = image;
         
         return true;
     }
@@ -360,7 +365,6 @@ bool WhoParser::AddImageFromFile(const char * inStr, int & inOutPos) {
     inOutPos = pos;
     return false;
 }
-
 
 bool WhoParser::AddPhotoToRing(const char * inStr, int & inOutPos) {
     int pos = inOutPos;
@@ -382,17 +386,19 @@ bool WhoParser::AddPhotoToRing(const char * inStr, int & inOutPos) {
         photo._username = user;
         photo._type = type;
         photo._ring = ringStr;
+        ImageInfo imageInfo = gGame._images[name];
         
-        if (type == "mask") {
-            ring->maskPhotos.push_back(name);
+        if ( imageInfo.image) {
+            if (type == "mask") {
+                ring->maskPhotos.push_back(name);
+            }
+            else {
+                ring->_photos.push_back(name);
+            }
+            
+            photo._index = ring->_photos.size()-1;
+            gGame._photos[name] = photo;
         }
-        else {
-            ring->_photos.push_back(name);
-        }
-        
-        photo._index = ring->_photos.size()-1;
-        gGame._photos[name] = photo;
-        
         return true;
     }
 

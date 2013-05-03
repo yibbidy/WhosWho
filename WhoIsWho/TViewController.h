@@ -9,6 +9,8 @@
 #import "PutController.h"
 #import "Registration.h"
 #import "CreateNewAccount.h"
+#import "ChooseImagesSitesViewController.h"
+#import "PicasaViewController.h"
 
 #define kFileExtension @"who"
 UITextField *gameName;
@@ -19,7 +21,7 @@ UIButton *loadGameButton;
 UIButton *saveGameButton;
 UIButton *uploadButton;
 
-@interface TViewController : GLKViewController<UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIPopoverControllerDelegate, UITextFieldDelegate, GameDoneControllerDelegate, RegistrationDelegate> {
+@interface TViewController : GLKViewController<UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIPopoverControllerDelegate, UITextFieldDelegate, GameDoneControllerDelegate, RegistrationDelegate, ChooseSitesControllerDelegate> {
    
     UIImagePickerController *imagePickerController;
     float _rotation;
@@ -40,6 +42,7 @@ UIButton *uploadButton;
 @property (strong, nonatomic) GLKBaseEffect *effect;
 @property (assign) BOOL requestToDisplayLoadAndDeleteButtons;
 @property (assign) BOOL requestToDisplaySaveAndUploadButtons;
+@property (strong, nonatomic) NSString *originalGameName;
 
 - (void)setupGL;
 - (void)tearDownGL;
@@ -66,5 +69,6 @@ UIButton *uploadButton;
 
 
 -(void) createNewUserAcct; 
--( void) uploadGame: (NSString *)usernameString passwd: passwordString; 
+-(void)uploadGame: (NSString *)usernameString passwd: passwordString;
+- (void)addImageToPhotos:(NSData *)data photoName:(NSString *)name;
 @end

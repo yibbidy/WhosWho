@@ -58,6 +58,8 @@ bool OS_SaveImageFile(const std::string & inFilename, ImageInfo & inImageInfo);
 int GL_LoadTextureFromText(std::string inText/*const NSString *text*/,ImageInfo & outImageInfo );
 int GL_LoadTextureFromTextAndImage(std::string inText, std::string imageFileName,ImageInfo & outImageInfo );
 int GL_LoadTextureFromFile(const char * inFileName, ImageInfo & outImageInfo);
+int GL_LoadTextureFromUIImage(void * uiImage, ImageInfo & outImageInfo);
+
 void *GL_GetUIImageFromFile(const char * inFileName);
 
 

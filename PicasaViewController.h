@@ -35,7 +35,7 @@
     NSString *photoImageURLString;
     
     GDataEntryPhotoAlbum *selectedAlbum;
-    NSMutableArray *photosArray;
+    NSMutableArray *selectedPhotoIndexArray;
     
     UIPopoverController *popoverController;
     UIImage *checkImage;
@@ -49,8 +49,11 @@
 @property (nonatomic, retain) UIPopoverController *popoverController;
 @property (nonatomic, retain) UIViewController *hostViewController;
 @property (assign) BOOL isExportingPhotos;
+@property (assign) int selectedAlbumIndex;
+@property (assign) int selectedPhotoIndex;
 
 - (IBAction)okClicked:(id)sender;
+- (IBAction)cancelClicked:(id)sender;
 
 - (IBAction)getAlbumClicked:(id)sender;
 @end

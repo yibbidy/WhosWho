@@ -9,6 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "PicasaViewController.h"
 
+static NSString *getPhotosFromPicasa= @"Get photos from Picasa...";
+static NSString *getPhotosLocally = @"Get photos locally...";
+
 @protocol ChooseSitesControllerDelegate;
 @interface ChooseImagesSitesViewController : UITableViewController<UIPopoverControllerDelegate> {
 	NSMutableArray* commandsArray;

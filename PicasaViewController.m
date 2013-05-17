@@ -65,12 +65,18 @@
     photosList.delegate = self;
     photosList.dataSource = self;
     
+    albumsList.scrollEnabled = YES;
+    photosList.scrollEnabled = YES;
+    
     usernameField.delegate = self;
     passwordField.delegate = self;
     _isExportingPhotos = NO;
     
     selectedAlbum = nil;
-    photosArray = [[NSMutableArray alloc] init];
+    selectedPhotoIndexArray = [[NSMutableArray alloc] init];
+   
+    _selectedAlbumIndex = -1;
+    _selectedPhotoIndex = -1;
     
     [self setEditing:YES animated:YES];
     [super viewDidLoad];
@@ -93,6 +99,41 @@
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
 	return YES;
+}
+-(void)updateAlbumUI
+{
+    // album fetch result or selected item
+    NSString *albumResultStr = @"";
+    if (_albumFetchError) {
+        albumResultStr = [_albumFetchError description];
+        [self updateImageForAlbum:nil];
+    } else {
+        GDataEntryPhotoAlbum *album = [self selectedAlbum];
+        if (album) {
+            albumResultStr = [album description];
+        }
+        // fetch or clear the album thumbnail
+        [self updateImageForAlbum:album];
+    }
+}
+-(void)updatePhotoUI
+{
+    // photo list display
+    [photosList reloadData];
+    // display photo entry fetch result or selected item
+    GDataEntryPhoto *selectedPhoto = [self selectedPhoto];
+    
+    NSString *photoResultStr = @"";
+    if (photosFetchError) {
+        photoResultStr = [photosFetchError description];
+        // [self updateImageForPhoto:nil];
+    } else {
+        if (selectedPhoto) {
+            photoResultStr = [selectedPhoto description];
+        }
+        // fetch or clear the photo thumbnail
+        // [self updateImageForPhoto:selectedPhoto];
+    }
 }
 - (void)albumListFetchTicket:(GDataServiceTicket *)ticket
             finishedWithFeed:(GDataFeedPhotoUser *)feed
@@ -214,17 +255,26 @@
 }
 - (IBAction)okClicked:(id)sender {
     
-    if ( selectedAlbum) {
-        _isExportingPhotos = YES;
-        [self fetchSelectedAlbum:selectedAlbum];
+    if ( _albumPhotosFeed) {
+        
+        for (int i = 0; i < [[_albumPhotosFeed entries] count]; i++) {
+            if ( [selectedPhotoIndexArray containsObject:[NSNumber numberWithInt:i] ]) {
+                GDataEntryPhoto *photoEntry = [[_albumPhotosFeed entries] objectAtIndex:i];
+                [self downloadSelectedPhoto:photoEntry];
+            }
+        }
     }
     [popoverController dismissPopoverAnimated:NO];
     [self dismissViewControllerAnimated:NO completion:nil];
     
 }
 
-- (IBAction)getAlbumClicked:(id)sender {
-    
+- (IBAction)cancelClicked:(id)sender {
+    [popoverController dismissPopoverAnimated:NO];
+    [self dismissViewControllerAnimated:NO completion:nil];
+}
+-(void)getAlbum
+{
     NSCharacterSet *whitespace = [NSCharacterSet whitespaceAndNewlineCharacterSet];
     
     NSString *username = [usernameField text];
@@ -238,15 +288,18 @@
     [usernameField setText:username];
     
     [self fetchAllAlbums];
+}
 
+- (IBAction)getAlbumClicked:(id)sender {
+    [self getAlbum]; 
 }
 #pragma mark Fetch an album's photos
 // get the album selected in the top list, or nil if none
 - (GDataEntryPhotoAlbum *)selectedAlbum {
     
     NSArray *albums = [_userAlbumFeed entries];
-    int rowIndex =0;// albumsList currentrow;
-    if ([albums count] > 0 && rowIndex > -1) {
+    int rowIndex =_selectedAlbumIndex;
+    if (rowIndex > -1 && rowIndex <[albums count]) {
         
         GDataEntryPhotoAlbum *album = [albums objectAtIndex:rowIndex];
         return album;
@@ -258,8 +311,8 @@
 - (GDataEntryPhoto *)selectedPhoto {
     
     NSArray *photos = [_albumPhotosFeed entries];
-    int rowIndex =0;// [mPhotoTable selectedRow];
-    if ([photos count] > 0 && rowIndex > -1) {
+    int rowIndex =_selectedPhotoIndex;
+    if ( rowIndex > -1 && rowIndex <[photos count]) {
         
         GDataEntryPhoto *photo = [photos objectAtIndex:rowIndex];
         return photo;
@@ -287,7 +340,10 @@
                              didFinishSelector:@selector(photosTicket:finishedWithFeed:error:)];
             _photosFetchTicket = ticket;
             
-            [self updateUI];
+            // album list display
+            [albumsList reloadData];
+            [self updateAlbumUI];
+            
         }
     }
 }
@@ -299,15 +355,10 @@
     _albumFetchError = error;
     _photosFetchTicket= nil;
     
-    if (_isExportingPhotos) {
-        for (int i = 0; i < fmin(2,[[_albumPhotosFeed entries] count]); i++) {
-            GDataEntryPhoto *photoEntry = [[_albumPhotosFeed entries] objectAtIndex:i];
-            [self downloadSelectedPhoto:photoEntry]; 
-        }
-        _isExportingPhotos = NO; 
-    }
-    else
-        [self updateUI];
+    for (int i = 0; i < [[_albumPhotosFeed entries] count]; i++)
+        [selectedPhotoIndexArray addObject: [NSNumber numberWithInt:i]];
+           
+    [self updatePhotoUI];
 }
 - (void)imageFetcher:(GTMHTTPFetcher *)fetcher finishedWithData:(NSData *)data error:(NSError *)error {
     if (error == nil) {
@@ -485,7 +536,6 @@
         
 
         GDataEntryPhoto *photoEntry = [fetcher propertyForKey:@"photo entry"];
-              
         [(TViewController *)hostViewController addImageToPhotos:data photoName: [[photoEntry title] stringValue]];
         int nn = 100; 
         /*
@@ -521,54 +571,79 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     // Return the number of rows in the section.
     if (tableView == albumsList) {
-        return 2;//[[userAlbumFeed entries] count];
+        return [[_userAlbumFeed entries] count];
     } else {
         // entry table
-        return 2;//[[albumPhotosFeed entries] count];
+        return [[_albumPhotosFeed entries] count];
     }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
   
-	static NSString *CellIdentifier = @"Cell";
-    
+	static NSString *CellIdentifier = @"albumCell";
+    static NSString *CellIdentifier2 = @"photoCell";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+    if (cell == nil ){
+        if ( tableView == albumsList)
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        else if (tableView == photosList)
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier2];
     }
+    
     int temp = 0;
     NSString *tempStr;
     if (tableView == albumsList) {
         // get the album entry's title
         if (indexPath.row <[[_userAlbumFeed entries] count] ) {
-            GDataEntryPhotoAlbum *album = [[_userAlbumFeed entries] objectAtIndex:indexPath.row];
-            if ( album == selectedAlbum) {
+           
+            CGRect cellFrame = cell.frame;
+            float checkImageWidthOffset = checkImage.size.width+2;
             
-                cell.textLabel.text = nil;
-                
-                UILabel *lbl = [[UILabel alloc] initWithFrame:CGRectMake(50.0f, 6.0f, 150.0f, 20.0f)];
-                [lbl setText:[[album title]stringValue]];
-                [cell addSubview:lbl];
+            GDataEntryPhotoAlbum *album = [[_userAlbumFeed entries] objectAtIndex:indexPath.row];
+            UILabel *lbl = [[UILabel alloc] initWithFrame:CGRectMake(checkImageWidthOffset, cellFrame.origin.y, cellFrame.size.width-checkImageWidthOffset,cellFrame.size.height)];
+            [lbl setText:[[album title]stringValue]];
+            
+            [cell clearsContextBeforeDrawing];
+            
+            cell.textLabel.text = nil;
+        
+            if ( indexPath.row ==_selectedAlbumIndex) {
                 
                 UIButton *btn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-                btn.frame = CGRectMake(0, 6, 40, 30);
+                btn.frame = CGRectMake(cellFrame.origin.x, cellFrame.origin.y, checkImage.size.width, checkImage.size.height);
                 [btn setImage:checkImage forState:UIControlStateNormal ];//]:checkImage forState:UITouch];
                 [cell addSubview:btn];
                 
-                [cell setSelected:YES];
+              
             }
-            else {
-                cell.textLabel.text = [[album title]stringValue];
-            }
-                
+           
+            [cell addSubview:lbl];   
         }
     } else {
         // get the photo entry's titleokcli
+        CGRect cellFrame = cell.frame;
+        float checkImageWidthOffset = checkImage.size.width+2;
         
         GDataEntryPhoto *photoEntry = [[_albumPhotosFeed entries] objectAtIndex:indexPath.row];
-        cell.textLabel.text = [[photoEntry title] stringValue];
-        [cell setSelected:YES];
+        [cell clearsContextBeforeDrawing];
+        
+        UILabel *lbl = [[UILabel alloc] initWithFrame:CGRectMake(checkImageWidthOffset, cellFrame.origin.y, cellFrame.size.width-checkImageWidthOffset,cellFrame.size.height)];
+        [lbl setText:[[photoEntry title]stringValue]];
+        
+        [cell clearsContextBeforeDrawing];
+        cell.textLabel.text = nil;
+        
+        if ( [selectedPhotoIndexArray containsObject:[NSNumber numberWithInt: indexPath.row]]) {
+            
+            UIButton *btn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+            btn.frame = CGRectMake(cellFrame.origin.x, cellFrame.origin.y, checkImage.size.width, checkImage.size.height);
+            [btn setImage:checkImage forState:UIControlStateNormal ];//]:checkImage forState:UITouch];
+            [cell addSubview:btn];
+            
+            
+        }
+        [cell addSubview:lbl];
     }
     
     return cell;
@@ -583,21 +658,28 @@
     if (tableView == albumsList) {
         // get the album entry's title
         if (indexPath.row <[[_userAlbumFeed entries] count] ) {
-            GDataEntryPhotoAlbum *album = [[_userAlbumFeed entries] objectAtIndex:indexPath.row];
-            if ( album != selectedAlbum) {
-                [self fetchSelectedAlbum: album];
             
-                selectedAlbum = album;
+            if (_selectedAlbumIndex != indexPath.row) {
+                _selectedAlbumIndex = indexPath.row;
+                GDataEntryPhotoAlbum *album = [[_userAlbumFeed entries] objectAtIndex:_selectedAlbumIndex];
+                [self fetchSelectedAlbum: album];
             }
+             [self updatePhotoUI];
             
         }
     } else {
         // get the photo entry's title
         GDataEntryPhoto *photoEntry = [[_albumPhotosFeed entries] objectAtIndex:indexPath.row];
-     //   cell.textLabel.text = [[ph//otoEntry title] stringValue];
+       // cell.textLabel.text = [[photoEntry title] stringValue];
         
         [self updateImageForPhoto:photoEntry];
         
+         if ( [selectedPhotoIndexArray containsObject:[NSNumber numberWithInt: indexPath.row]]) {
+             [selectedPhotoIndexArray removeObject:[NSNumber numberWithInt: indexPath.row]];
+         }
+        else
+            [selectedPhotoIndexArray addObject:[NSNumber numberWithInt: indexPath.row]];
+        [self updatePhotoUI];
     }
 
 }
@@ -627,10 +709,8 @@
 	if ( [sender.text length]>3  ) {
         [sender setTextColor:[UIColor blackColor]];
 		//finish editing
-      
 		[sender resignFirstResponder];
-		
-		
+    
 		return YES;
 	} else {
 		return NO;
@@ -642,12 +722,11 @@
 	if ([sender.text length]>3  ) {
         
 		//finish editing
-		NSString *name =  (NSString *)sender.text;
-		// XXX - need to do this later
-        //[(AppView *)renderView saveGame:name];
-    
-		[sender resignFirstResponder];
 		
+		[sender resignFirstResponder];
+		if ( sender == passwordField)
+            [self getAlbum];
+        
 		return YES;
 	} else {
 		return NO;

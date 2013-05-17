@@ -22,6 +22,7 @@ UIButton *saveGameButton;
 UIButton *uploadButton;
 NSString *gOriginalGameName;
 
+
 @interface TViewController : GLKViewController<UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIPopoverControllerDelegate, UITextFieldDelegate, GameDoneControllerDelegate, RegistrationDelegate, ChooseSitesControllerDelegate> {
    
     UIImagePickerController *imagePickerController;
@@ -71,4 +72,5 @@ NSString *gOriginalGameName;
 -(void) createNewUserAcct; 
 -(void)uploadGame: (NSString *)usernameString passwd: passwordString;
 - (void)addImageToPhotos:(NSData *)data photoName:(NSString *)name;
+- (void)addLocalImageToPhotos:(UIImage *)image;
 @end

@@ -469,58 +469,7 @@ static void PopulateEditorRing(who::Ring & inRing, void *argsStr)
 // this function is the callback target to populate the play ring
 {
     std::string ring = inRing._name;
-#if 0 
-    gGame.Execute("addImageFromFile name=joe file=\"face 001.png\"");
-    gGame.Execute(std::string("addPhotoToRing name=face 001.png user=joe type=face ring=") + ring);
-    
-    gGame.Execute("addImageFromFile name=\"002 face 001\" file=\"002 face 001.png\"");
-    gGame.Execute("addImageFromFile name=\"002 face 001\" file=\"002 face 002.png\"");
-    gGame.Execute(std::string("addPhotoToRing name=\"002 face 001.png\" user=joe type=mask ring=") + ring);
-    gGame.Execute(std::string("addPhotoToRing name=\"002 face 002.png\" user=joe type=mask ring=") + ring);
-    
-    gGame.Execute("addImageFromFile name=joe file=001.jpg");
-    gGame.Execute("addImageFromFile name=002 file=002.jpg");
-    gGame.Execute("addImageFromFile name=003 file=003.jpg");
-    gGame.Execute("addImageFromFile name=004 file=004.jpg");
-    gGame.Execute("addImageFromFile name=005 file=005.jpg");
-    gGame.Execute("addImageFromFile name=006 file=006.jpg");
-    gGame.Execute("addImageFromFile name=007 file=007.jpg");
-    gGame.Execute("addImageFromFile name=008 file=008.jpg");
-    
-    gGame.Execute(std::string("addPhotoToRing name=001.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=001.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=001.jpg");
-    
-    gGame.Execute(std::string("addPhotoToRing name=002.jpg user=002 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=002.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=002.jpg");
-    
-    gGame.Execute(std::string("addPhotoToRing name=003.jpg user=003 type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=003.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=003.jpg");
-    
-    
-    /////////
-    gGame.Execute(std::string("addPhotoToRing name=004.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=004.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=004.jpg");
-    
-    gGame.Execute(std::string("addPhotoToRing name=005.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=005.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=005.jpg");
-    
-    gGame.Execute(std::string("addPhotoToRing name=006.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=006.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=006.jpg");
-    
-    gGame.Execute(std::string("addPhotoToRing name=007.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=007.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=007.jpg");
-    
-    gGame.Execute(std::string("addPhotoToRing name=008.jpg user=joe type=photo ring=") + ring);
-    gGame.Execute("addMaskToPhoto name=mask001 image=\"002 face 001.png\" photo=008.jpg");
-    gGame.Execute("addMaskToPhoto name=mask002 image=\"002 face 002.png\" photo=008.jpg");
-#endif 
+ 
     gGame.Execute("addImageFromFile name=addPhoto.png file=addPhoto.png");
     gGame.Execute(std::string("addPhotoToRing name=addPhoto.png user=addPhoto.png type=photo ring=") + ring);
     gGame.Execute("setCurrentPhoto photo=addPhoto.png");

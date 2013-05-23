@@ -512,7 +512,7 @@
             // fetch the request
             GTMHTTPFetcher *fetcher = [GTMHTTPFetcher fetcherWithRequest:request];
             [fetcher setAuthorizer:[service authorizer]];
-            
+            [fetcher setShouldFetchInBackground:YES]; 
             // http logs are easier to read when fetchers have comments
             [fetcher setCommentWithFormat:@"downloading %@",
              [[photoEntry title] stringValue]];
@@ -682,6 +682,12 @@
         [self updatePhotoUI];
     }
 
+}
+// Override to support conditional rearranging of the table view.
+- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    // Return NO if you do not want the item to be re-orderable.
+    return YES;
 }
 #pragma mark -
 #pragma mark UITextFieldDelegate

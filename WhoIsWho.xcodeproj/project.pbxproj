@@ -27,7 +27,6 @@
 		8916DB9A16A204EA00F9E3C6 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8916DB9916A204EA00F9E3C6 /* CoreData.framework */; };
 		8916DBAB16A377F100F9E3C6 /* FromFriend.m in Sources */ = {isa = PBXBuildFile; fileRef = 8916DBAA16A377F100F9E3C6 /* FromFriend.m */; };
 		8916DBAE16A3780C00F9E3C6 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 8916DBAD16A3780C00F9E3C6 /* User.m */; };
-		8918B4DA16A8CF3400252D02 /* libRestKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 899C27E516A8CDF30041E7C1 /* libRestKit.a */; };
 		8986AB3517343FE900D657A9 /* libGDataTouchStaticLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8986AB25173437FA00D657A9 /* libGDataTouchStaticLib.a */; };
 		8986AEE71734419000D657A9 /* GData.h in Resources */ = {isa = PBXBuildFile; fileRef = 8986ADAC1734419000D657A9 /* GData.h */; };
 		8986AEE81734419000D657A9 /* GDataACL.h in Resources */ = {isa = PBXBuildFile; fileRef = 8986ADAD1734419000D657A9 /* GDataACL.h */; };
@@ -362,6 +361,7 @@
 		89B40E8D1692B333009DC605 /* list_remove.png in Resources */ = {isa = PBXBuildFile; fileRef = 89B40E8C1692B333009DC605 /* list_remove.png */; };
 		89B40E8F1692B865009DC605 /* go_up.png in Resources */ = {isa = PBXBuildFile; fileRef = 89B40E8E1692B865009DC605 /* go_up.png */; };
 		89DA73C81577F7190054A076 /* WhoIsWhoModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 89DA73C61577F7190054A076 /* WhoIsWhoModel.xcdatamodeld */; };
+		89E7C87317622A6E00038F45 /* cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = 89E7C87217622A6E00038F45 /* cancel.png */; };
 		89ED83A114FB575800B8B581 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 89ED83A014FB575800B8B581 /* UIKit.framework */; };
 		89ED83A314FB575800B8B581 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 89ED83A214FB575800B8B581 /* Foundation.framework */; };
 		89ED83A514FB575800B8B581 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 89ED83A414FB575800B8B581 /* CoreGraphics.framework */; };
@@ -447,23 +447,23 @@
 			remoteGlobalIDString = 4F1C6E0E1027B3CE00B46459;
 			remoteInfo = GDataTouchStaticLib;
 		};
-		899C27E416A8CDF30041E7C1 /* PBXContainerItemProxy */ = {
+		89E7C868175A699100038F45 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 899C27DE16A8CDF30041E7C1 /* RestKit.xcodeproj */;
+			containerPortal = 89E7C85E175A699000038F45 /* RestKit.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 25160D1614564E810060A5C5;
 			remoteInfo = RestKit;
 		};
-		899C27E616A8CDF30041E7C1 /* PBXContainerItemProxy */ = {
+		89E7C86A175A699100038F45 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 899C27DE16A8CDF30041E7C1 /* RestKit.xcodeproj */;
+			containerPortal = 89E7C85E175A699000038F45 /* RestKit.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 25160D2614564E820060A5C5;
 			remoteInfo = RestKitTests;
 		};
-		899C27E816A8CDF30041E7C1 /* PBXContainerItemProxy */ = {
+		89E7C86C175A699100038F45 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 899C27DE16A8CDF30041E7C1 /* RestKit.xcodeproj */;
+			containerPortal = 89E7C85E175A699000038F45 /* RestKit.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 25160E78145651060060A5C5;
 			remoteInfo = RestKitFrameworkTests;
@@ -856,7 +856,6 @@
 		8990FD48156D85DA000BD4CE /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		8990FD4A156D8610000BD4CE /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		8993619416AFB7A300E12210 /* load2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = load2.png; path = Images/load2.png; sourceTree = "<group>"; };
-		899C27DE16A8CDF30041E7C1 /* RestKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RestKit.xcodeproj; path = "Library/RestKit-0.20.0-pre6/RestKit.xcodeproj"; sourceTree = "<group>"; };
 		89AE3ECF1713DDBD00153814 /* PicasaViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PicasaViewController.h; path = ../PicasaViewController.h; sourceTree = "<group>"; };
 		89AE3ED01713DDBD00153814 /* PicasaViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PicasaViewController.m; path = ../PicasaViewController.m; sourceTree = "<group>"; };
 		89AE3ED11713DDBD00153814 /* PicasaViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = PicasaViewController.xib; path = ../PicasaViewController.xib; sourceTree = "<group>"; };
@@ -865,6 +864,8 @@
 		89B40E8C1692B333009DC605 /* list_remove.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = list_remove.png; path = Images/list_remove.png; sourceTree = "<group>"; };
 		89B40E8E1692B865009DC605 /* go_up.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = go_up.png; path = Images/go_up.png; sourceTree = "<group>"; };
 		89DA73C71577F7190054A076 /* WhoIsWhoModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = WhoIsWhoModel.xcdatamodel; sourceTree = "<group>"; };
+		89E7C85E175A699000038F45 /* RestKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RestKit.xcodeproj; path = "Library/RestKit-0.20.0-pre6/RestKit.xcodeproj"; sourceTree = "<group>"; };
+		89E7C87217622A6E00038F45 /* cancel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cancel.png; path = Images/cancel.png; sourceTree = "<group>"; };
 		89ED839C14FB575800B8B581 /* WhoIsWho.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhoIsWho.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		89ED83A014FB575800B8B581 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		89ED83A214FB575800B8B581 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -922,7 +923,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8986AB3517343FE900D657A9 /* libGDataTouchStaticLib.a in Frameworks */,
-				8918B4DA16A8CF3400252D02 /* libRestKit.a in Frameworks */,
 				8916DB9A16A204EA00F9E3C6 /* CoreData.framework in Frameworks */,
 				8916DB60169BE68C00F9E3C6 /* libz.dylib in Frameworks */,
 				8990FD49156D85DA000BD4CE /* QuartzCore.framework in Frameworks */,
@@ -1326,12 +1326,12 @@
 			name = FTP;
 			sourceTree = "<group>";
 		};
-		899C27DF16A8CDF30041E7C1 /* Products */ = {
+		89E7C85F175A699000038F45 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				899C27E516A8CDF30041E7C1 /* libRestKit.a */,
-				899C27E716A8CDF30041E7C1 /* RestKitTests.octest */,
-				899C27E916A8CDF30041E7C1 /* RestKitFrameworkTests.octest */,
+				89E7C869175A699100038F45 /* libRestKit.a */,
+				89E7C86B175A699100038F45 /* RestKitTests.octest */,
+				89E7C86D175A699100038F45 /* RestKitFrameworkTests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1339,9 +1339,9 @@
 		89ED839114FB575700B8B581 = {
 			isa = PBXGroup;
 			children = (
+				89E7C85E175A699000038F45 /* RestKit.xcodeproj */,
 				8986AEE61734419000D657A9 /* Headers */,
 				8986AB16173437F700D657A9 /* GData.xcodeproj */,
-				899C27DE16A8CDF30041E7C1 /* RestKit.xcodeproj */,
 				89ED839F14FB575800B8B581 /* Frameworks */,
 				89ED839D14FB575800B8B581 /* Products */,
 				89ED840B14FE96C400B8B581 /* Resources */,
@@ -1468,6 +1468,7 @@
 		89ED84551507356500B8B581 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				89E7C87217622A6E00038F45 /* cancel.png */,
 				8993619416AFB7A300E12210 /* load2.png */,
 				8916DB6316A0724B00F9E3C6 /* load.png */,
 				8916DB61169C509600F9E3C6 /* Save.png */,
@@ -1560,8 +1561,8 @@
 					ProjectRef = 8986AB16173437F700D657A9 /* GData.xcodeproj */;
 				},
 				{
-					ProductGroup = 899C27DF16A8CDF30041E7C1 /* Products */;
-					ProjectRef = 899C27DE16A8CDF30041E7C1 /* RestKit.xcodeproj */;
+					ProductGroup = 89E7C85F175A699000038F45 /* Products */;
+					ProjectRef = 89E7C85E175A699000038F45 /* RestKit.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -1608,25 +1609,25 @@
 			remoteRef = 8986AB2A173437FA00D657A9 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		899C27E516A8CDF30041E7C1 /* libRestKit.a */ = {
+		89E7C869175A699100038F45 /* libRestKit.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libRestKit.a;
-			remoteRef = 899C27E416A8CDF30041E7C1 /* PBXContainerItemProxy */;
+			remoteRef = 89E7C868175A699100038F45 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		899C27E716A8CDF30041E7C1 /* RestKitTests.octest */ = {
+		89E7C86B175A699100038F45 /* RestKitTests.octest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
 			path = RestKitTests.octest;
-			remoteRef = 899C27E616A8CDF30041E7C1 /* PBXContainerItemProxy */;
+			remoteRef = 89E7C86A175A699100038F45 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		899C27E916A8CDF30041E7C1 /* RestKitFrameworkTests.octest */ = {
+		89E7C86D175A699100038F45 /* RestKitFrameworkTests.octest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
 			path = RestKitFrameworkTests.octest;
-			remoteRef = 899C27E816A8CDF30041E7C1 /* PBXContainerItemProxy */;
+			remoteRef = 89E7C86C175A699100038F45 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -1984,6 +1985,7 @@
 				8986B01E1734419000D657A9 /* GTMOAuth2SignIn.h in Resources */,
 				8986B01F1734419000D657A9 /* GTMOAuth2ViewControllerTouch.h in Resources */,
 				8986B0201734419000D657A9 /* GTMReadMonitorInputStream.h in Resources */,
+				89E7C87317622A6E00038F45 /* cancel.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

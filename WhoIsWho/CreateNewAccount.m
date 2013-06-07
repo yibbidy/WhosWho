@@ -2,8 +2,8 @@
 //  Shirley Carter (shirley.carter66@gmail.com)
 
 #import "CreateNewAccount.h"
-#import <RestKit/RestKit.h>
-#import <RestKit/CoreData.h>
+//#import <RestKit/RestKit.h>
+//#import <RestKit/CoreData.h>
 #import "User.h"
 
 @interface CreateNewAccount ()
@@ -48,8 +48,8 @@
 
 - (IBAction)saveUser:(id)sender {
     
-   
-        
+#if 0 
+    
    // User *newUser = [NSEntityDescription insertNewObjectForEntityForName:@"User" inManagedObjectContext:context];
     
     RKObjectManager *manager= [RKObjectManager sharedManager];
@@ -93,7 +93,7 @@
 		NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
 		exit(-1);  // Fail
 	}
-
+#endif 
     
 }
 @end

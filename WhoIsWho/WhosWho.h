@@ -161,6 +161,8 @@ namespace who
             
             _currentDrawer = "";
             _drawerDropAnim = 0;
+            _totalPhotosToDownload=-1;
+            _photosDownloaded = 0;
         }
         
         void Execute(std::string inCommand, int inNumPairs = 0, ...);
@@ -190,7 +192,9 @@ namespace who
         int _currentAnmID;
         
         Camera _camera;
-        
+        ImageInfo  cancelImage;
+        int _totalPhotosToDownload;
+        int _photosDownloaded;
     };
     
     float SmoothFn(float inT, float * inParams);

@@ -2,8 +2,8 @@
 //  Shirley Carter (shirley.carter66@gmail.com)
 
 #import "AppDelegate.h"
-#import <RestKit/Restkit.h>
-#import <RestKit/CoreData.h>
+//#import <RestKit/Restkit.h>
+//#import <RestKit/CoreData.h>
 
 @implementation AppDelegate
 
@@ -20,8 +20,9 @@
   //  [RKObjectManager setSharedManager:manager];
     
     
-    
+#if 0 
     NSURL *baseURL = [NSURL URLWithString:@"http://localhost:3000"];
+    
     RKObjectManager *objectManager = [RKObjectManager managerWithBaseURL:baseURL];
     
    
@@ -38,7 +39,7 @@
     [RKObjectManager setSharedManager:objectManager];
     
    
-   
+#endif 
     return YES;
 }
 							

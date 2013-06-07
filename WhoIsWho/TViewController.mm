@@ -976,6 +976,11 @@ static void PopulateEditorDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
     [EAGLContext setCurrentContext:self.context];
     
     WHO_InitApp();
+    
+    
+    UIImage *image  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"cancel" ofType:@"png"]];
+    GL_LoadTextureFromUIImage(image, gGame.cancelImage);
+    
 }
 
 
@@ -1017,7 +1022,6 @@ static bool PhotoNameExists(NSString *thisPhotoname)
         NSString *newName = [name stringByDeletingPathExtension];
         NSString *extString = [name pathExtension];
         
-        
         nameString  = NSStringToString(newName)+std::string("-2.")+NSStringToString(extString);
     }
     NSString *gameFolderPath = nil;
@@ -1033,7 +1037,6 @@ static bool PhotoNameExists(NSString *thisPhotoname)
     NSString *nameNSString = (__bridge NSString *)StringToNSString(nameString);
     
     NSString *imageFilePath = [gameFolderPath stringByAppendingPathComponent:nameNSString];
-    NSLog(imageFilePath);
     NSError *error = nil;
     
     BOOL didSave = [data writeToFile:imageFilePath
@@ -1048,9 +1051,17 @@ static bool PhotoNameExists(NSString *thisPhotoname)
         
         GL_LoadTextureFromUIImage(image, gGame._images[nameString]);
         gGame.Execute(std::string("addPhotoToRing name=")+nameString+std::string(" user=")+nameString+std::string(" type=photo ring=") + ring);
+        gGame._photosDownloaded++;
     }
 }
-
+-(void)setTotalPhotosToDownload:(int)numOfPhotos
+{
+    gGame._totalPhotosToDownload = numOfPhotos;
+}
+-(void)setPhotosDownloaded:(int)numOfPhotos;
+{
+    gGame._photosDownloaded = numOfPhotos; 
+}
 - (void)addLocalImageToPhotos:(UIImage *)image 
 {
     NSDate *currDate = [NSDate date];

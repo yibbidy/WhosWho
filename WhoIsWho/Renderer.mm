@@ -66,7 +66,7 @@ int GLData::Init()
         glGenBuffers(1, &gGLData._diskVBO);
         glBindBuffer(GL_ARRAY_BUFFER, gGLData._diskVBO);
         std::vector<float> verts, normals, texCoords;
-        GEO_GenerateDisc(0, 360, who::kR0, who::kR1, 0, 64, verts, normals, texCoords, 0);
+        GEO_GenerateDisc(-90, 270, who::kR0, who::kR1, 0, 64, verts, normals, texCoords, 0);
         gGLData._diskNumVertices = verts.size()/3;
         unsigned int size = verts.size()*sizeof(float);
         glBufferData(GL_ARRAY_BUFFER, size, &verts[0], GL_STATIC_DRAW);
@@ -637,7 +637,7 @@ void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat) {
     glUniform1f(gGLData._colorProgram._imageWeight, 0);
     glUniform1i(gGLData._colorProgram._imageTexture, 0);
     glBindVertexArrayOES(gGLData._diskVAO);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, gGLData._diskNumVertices);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, gGLData._diskNumVertices);  // draw blue ring
     
     glm::mat4 mat = glm::translate(inMVPMat, glm::vec3(0, 0, 0.001f));
     glUseProgram(gGLData._colorProgram._program);
@@ -646,24 +646,56 @@ void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat) {
         //glUniform4f(gGLData.colorProgram.colorLoc, 0, 0, 0, inRing._ringAlpha);
     glBindVertexArrayOES(gGLData._diskInnerEdgeVAO);
     glLineWidth(4.0f);
-    glDrawArrays(GL_LINE_STRIP, 0, gGLData._diskNumVertices/2);
+    glDrawArrays(GL_LINE_STRIP, 0, gGLData._diskNumVertices/2);  // black outer edge
     
     glBindVertexArrayOES(gGLData._diskOuterEdgeVAO);
-    glDrawArrays(GL_LINE_STRIP, 0, gGLData._diskNumVertices/2);
+    double percentage =0.7;// gGame._totalPhotosToDownload==-1?0:gGame._photosDownloaded/gGame._totalPhotosToDownload;
     
+    static float lineWidth = 10;
+    glLineWidth(lineWidth);
+    glDrawArrays(GL_LINE_STRIP, 0, int(percentage * gGLData._diskNumVertices/2));  // inerr edge
+   
+    glLineWidth(4);  // restore line width
+    
+    // draw progress ring
+    // draw cancel image (green X)
+    if (percentage > 0.0) {
+        float x = glm::cos(-kPi/2 + 2*kPi*percentage) * who::kR0;
+        float y = -glm::sin(-kPi/2 + 2*kPi*percentage) * who::kR0;
+
+        glUseProgram(gGLData._colorProgram._program);
+        glBindVertexArrayOES(gGLData._squareVAO);
+        glUniform1f(gGLData._colorProgram._imageWeight, 1);
+        glUniform1i(gGLData._colorProgram._imageTexture, 0);
+        
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, gGame.cancelImage.texID);
+        //float ratio = gGame.cancelImage.originalHeight/gGame.cancelImage.originalWidth;
+        
+        mat = glm::scale(glm::translate(inMVPMat, glm::vec3(x, y, 0.001f)),
+                                   glm::vec3(0.05, 0.05, 1));
+        
+        glUniform4f(gGLData._colorProgram._colorLoc, 1.0f, 1.0f, 1.0f, 0.5f);
+        glUniformMatrix4fv(gGLData._colorProgram._mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
+        
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    }
+    ///////////////////////////////////////////
     // draw the images on the ring (a bunch of rects in a circle pattern)
     glUseProgram(gGLData._photoProgram._program);
     glBindVertexArrayOES(gGLData._squareVAO);
     
     glUniform1i(gGLData._photoProgram._imageTexLoc, 0);
     glUniform1f(gGLData._photoProgram._imageAlphaLoc, inRing._ringAlpha);
+    
+   
     glActiveTexture(GL_TEXTURE0);
     // glBindTexture(GL_TEXTURE_2D, gGame._images[0].texID);
 #if 0
     int masks[] = { 1, 2 };
     glUniform1iv(gGLData.photoProgram.maskTexLoc, 2, masks);
 #endif
-    float kPi = 3.141592654f;
+    
     
     int numImages = int(inRing._photos.size());
     float halfNumImages = numImages * 0.5f;
@@ -784,8 +816,9 @@ void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat) {
             glUseProgram(gGLData._photoProgram._program);
             glBindVertexArrayOES(gGLData._squareVAO);
         }
+        
     }
-    
+   
     glBindTexture(GL_TEXTURE_2D, 0);
     
     glLineWidth(1.0f);

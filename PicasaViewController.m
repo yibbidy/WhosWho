@@ -257,6 +257,9 @@
     
     if ( _albumPhotosFeed) {
         
+        [(TViewController *)hostViewController setTotalPhotosToDownload: [selectedPhotoIndexArray count]];
+        [(TViewController *)hostViewController  setPhotosDownloaded:0];
+         
         for (int i = 0; i < [[_albumPhotosFeed entries] count]; i++) {
             if ( [selectedPhotoIndexArray containsObject:[NSNumber numberWithInt:i] ]) {
                 GDataEntryPhoto *photoEntry = [[_albumPhotosFeed entries] objectAtIndex:i];
@@ -266,7 +269,6 @@
     }
     [popoverController dismissPopoverAnimated:NO];
     [self dismissViewControllerAnimated:NO completion:nil];
-    
 }
 
 - (IBAction)cancelClicked:(id)sender {

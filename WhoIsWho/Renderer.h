@@ -10,6 +10,7 @@
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
 
+static const float kPi = 3.141592654f;
 
 enum EGLSLBinding {
     eGLSLBindingUniform,

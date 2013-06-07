@@ -45,6 +45,7 @@ NSString *gOriginalGameName;
 @property (assign) BOOL requestToDisplayLoadAndDeleteButtons;
 @property (assign) BOOL requestToDisplaySaveAndUploadButtons;
 
+
 - (void)setupGL;
 - (void)tearDownGL;
 - (void)lock; 
@@ -71,6 +72,9 @@ NSString *gOriginalGameName;
 
 -(void) createNewUserAcct; 
 -(void)uploadGame: (NSString *)usernameString passwd: passwordString;
-- (void)addImageToPhotos:(NSData *)data photoName:(NSString *)name;
-- (void)addLocalImageToPhotos:(UIImage *)image;
+-(void)addImageToPhotos:(NSData *)data photoName:(NSString *)name;
+-(void)addLocalImageToPhotos:(UIImage *)image;
+-(void)setTotalPhotosToDownload:(int)numOfPhotos;
+-(void)setPhotosDownloaded:(int)numOfPhotos;
+
 @end

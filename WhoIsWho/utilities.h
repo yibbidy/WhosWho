@@ -18,6 +18,9 @@
 #define for_j(size) for( size_t j=0; j<size; j++ )
 #define for_k(size) for( size_t k=0; k<size; k++ )
 
+static std::string cancelString = "cancel";
+static const float cancelPhotoZVal = 0.01f;
+
 void	GEO_GenerateUnitSphere(std::vector<float> & vertices, std::vector<float> & normals);
 void    GEO_GenerateDisc(float inStartAngle, float inEndAngle, float inInnerRadius, float inOuterRadius, float inZ, int inSegments, std::vector<float> & outVertices, std::vector<float> & outNormals, std::vector<float> & outTexCoords, float * outBoundingCube);
 void    GEO_GenerateUnitCircle(int inSegments, std::vector<float> & outVertices);

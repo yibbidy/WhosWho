@@ -157,7 +157,7 @@
     _userAlbumFeed = nil;
     _albumFetchError= nil;
     _albumFetchTicket = nil;
-    
+   
     _albumPhotosFeed = nil; 
     _photosFetchError = nil; 
     _photosFetchTicket= nil; 
@@ -272,6 +272,10 @@
 }
 
 - (IBAction)cancelClicked:(id)sender {
+    
+    [_albumFetchTicket cancelTicket];
+    [_photosFetchTicket cancelTicket];
+    
     [popoverController dismissPopoverAnimated:NO];
     [self dismissViewControllerAnimated:NO completion:nil];
 }

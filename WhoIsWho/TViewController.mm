@@ -305,7 +305,7 @@ void PopulateControlsForRing()
     gameNameOnNameRing.hidden = YES;
     gameNameOnPlayrRing.hidden = YES;
     
-    if (hitRing->_name =="playRing" || hitRing->_name =="editRing") {
+    if (hitRing->_name =="playRing") {
         DisplaySaveAndUploadButtons();
     }
     if (hitRing->_name =="gameNamesRing") {
@@ -877,12 +877,40 @@ static void PopulateEditorDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
         }
     }
     
+    // for hit cancel
+    who::Photo *photo = &gGame._photos[cancelString];
+    if ( currentRing->_name =="playRing" && gGame._totalPhotosToDownload>0) {
+        float z = -hitRing->_stackingOrder;
+        glm::vec3 viewPt2 = glm::vec3(touchPoint.x, touchPoint.y, 0);
+        
+        glm::vec3 rayOrigin2, rayDir2;
+        GEO_MakePickRay(gGame._camera._viewMat, gGame._camera._projectionMat, gGame._camera._viewport, viewPt2, rayOrigin2, rayDir2);
+
+        
+        glm::vec3 photoVerts[] = {
+            photo->_transform * glm::vec3(-0.5, -0.5, z),
+            photo->_transform * glm::vec3(0.5, -0.5, z),
+            photo->_transform * glm::vec3(-0.5, 0.5, z),
+            photo->_transform * glm::vec3(0.5, 0.5, z)
+        };
+
+        if( GEO_RayTriangleIntersection(rayOrigin2, rayDir2, photoVerts+0, 0, intersectPt) ||
+           GEO_RayTriangleIntersection(rayOrigin2, rayDir2, photoVerts+1, 0, intersectPt) ) {
+            hitPhoto = photo;
+
+        }
+    }
    char command[256];
     
     if( hitPhoto )
     {
+        if( hitPhoto->_type == "cancel" )
+        {
+            if (picasaController)
+                [picasaController cancelClicked:nil];
+        }
         //_currentHitPhoto = hitPhoto;
-        if( hitPhoto && hitPhoto->_filename=="addPhoto.png") {
+        else if( hitPhoto && hitPhoto->_filename=="addPhoto.png") {
             [self showImagePhotosPicker:touchPoint ];
         }
     	else if( hitRing->_name =="gameNamesRing") {
@@ -908,8 +936,8 @@ static void PopulateEditorDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
                 gGame.Execute("deleteRingsAfter ring=" + hitRing->_name);
                 
                 gGame.Execute("setCurrentPhoto photo=editor");
-                gGame.Execute("newBackRing name=editRing begin=PopulateEditorRing", 1, "PopulateEditorRing", PopulateEditorRing);
-                gGame.Execute("zoomToRing ring=editRing");
+                gGame.Execute("newBackRing name=playRing begin=PopulateEditorRing", 1, "PopulateEditorRing", PopulateEditorRing);
+                gGame.Execute("zoomToRing ring=playRing");
                 //gGame.Execute("showTextEdit");
                 
                // gGame.Execute("newDrawer name=EditorDrawer populate=PopulateEditorDrawer", 1, "PopulateEditorDrawer", PopulateEditorDrawer);
@@ -979,8 +1007,23 @@ static void PopulateEditorDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
     
     
     UIImage *image  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"cancel" ofType:@"png"]];
-    GL_LoadTextureFromUIImage(image, gGame.cancelImage);
+    ImageInfo cancelImageInfo;
     
+    std::string cancelString = "cancel";
+    GL_LoadTextureFromUIImage(image,cancelImageInfo);
+    
+    if ( cancelImageInfo.image) {
+   
+        gGame._images[cancelString] = cancelImageInfo;
+    
+        who::Photo photo;
+        photo._type ="cancel";
+        photo._filename = "cancel";
+        photo._username = "cancel";
+        photo._transform = glm::mat4x3(glm::mat4(1));
+        
+        gGame._photos[cancelString]=photo;
+    }
 }
 
 
@@ -1051,7 +1094,6 @@ static bool PhotoNameExists(NSString *thisPhotoname)
         
         GL_LoadTextureFromUIImage(image, gGame._images[nameString]);
         gGame.Execute(std::string("addPhotoToRing name=")+nameString+std::string(" user=")+nameString+std::string(" type=photo ring=") + ring);
-        gGame._photosDownloaded++;
     }
 }
 -(void)setTotalPhotosToDownload:(int)numOfPhotos
@@ -1060,7 +1102,8 @@ static bool PhotoNameExists(NSString *thisPhotoname)
 }
 -(void)setPhotosDownloaded:(int)numOfPhotos;
 {
-    gGame._photosDownloaded = numOfPhotos; 
+    who::Ring * currentRing = gGame.GetCurrentRing();
+    gGame._currentNumOfPhotos = currentRing->_photos.size();
 }
 - (void)addLocalImageToPhotos:(UIImage *)image 
 {
@@ -1511,21 +1554,19 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
         frameRect.size.width = 457;
         
         
-        PicasaViewController *controller = nil;
-        controller = [[PicasaViewController alloc] initWithNibName:@"PicasaViewController" bundle:nil];
-      //  controller.delegate = self;
+        picasaController = [[PicasaViewController alloc] initWithNibName:@"PicasaViewController" bundle:nil];
         [self dissmissPopoverController];
         
-        UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:controller];
+        UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:picasaController];
         popover.delegate = self;
         
         self.popoverController = popover;
         
         [self.popoverController setPopoverContentSize:frameRect.size animated:NO];
         
-        controller.popoverController= popover;
-        controller.hostViewController = self;
-        CGRect selectedRect = CGRectMake(frameRect.origin.x,frameRect.origin.y,1,1);
+        picasaController.popoverController= popover;
+        picasaController.hostViewController = self;
+        CGRect selectedRect = CGRectMake(0,0,1,1);
         
         [self.popoverController presentPopoverFromRect:selectedRect inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
         

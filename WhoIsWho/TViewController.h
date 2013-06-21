@@ -23,9 +23,12 @@ UIButton *uploadButton;
 NSString *gOriginalGameName;
 
 
+
 @interface TViewController : GLKViewController<UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIPopoverControllerDelegate, UITextFieldDelegate, GameDoneControllerDelegate, RegistrationDelegate, ChooseSitesControllerDelegate> {
    
     UIImagePickerController *imagePickerController;
+    PicasaViewController *picasaController;
+    
     float _rotation;
     
     UIPopoverController *popoverController;

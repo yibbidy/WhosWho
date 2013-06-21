@@ -157,7 +157,7 @@ int GLData::DeInit()
 }
 
 
-void DrawDrawer(float inDropdownAnim)
+void sDrawDrawer(float inDropdownAnim)
 {
     
     // draw face list
@@ -261,7 +261,7 @@ int GLData::RenderScene()
 
         if( gGame._currentDrawer != "" && gGame._drawerDropAnim>0 )
         {
-            DrawDrawer(gGame._drawerDropAnim);
+            sDrawDrawer(gGame._drawerDropAnim);
         }
 
         
@@ -626,6 +626,7 @@ int GFX_LoadGLSLProgram(const char * inVS, const char * inFS, GLuint & outProgra
 
 void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat) {
     
+    
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);//(GL_BLEND);
     
@@ -649,37 +650,42 @@ void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat) {
     glDrawArrays(GL_LINE_STRIP, 0, gGLData._diskNumVertices/2);  // black outer edge
     
     glBindVertexArrayOES(gGLData._diskOuterEdgeVAO);
-    double percentage =0.7;// gGame._totalPhotosToDownload==-1?0:gGame._photosDownloaded/gGame._totalPhotosToDownload;
-    
-    static float lineWidth = 10;
+    double percentage = gGame._totalPhotosToDownload>0?(float)(inRing._photos.size()-gGame._currentNumOfPhotos)/(float)gGame._totalPhotosToDownload:1.0;
+        
+    static float lineWidth = 4;
     glLineWidth(lineWidth);
     glDrawArrays(GL_LINE_STRIP, 0, int(percentage * gGLData._diskNumVertices/2));  // inerr edge
-   
+
     glLineWidth(4);  // restore line width
     
-    // draw progress ring
-    // draw cancel image (green X)
-    if (percentage > 0.0) {
+    ///// draw progress ring and draw cancel image (green X)
+    if (percentage > 0.0f && percentage < 1.0f && inRing._ringType == who::eRingTypePlay && inRing._name=="playRing" ) {
+        
         float x = glm::cos(-kPi/2 + 2*kPi*percentage) * who::kR0;
         float y = -glm::sin(-kPi/2 + 2*kPi*percentage) * who::kR0;
 
+        ImageInfo cancelImage =  gGame._images[cancelString];
+        
         glUseProgram(gGLData._colorProgram._program);
         glBindVertexArrayOES(gGLData._squareVAO);
         glUniform1f(gGLData._colorProgram._imageWeight, 1);
         glUniform1i(gGLData._colorProgram._imageTexture, 0);
         
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, gGame.cancelImage.texID);
+        glBindTexture(GL_TEXTURE_2D, cancelImage.texID);
         //float ratio = gGame.cancelImage.originalHeight/gGame.cancelImage.originalWidth;
         
-        mat = glm::scale(glm::translate(inMVPMat, glm::vec3(x, y, 0.001f)),
-                                   glm::vec3(0.05, 0.05, 1));
+        mat = glm::mat4(glm::scale(glm::translate(glm::mat4(1),glm::vec3(x, y, 0.01f)),glm::vec3(0.1, 0.1, 1)));
+        gGame._photos[cancelString]._transform = glm::mat4x3(mat);
         
+        mat = inMVPMat * mat;
+    
         glUniform4f(gGLData._colorProgram._colorLoc, 1.0f, 1.0f, 1.0f, 0.5f);
         glUniformMatrix4fv(gGLData._colorProgram._mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
         
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
+    
     ///////////////////////////////////////////
     // draw the images on the ring (a bunch of rects in a circle pattern)
     glUseProgram(gGLData._photoProgram._program);
@@ -768,6 +774,8 @@ void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat) {
         glm::mat4 mat = glm::mat4(glm::scale(glm::translate(glm::rotate(glm::mat4(1), -glm::degrees(angle), glm::vec3(0, 0, 1)),
                                     glm::vec3(0, radius, 0.01f)),
                                    glm::vec3(w, h, 1)));
+        
+        
         /*float mat[16];
         MAT4_MakeScale(w, h, 1, mat);
         MAT4_PreTranslate(0, radius, 0.01f, mat);
@@ -824,6 +832,7 @@ void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat) {
     glLineWidth(1.0f);
     
     glBindVertexArrayOES(0);
+    
 }
 
 void MarkupMask(float inRotation) {

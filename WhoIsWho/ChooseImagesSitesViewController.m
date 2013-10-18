@@ -51,6 +51,7 @@
 {
 	[self.commandsArray removeAllObjects];
 	[self.commandsArray addObject:@"Get photos from Picasa..."];
+    [self.commandsArray addObject:@"Get photos from FaceBook..."];
 	[self.commandsArray addObject:@"Get photos locally..."];
     
 	

@@ -10,6 +10,7 @@
 #import "PicasaViewController.h"
 
 static NSString *getPhotosFromPicasa= @"Get photos from Picasa...";
+static NSString *getPhotosFromFacebook= @"Get photos from Facebook...";
 static NSString *getPhotosLocally = @"Get photos locally...";
 
 @protocol ChooseSitesControllerDelegate;

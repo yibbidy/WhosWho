@@ -11,7 +11,8 @@
 #import "CreateNewAccount.h"
 #import "ChooseImagesSitesViewController.h"
 #import "PicasaViewController.h"
-
+#import "FacebookViewController.h" 
+#import "Facebook2ViewController.h" 
 #define kFileExtension @"who"
 UITextField *gameName;
 UITextField *gameNameOnPlayrRing;
@@ -28,7 +29,7 @@ NSString *gOriginalGameName;
    
     UIImagePickerController *imagePickerController;
     PicasaViewController *picasaController;
-    
+    Facebook2ViewController *facebookController;
     float _rotation;
     
     UIPopoverController *popoverController;
@@ -79,5 +80,5 @@ NSString *gOriginalGameName;
 -(void)addLocalImageToPhotos:(UIImage *)image;
 -(void)setTotalPhotosToDownload:(int)numOfPhotos;
 -(void)setPhotosDownloaded:(int)numOfPhotos;
-
+- (void)launchFacebookDialog; 
 @end

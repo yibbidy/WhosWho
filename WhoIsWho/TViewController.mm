@@ -211,10 +211,17 @@ static void DisplayLoadAndDeleteButtons()
     //WHO_Execute("zoomToRing ring=ring2");
     who::Ring * hitRing = gGame.GetCurrentRing();
     float z = -hitRing->_stackingOrder;
-    who::Photo * currentPhoto = gGame.GetPhoto(hitRing->_photos[hitRing->_selectedPhoto]);
-    glm::vec4 cornerPt = gGame._camera._vpMat * (currentPhoto->_transform * glm::vec4(-0.5, -0.5, z, 1));
-    cornerPt /= cornerPt.w;
-    glm::vec4 cornerPt2 = gGame._camera._vpMat * (currentPhoto->_transform * glm::vec4(0.5, -0.5, z, 1));
+    who::Photo * currentPhoto = nil;
+    if (hitRing->_photos.size()>0)
+       currentPhoto = gGame.GetPhoto(hitRing->_photos[hitRing->_selectedPhoto]);
+    
+    glm::vec4 cornerPt, cornerPt2;
+    if ( currentPhoto )
+       cornerPt = gGame._camera._vpMat * (currentPhoto->_transform * glm::vec4(-0.5, -0.5, z, 1));
+       cornerPt /= cornerPt.w;
+    
+    if ( currentPhoto )
+       cornerPt2 = gGame._camera._vpMat * (currentPhoto->_transform * glm::vec4(0.5, -0.5, z, 1));
     cornerPt2 /= cornerPt2.w;
     
     int viewportWidth = gGame._camera._viewport[2];
@@ -237,7 +244,10 @@ static void DisplayLoadAndDeleteButtons()
     float textWidth = cornerPt2[0]-cornerPt[0];
     CGRect textEditRect = CGRectMake(cornerPt[0], cornerPt[1]-kGameNameTextEditHeight, textWidth, kGameNameTextEditHeight);
     [gameNameOnNameRing setFrame:textEditRect];
-    gameNameOnNameRing.text =(__bridge NSString *)StringToNSString(currentPhoto->_filename);
+    
+    if ( currentPhoto)
+        gameNameOnNameRing.text =(__bridge NSString *)StringToNSString(currentPhoto->_filename);
+    
     [gameNameOnNameRing setEnabled: YES];
     [gameNameOnNameRing setHidden:NO];
     gameName =  gameNameOnNameRing;
@@ -554,7 +564,7 @@ UITextField *CreateTextEdit(CGRect rect, CGFloat fontSize )
     textEdit.adjustsFontSizeToFitWidth = YES;
     textEdit.autocorrectionType = UITextAutocorrectionTypeNo;
     textEdit.borderStyle = UITextBorderStyleRoundedRect;
-    textEdit.textAlignment = UITextAlignmentCenter;
+    //textEdit.textAlignment = UITextAlignmentCenter;
     
     return textEdit;
 }
@@ -724,6 +734,16 @@ UITextField *CreateTextEdit(CGRect rect, CGFloat fontSize )
 
 - (IBAction) requestToLoadGame:(id) sender
 {
+    if (!_currentLoadedGame) {
+        
+        who::Ring * currentRing = gGame.GetCurrentRing();
+      
+        if( currentRing &&  currentRing->_name =="gameNamesRing")
+            _currentLoadedGame = gGame.GetPhoto(currentRing->_photos[0]);   
+        
+    }
+    if (!_currentLoadedGame) return;
+    
     std::string commandStr = "newBackRing name=playRing begin=PopulatePlayRing";
     commandStr +=" args=";
     commandStr +=_currentLoadedGame->_filename;
@@ -1096,6 +1116,7 @@ static bool PhotoNameExists(NSString *thisPhotoname)
         gGame.Execute(std::string("addPhotoToRing name=")+nameString+std::string(" user=")+nameString+std::string(" type=photo ring=") + ring);
     }
 }
+
 -(void)setTotalPhotosToDownload:(int)numOfPhotos
 {
     gGame._totalPhotosToDownload = numOfPhotos;
@@ -1541,6 +1562,33 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
     
     [popoverController presentPopoverFromRect:selectedRect inView:[self view] permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
 }
+- (void)launchFacebookDialog
+{
+    if ( facebookController ) {
+        // Set the pull-down menu size when "Done" button is clicked.
+        CGRect frameRect = self.view.frame;
+        frameRect.origin.y = 0;
+        frameRect.origin.x = 0;
+        frameRect.size.height = 620;
+        frameRect.size.width = 457;
+        
+        [self dissmissPopoverController];
+        
+        UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:facebookController];
+        popover.delegate = self;
+        
+        self.popoverController = popover;
+        facebookController.hostViewController = self;
+        facebookController.hostPopoverController = popover;
+        
+        [self.popoverController setPopoverContentSize:frameRect.size animated:NO];
+        
+        //   facebookController.popoverController= popover;
+        CGRect selectedRect = CGRectMake(0,0,1,1);
+        
+        [self.popoverController presentPopoverFromRect:selectedRect inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
+    }
+}
 - (void)commandPicker:(ChooseImagesSitesViewController *)controller didChooseCommand:(NSString *)commandNameStr
 // Called by the gameDoneController when the user chooses a command .
 {
@@ -1571,6 +1619,19 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
         [self.popoverController presentPopoverFromRect:selectedRect inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
         
      }
+    else if (commandNameStr != nil &&  [commandNameStr compare: getPhotosFromFacebook options:NSCaseInsensitiveSearch] == NSOrderedSame)  {
+#if 1
+        facebookController = [[Facebook2ViewController alloc] initWithNibName:@"Facebook2ViewController" bundle:nil];
+        [facebookController setHostViewController:self];
+      //  [self launchFacebookDialog];
+        [facebookController facebookLoginAuthenticate];
+#else
+        facebookController = [[FacebookViewController alloc] initWithNibName:@"FacebookViewController" bundle:nil];
+        [facebookController setHostViewController:self];
+        //  [self launchFacebookDialog];
+        [facebookController facebookLoginAuthenticate];
+#endif 
+    }
     else if (commandNameStr != nil &&  [commandNameStr compare: getPhotosLocally options:NSCaseInsensitiveSearch] == NSOrderedSame)  {
 
         NSString *modeStr = [[UIDevice currentDevice]model];

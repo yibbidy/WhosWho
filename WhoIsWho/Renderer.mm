@@ -623,10 +623,70 @@ int GFX_LoadGLSLProgram(const char * inVS, const char * inFS, GLuint & outProgra
     return errorCode;
     
 }
+#if 0 //lamda function 
+#include <functional>
 
+class A
+{
+public:
+    void f()
+    {
+        
+    }
+    
+private:
+    int i;
+};
+
+class B
+{
+public:
+    void abc()
+    {
+        A a;
+        
+        std::function<void()> callback = std::bind(&A::f, a);
+        f2(callback);
+        
+         
+        // do stuff
+    }
+};
+
+void f2(std::function<void()> callback)
+{
+    callback();
+}
+
+void f1()
+{
+    auto abc = 5;
+    
+    A a;
+    
+   // std::function<void()> callback = std::bind(&A::f, a);
+    
+    A b;
+    
+    std::function<void()> callback = std::bind(&A::f, a);
+   
+    
+    f2(std::bind(&A::f, a));
+    
+    int jj;
+    f2( []() -> void
+       {
+           int j = 2;
+           j++;
+       }
+       );
+    
+    
+}
+#endif 
 void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat) {
     
-    
+ //   f1();
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);//(GL_BLEND);
     
@@ -843,7 +903,7 @@ void MarkupMask(float inRotation) {
     
     float currP[] = {
         700 + 2*150*cosf(inRotation), 720 - 150*sinf(2*inRotation),
-        100 + 2*50*cosf(inRotation), 150 - 50*sin(2*inRotation) };
+        100 + 2*50*cosf(inRotation), 150 - 50*sinf(2*inRotation) };
     
     if( lastP[0] == 0 ) {
         memcpy(lastP, currP, 4*sizeof(float));

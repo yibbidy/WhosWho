@@ -415,22 +415,22 @@ static void PopulatePlayRing(who::Ring & inRing, void *argsStr)
             std::string filename = ReadQuotedString(line, pos);
             std::string userName = ReadQuotedString(line, pos);
             
-            gGame.Execute(std::string("addImageFromFile name=")+filename+std::string(" file=")+filename);
-            gGame.Execute(std::string("addPhotoToRing name=")+filename+std::string(" user=")+filename+std::string(" type=face ring=") + ring);
+            gGame.ExecuteImmediately(std::string("addImageFromFile name=")+filename+std::string(" file=")+filename);
+            gGame.ExecuteImmediately(std::string("addPhotoToRing name=")+filename+std::string(" user=")+filename+std::string(" type=face ring=") + ring);
     
             
         }else if( command == "mask" ) {
             std::string filename = ReadQuotedString(line, pos);
             std::string userName = ReadQuotedString(line, pos);
             // Add mask to photo and then add to the ring
-            gGame.Execute(std::string("addImageFromFile name=")+filename+std::string(" file=")+filename);
-            gGame.Execute(std::string("addPhotoToRing name=001.jpg")+std::string(" user=001.jpg")+std::string(" type=mask ring=") + ring);
+            gGame.ExecuteImmediately(std::string("addImageFromFile name=")+filename+std::string(" file=")+filename);
+            gGame.ExecuteImmediately(std::string("addPhotoToRing name=001.jpg")+std::string(" user=001.jpg")+std::string(" type=mask ring=") + ring);
             
         }else if( command == "photo" ) {
             std::string filename = ReadQuotedString(line, pos);
             
-            gGame.Execute(std::string("addImageFromFile name=")+filename+std::string(" file=")+filename);
-            gGame.Execute(std::string("addPhotoToRing name=")+filename+std::string(" user=")+filename+std::string(" type=photo ring=") + ring);
+            gGame.ExecuteImmediately(std::string("addImageFromFile name=")+filename+std::string(" file=")+filename);
+            gGame.ExecuteImmediately(std::string("addPhotoToRing name=")+filename+std::string(" user=")+filename+std::string(" type=photo ring=") + ring);
             
             bool isEmptyString = false;
             while( !isEmptyString ) {
@@ -439,7 +439,7 @@ static void PopulatePlayRing(who::Ring & inRing, void *argsStr)
                     break;
                 }
                 
-                gGame.Execute(std::string("addMaskToPhoto name=")+maskname+std::string(" image=")+maskname+std::string(" photo=")+filename);
+                gGame.ExecuteImmediately(std::string("addMaskToPhoto name=")+maskname+std::string(" image=")+maskname+std::string(" photo=")+filename);
                 
             }
         } else {
@@ -449,8 +449,8 @@ static void PopulatePlayRing(who::Ring & inRing, void *argsStr)
     }
     
     in.close();
-    gGame.Execute("addImageFromFile name=addPhoto.png file=addPhoto.png");
-    gGame.Execute(std::string("addPhotoToRing name=addPhoto.png user=addPhoto.png type=photo ring=") + ring);
+    gGame.ExecuteImmediately("addImageFromFile name=addPhoto.png file=addPhoto.png");
+    gGame.ExecuteImmediately(std::string("addPhotoToRing name=addPhoto.png user=addPhoto.png type=photo ring=") + ring);
 
      gGame.Execute("DisplayControlsForRing");
     
@@ -759,9 +759,11 @@ UITextField *CreateTextEdit(CGRect rect, CGFloat fontSize )
     
     gGame.Execute(commandStr, 1, "PopulatePlayRing", PopulatePlayRing);
     gGame.Execute("zoomToRing ring=playRing");
+    gGame.Execute("newDrawer name=FacesDrawer populate=PopulateFacesDrawer", 1, "PopulateFacesDrawer", PopulateFacesDrawer);
     
     deleteGameButton.hidden = YES;
     loadGameButton.hidden = YES;
+    
 }
 
 -(void) showImagePhotosPicker : (CGPoint) topLeftCorner
@@ -840,10 +842,20 @@ UITextField *CreateTextEdit(CGRect rect, CGFloat fontSize )
 
 static void PopulateEditorDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
 {
-    gGame.Execute("addPhotoToDrawer drawer=" + inOutDrawer._name + " photo=play");
+   gGame.Execute("addPhotoToDrawer drawer=" + inOutDrawer._name + " photo=play");
 
 }
-
+static void PopulateFacesDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
+{
+    who::Ring & ring = gGame._rings._rings[gGame._rings._currentRing];
+    
+    for( int i=0; i<ring.facePhotos.size(); i++ )
+    {
+        std::string photo = ring.facePhotos[i];
+        gGame.Execute("addPhotoToDrawer drawer=" + inOutDrawer._name + " photo=" + photo);
+    }
+    
+}
 -(void ) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     UITouch * touch = [touches anyObject];
@@ -953,6 +965,7 @@ static void PopulateEditorDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
                 _requestToDisplayLoadAndDeleteButtons = YES;
               //  gGame.Execute("displayLoadAndDeleteButtons loadButton= deleteButton= editTextField=");
                  gGame.Execute("DisplayControlsForRing");
+                
             }
 
     	}
@@ -1012,10 +1025,13 @@ static void PopulateEditorDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
             if( gGame._zoomedToPhoto )
             {
                 gGame.Execute("zoomToRing");
+                gGame.Execute("hideDrawer");
                 
             } else {
                 sprintf(command, "zoomToPhoto photo=%s", hitPhoto->_filename.c_str());
                 gGame.Execute(command);
+                gGame.Execute("showDrawer drawer=FacesDrawer");
+                
             }
         }
     } else if( hitRing ) {

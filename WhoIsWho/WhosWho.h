@@ -167,6 +167,7 @@ namespace who
         }
         
         void Execute(std::string inCommand, int inNumPairs = 0, ...);
+        void ExecuteImmediately(std::string inCommand, int inNumPairs = 0, ...);
         
         Ring * GetRing(std::string inName);
         Ring * GetBackRing();

@@ -189,12 +189,14 @@ void sDrawDrawer(float inDropdownAnim)
     
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
+    float backgroundHeight = dy;
     
     int numItems = int(gGame._drawers[gGame._currentDrawer]._photos.size());
     
     int xSpacing = 0;
     float centerX = -width*0.5f + height*0.5f;
     float xInc = height + xSpacing;
+    
     
     centerX += xSpacing;
     if( width / height >= numItems )
@@ -213,7 +215,7 @@ void sDrawDrawer(float inDropdownAnim)
         dy = height * glm::abs(glm::sin(inDropdownAnim));
     }
     
-    top += height/2;
+    top -= (backgroundHeight/2 - dy/2);
     for_i( numItems ) {
         mat = glm::scale(glm::translate(gGame._camera._vpMat, glm::vec3(centerX, top-dy*0.5f, -currentRingZ+0.01f)),
                          glm::vec3(height, dy, 1));

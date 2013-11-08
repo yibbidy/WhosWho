@@ -3,6 +3,7 @@
 
 #include "WhosWho.h"
 #include "glm/glm.hpp"
+#include "Parser.h"
 
 // *** the main global in this app ***
 who::Game gGame;
@@ -47,6 +48,8 @@ namespace who
     }
     
     void Game::Execute(std::string inCommand, int inNumPairs, ...) {
+ 
+        
         gGame._animations.push_back(inCommand);
         
         va_list args;
@@ -61,6 +64,25 @@ namespace who
         
     }
     
+    void Game::ExecuteImmediately(std::string inCommand, int inNumPairs, ...) {
+        
+        
+        va_list args;
+        va_start(args, inNumPairs);
+        
+        for_i( inNumPairs ) {
+            std::string key = (std::string)va_arg(args, char *);
+            void * value = (void *)va_arg(args, void *);
+            gGame._animationVars[key] = value;
+        }
+        va_end(args);
+        
+        int pos = 0;
+        WhoParser::PRS_Command(inCommand.c_str(), pos);
+        
+    }
+    
+
 
     
     float SmoothFn(float inT, float * inParams)

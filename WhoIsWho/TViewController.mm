@@ -960,15 +960,16 @@ static void PopulateEditorDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
 
             if( gGame._zoomedToPhoto )
             {
-                gGame.Execute("deleteRingsAfter ring=" + hitRing->_name);
+                //gGame.Execute("deleteRingsAfter ring=" + hitRing->_name);
                 
-                gGame.Execute("setCurrentPhoto photo=editor");
-                gGame.Execute("newBackRing name=playRing begin=PopulateEditorRing", 1, "PopulateEditorRing", PopulateEditorRing);
-                gGame.Execute("zoomToRing ring=playRing");
+                //gGame.Execute("setCurrentPhoto photo=editor");
+                //gGame.Execute("newBackRing name=playRing begin=PopulateEditorRing", 1, "PopulateEditorRing", PopulateEditorRing);
+                //gGame.Execute("zoomToRing ring=playRing");
+                
                 //gGame.Execute("showTextEdit");
                 
-               // gGame.Execute("newDrawer name=EditorDrawer populate=PopulateEditorDrawer", 1, "PopulateEditorDrawer", PopulateEditorDrawer);
-               // gGame.Execute("showDrawer drawer=EditorDrawer");
+                gGame.Execute("newDrawer name=EditorDrawer populate=PopulateEditorDrawer", 1, "PopulateEditorDrawer", PopulateEditorDrawer);
+                gGame.Execute("showDrawer drawer=EditorDrawer");
                 
 
                 //  [self displaySaveAndUploadButtons];
@@ -1571,6 +1572,8 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
 }
 - (void)launchFacebookDialog
 {
+#if USE_FACEBOOK
+    
     if ( facebookController ) {
         // Set the pull-down menu size when "Done" button is clicked.
         CGRect frameRect = self.view.frame;
@@ -1595,11 +1598,13 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
         
         [self.popoverController presentPopoverFromRect:selectedRect inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
     }
+#endif
 }
 - (void)commandPicker:(ChooseImagesSitesViewController *)controller didChooseCommand:(NSString *)commandNameStr
 // Called by the gameDoneController when the user chooses a command .
 {
-    int nn = 0; 
+#if USE_FACEBOOK
+    int nn = 0;
     if (commandNameStr != nil &&  [commandNameStr compare: getPhotosFromPicasa options:NSCaseInsensitiveSearch] == NSOrderedSame)  {
         // Set the pull-down menu size when "Done" button is clicked.
         CGRect frameRect = self.view.frame;
@@ -1669,6 +1674,8 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
     else if (commandNameStr != nil &&  [commandNameStr compare: @"Picasa..." options:NSCaseInsensitiveSearch] == NSOrderedDescending)  {
          nn = 200; 
     }
+    
+#endif
 
 }
 /*

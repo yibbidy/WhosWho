@@ -392,6 +392,9 @@ bool WhoParser::AddPhotoToRing(const char * inStr, int & inOutPos) {
             if (type == "mask") {
                 ring->maskPhotos.push_back(name);
             }
+            else if (type=="face") {
+                ring->facePhotos.push_back(name);
+            }
             else {
                 ring->_photos.push_back(name);
             }

@@ -379,6 +379,10 @@ void PopulateTitleRing(who::Ring & inRing, void *)
 
     gGame._animations.push_back(std::string("addPhotoToRing name=play user=play type=photo ring=") + inRing._name);
     gGame._animations.push_back(std::string("addPhotoToRing name=editor user=edit type=photo ring=") + inRing._name);
+   //  gGame.Execute(std::string("addPhotoToRing name=editor user=edit type=face ring=") + inRing._name);
+    
+   
+
 }
 
 static void PopulatePlayRing(who::Ring & inRing, void *argsStr)
@@ -411,8 +415,8 @@ static void PopulatePlayRing(who::Ring & inRing, void *argsStr)
             std::string filename = ReadQuotedString(line, pos);
             std::string userName = ReadQuotedString(line, pos);
             
-            gGame.Execute(std::string("addImageFromFile name=")+filename+std::string("file=")+filename);
-            gGame.Execute(std::string("addPhotoToRing name=")+filename+std::string("user=")+userName+std::string("type=face ring=") + ring);
+            gGame.Execute(std::string("addImageFromFile name=")+filename+std::string(" file=")+filename);
+            gGame.Execute(std::string("addPhotoToRing name=")+filename+std::string(" user=")+filename+std::string(" type=face ring=") + ring);
     
             
         }else if( command == "mask" ) {
@@ -420,7 +424,7 @@ static void PopulatePlayRing(who::Ring & inRing, void *argsStr)
             std::string userName = ReadQuotedString(line, pos);
             // Add mask to photo and then add to the ring
             gGame.Execute(std::string("addImageFromFile name=")+filename+std::string(" file=")+filename);
-            gGame.Execute(std::string("addPhotoToRing name=")+filename+std::string(" user=")+userName+std::string(" type=mask ring=") + ring);
+            gGame.Execute(std::string("addPhotoToRing name=001.jpg")+std::string(" user=001.jpg")+std::string(" type=mask ring=") + ring);
             
         }else if( command == "photo" ) {
             std::string filename = ReadQuotedString(line, pos);
@@ -449,6 +453,9 @@ static void PopulatePlayRing(who::Ring & inRing, void *argsStr)
     gGame.Execute(std::string("addPhotoToRing name=addPhoto.png user=addPhoto.png type=photo ring=") + ring);
 
      gGame.Execute("DisplayControlsForRing");
+    
+       
+
     /////////////////////////
 #if 0 
     open game.txt

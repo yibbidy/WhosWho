@@ -684,6 +684,81 @@ void f1()
     
 }
 #endif 
+void DrawFaceList(who::Ring & inRing, const glm::mat4 & inMVPMat, float w2, float h2, float radius)
+{
+    
+    for( int i=0; i<inRing.facePhotos.size(); i++ ) {
+        
+        float t ;//= (i-inRing._currentPhoto)/float(halfNumImages);
+        float halfStep;// = 0.5f/halfNumImages;
+        
+        
+        who::Photo * photo = gGame.GetPhoto(inRing.facePhotos[i]);
+        ImageInfo & image = gGame._images[photo->_filename];
+        float aspect = image.originalWidth / float(image.originalHeight);
+        float w, h;
+        float length = .03f;
+        // compute world space width and height based on image's aspect ratio
+        if( aspect > 1 ) {
+            w = length;
+            h = length / aspect;
+        } else {
+            w = length * aspect;
+            h = length;
+        }
+        
+        // build the matrix that transforms normalzied image corners to world space
+        //float radius = 0.8f;
+        //glm::mat4 mat = glm::mat4(glm::scale(glm::translate(glm::mat4(1),
+        //                                                    glm::vec3(0, radius+h, 0.02f)),
+        //                                     glm::vec3(w, h, 1)));
+        
+        glm::mat4 mat = glm::translate(glm::mat4(1), glm::vec3(0, radius + h2/2 + h/2, 0.010001f));
+        mat = glm::scale(mat, glm::vec3(w, h, 1));
+        
+        
+        
+
+        /*float mat[16];
+         MAT4_MakeScale(w, h, 1, mat);
+         MAT4_PreTranslate(0, radius, 0.01f, mat);
+         MAT4_PreRotate(0, 0, 1, -angle, mat);
+         */
+        //MAT4_Equate(mat, photo->_transform);
+        photo->_transform = glm::mat4x3(mat);
+        
+        //MAT4_Multiply(inMVPMat, mat, mat);
+        mat = inMVPMat * mat;
+        
+        float fl[16];
+        memcpy(fl, &mat[0][0], 16*sizeof(float));
+        
+        glUniformMatrix4fv(gGLData._photoProgram._mvpLoc, 1, GL_FALSE, &mat[0][0]);
+        glUniform1f(gGLData._photoProgram._scaleLoc, 1);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, image.texID);
+        glActiveTexture(GL_TEXTURE1);
+        
+        if( photo->_maskImages.size() > 0 ) {
+            glBindTexture(GL_TEXTURE_2D, gGame._images[photo->_maskImages[0]].texID);
+        }
+        glActiveTexture(GL_TEXTURE2);
+        if( photo->_maskImages.size() > 1 ) {
+            glBindTexture(GL_TEXTURE_2D, gGame._images[photo->_maskImages[1]].texID);
+        }
+        float maskWeights[2];
+        memset(maskWeights, 0, 2*sizeof(float));
+        
+        for_i( photo->_maskWeights.size() ) {
+            maskWeights[i] = photo->_maskWeights[i];
+        }
+      
+        glUniform1fv(gGLData._photoProgram._maskWeightLoc, 2, maskWeights);
+        
+        
+        glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, BUFFER_OFFSET(0));
+    }
+}
 void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat) {
     
  //   f1();
@@ -816,6 +891,8 @@ void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat) {
         glm::vec2 p0 = glm::vec2(radius*glm::cos(angle0), radius*glm::sin(angle0));  // top right point in world space
         glm::vec2 p1 = glm::vec2(radius*glm::cos(angle1), radius*glm::sin(angle1));  // top left point in world space
         float length = glm::distance(p0, p1) / glm::sqrt(2.0f);  // diagonal length of the image square
+       //  length = .1f;
+        
         
         who::Photo * photo = gGame.GetPhoto(inRing._photos[i]);
         ImageInfo & image = gGame._images[photo->_filename];
@@ -846,6 +923,9 @@ void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat) {
         
         //MAT4_Multiply(inMVPMat, mat, mat);
         mat = inMVPMat * mat;
+        float fl[16];
+        memcpy(fl, &mat[0][0], 16*sizeof(float));
+    
         
         glUniformMatrix4fv(gGLData._photoProgram._mvpLoc, 1, GL_FALSE, &mat[0][0]);
         glUniform1f(gGLData._photoProgram._scaleLoc, 1);
@@ -883,6 +963,10 @@ void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat) {
             
             glUseProgram(gGLData._photoProgram._program);
             glBindVertexArrayOES(gGLData._squareVAO);
+        }
+        
+        if (inZoomedIn) {
+            DrawFaceList(inRing, inMVPMat, w, h, radius);
         }
         
     }

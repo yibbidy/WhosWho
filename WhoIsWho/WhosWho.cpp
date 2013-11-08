@@ -98,6 +98,8 @@ namespace who
         }
     }
     
+    // Computes world space corners of the current photo in the order:
+    // TL, TR, BL, BR
     void ComputeTopPhotoCorners(who::Ring & inRing, glm::vec3 * outCorners) {
         float kPi = 3.141592654f;
         

@@ -44,7 +44,7 @@
         if ([attributeDescription attributeValueClassName]) {
             Class cls = NSClassFromString([attributeDescription attributeValueClassName]);
             if ([cls isSubclassOfClass:[NSNumber class]] && [attributeDescription attributeType] == NSBooleanAttributeType) {
-                cls = objc_getClass("NSCFBoolean") ?: objc_getClass("__NSCFBoolean") ?: cls;
+                cls = objcgetClass("NSCFBoolean") ?: objcgetClass("__NSCFBoolean") ?: cls;
             }
             NSDictionary *propertyInspection = @{ RKPropertyInspectionNameKey: name,
                                                   RKPropertyInspectionKeyValueCodingClassKey: cls,
@@ -56,11 +56,11 @@
 
             const char *className = [[entity managedObjectClassName] cStringUsingEncoding:NSUTF8StringEncoding];
             const char *propertyName = [name cStringUsingEncoding:NSUTF8StringEncoding];
-            Class managedObjectClass = objc_getClass(className);
+            Class managedObjectClass = objcgetClass(className);
 
-            objc_property_t prop = class_getProperty(managedObjectClass, propertyName);
+            objc_property_t prop = classgetProperty(managedObjectClass, propertyName);
 
-            const char *attr = property_getAttributes(prop);
+            const char *attr = propertygetAttributes(prop);
             Class destinationClass = RKKeyValueCodingClassFromPropertyAttributes(attr);
             if (destinationClass) {
                 NSDictionary *propertyInspection = @{ RKPropertyInspectionNameKey: name,

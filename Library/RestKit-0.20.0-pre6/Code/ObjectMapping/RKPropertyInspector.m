@@ -71,10 +71,10 @@ NSString * const RKPropertyInspectionIsPrimitiveKey = @"isPrimitive";
         // Collect the property names
         for (typeof(outCount) i = 0; i < outCount; i++) {
             objc_property_t *prop = propList + i;
-            const char *propName = property_getName(*prop);
+            const char *propName = propertygetName(*prop);
 
             if (strcmp(propName, "_mapkit_hasPanoramaID") != 0) {
-                const char *attr = property_getAttributes(*prop);
+                const char *attr = propertygetAttributes(*prop);
                 if (attr) {
                     Class aClass = RKKeyValueCodingClassFromPropertyAttributes(attr);
                     if (aClass) {

@@ -11,7 +11,7 @@
 #import "TViewController.h"
 
 static NSString *fbEmail= @"email";
-static NSString *fbUserPhotos = @"user_photos";
+static NSString *fbUserPhotos = @"userphotos";
 
 @interface FacebookViewController ()
 @property (strong) NSMutableArray *selectedAlbumPhotos;
@@ -267,7 +267,7 @@ static NSString *fbUserPhotos = @"user_photos";
 }
 - (IBAction)getAlbumClicked:(id)sender
 {
-    if ([FBSession.activeSession.permissions indexOfObject:@"user_photos"] != NSNotFound) {
+    if ([FBSession.activeSession.permissions indexOfObject:@"userphotos"] != NSNotFound) {
         
         
         [FBRequestConnection startWithGraphPath:@"/me/albums"

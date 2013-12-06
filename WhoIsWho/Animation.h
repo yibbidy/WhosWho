@@ -39,9 +39,9 @@ public:
     virtual void Blend(float inWeight) = 0;
     
     
-    int _startTick;
-	float _duration;
-	InterpolationType _interpolation;
+    int startTick;
+	float duration;
+	InterpolationType interpolation;
 	int _animationID;
     AnimationCompletedCallback _completed;
     std::string _completedArgs;
@@ -76,13 +76,13 @@ public:
         a->_animationFloat = inOutVariable;
         a->_startValue = inStartValue;
         a->_endValue = inEndValue;
-        a->_startTick = GetTick();
-        a->_duration = inDuration;
-        a->_interpolation = inInterpolationType;
+        a->startTick = GetTick();
+        a->duration = inDuration;
+        a->interpolation = inInterpolationType;
         a->_completed = inCompleted;
         if( inCompletedArgs )
             a->_completedArgs = inCompletedArgs;
-        AnimationSystem::_animations.push_back(a);
+        AnimationSystem::animations.push_back(a);
         
         return a->_animationID;
     }
@@ -96,7 +96,7 @@ private:
     static bool UpdateAnimation(float inTick, AnimationBase & inOutAnimation);
 
     static int _nextAnimationID;
-    static std::vector<AnimationBase *> _animations;
+    static std::vector<AnimationBase *> animations;
 };
 
 

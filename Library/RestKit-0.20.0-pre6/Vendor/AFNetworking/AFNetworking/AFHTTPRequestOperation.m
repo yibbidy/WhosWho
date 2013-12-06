@@ -97,9 +97,9 @@ static NSString * AFStringFromIndexSet(NSIndexSet *indexSet) {
 }
 
 static void AFSwizzleClassMethodWithClassAndSelectorUsingBlock(Class klass, SEL selector, id block) {
-    Method originalMethod = class_getClassMethod(klass, selector);
+    Method originalMethod = classgetClassMethod(klass, selector);
     IMP implementation = imp_implementationWithBlock((AF_CAST_TO_BLOCK)block);
-    class_replaceMethod(objc_getMetaClass([NSStringFromClass(klass) UTF8String]), selector, implementation, method_getTypeEncoding(originalMethod));
+    classreplaceMethod(objcgetMetaClass([NSStringFromClass(klass) UTF8String]), selector, implementation, methodgetTypeEncoding(originalMethod));
 }
 
 #pragma mark -
@@ -126,14 +126,14 @@ static void AFSwizzleClassMethodWithClassAndSelectorUsingBlock(Class klass, SEL 
 - (void)dealloc {
     if (_successCallbackQueue) {
 #if !OS_OBJECT_USE_OBJC
-        dispatch_release(_successCallbackQueue);
+        dispatchrelease(_successCallbackQueue);
 #endif
         _successCallbackQueue = NULL;
     }
     
     if (_failureCallbackQueue) {
 #if !OS_OBJECT_USE_OBJC
-        dispatch_release(_failureCallbackQueue);
+        dispatchrelease(_failureCallbackQueue);
 #endif
         _failureCallbackQueue = NULL;
     }
@@ -234,14 +234,14 @@ static void AFSwizzleClassMethodWithClassAndSelectorUsingBlock(Class klass, SEL 
     if (successCallbackQueue != _successCallbackQueue) {
         if (_successCallbackQueue) {
 #if !OS_OBJECT_USE_OBJC
-            dispatch_release(_successCallbackQueue);
+            dispatchrelease(_successCallbackQueue);
 #endif
             _successCallbackQueue = NULL;
         }
 
         if (successCallbackQueue) {
 #if !OS_OBJECT_USE_OBJC
-            dispatch_retain(successCallbackQueue);
+            dispatchretain(successCallbackQueue);
 #endif
             _successCallbackQueue = successCallbackQueue;
         }
@@ -252,14 +252,14 @@ static void AFSwizzleClassMethodWithClassAndSelectorUsingBlock(Class klass, SEL 
     if (failureCallbackQueue != _failureCallbackQueue) {
         if (_failureCallbackQueue) {
 #if !OS_OBJECT_USE_OBJC
-            dispatch_release(_failureCallbackQueue);
+            dispatchrelease(_failureCallbackQueue);
 #endif
             _failureCallbackQueue = NULL;
         }
         
         if (failureCallbackQueue) {
 #if !OS_OBJECT_USE_OBJC
-            dispatch_retain(failureCallbackQueue);
+            dispatchretain(failureCallbackQueue);
 #endif
             _failureCallbackQueue = failureCallbackQueue;
         }
@@ -275,13 +275,13 @@ static void AFSwizzleClassMethodWithClassAndSelectorUsingBlock(Class klass, SEL 
     self.completionBlock = ^{
         if (self.error) {
             if (failure) {
-                dispatch_async(self.failureCallbackQueue ?: dispatch_get_main_queue(), ^{
+                dispatch_async(self.failureCallbackQueue ?: dispatchget_main_queue(), ^{
                     failure(self, self.error);
                 });
             }
         } else {
             if (success) {
-                dispatch_async(self.successCallbackQueue ?: dispatch_get_main_queue(), ^{
+                dispatch_async(self.successCallbackQueue ?: dispatchget_main_queue(), ^{
                     success(self, self.responseData);
                 });
             }

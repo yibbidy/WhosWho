@@ -6,30 +6,30 @@
 // The setup for the app is in setupGL().  The code to draw is in drawInRect().  The code to
 // update aniation is in update().
 //
-// gGame is the main variable in this program.  gGame._images is a list of all the loaded image files.
+// gGame is the main variable in this program.  gGame.images is a list of all the loaded image files.
 // gGame.faceList contains indices into the image list of the faces.
 //
-// gGame._rings contains a vector of Ring structures.  Each
-// Ring structure contains a vector of images (indices into gGame._images).
+// gGame.rings contains a vector of Ring structures.  Each
+// Ring structure contains a vector of images (indices into gGame.images).
 //
-// gGame._images is another main variable which contains all the texture images.  Images in the ring
+// gGame.images is another main variable which contains all the texture images.  Images in the ring
 // structure reference into array by offset.
 //
 // To load an image do this:
-// gGame._images.push_back(ImageInfo());
-// GL_LoadTexture("filename.png", gGame._images.back());
+// gGame.images.push_back(ImageInfo());
+// GL_LoadTexture("filename.png", gGame.images.back());
 // 
 // To make and put a photo on a ring do this:
 // who::Photo myPhoto;
-// myPhoto.imageI = photoImageOffset;  // offset in gGame._images
+// myPhoto.imageI = photoImageOffset;  // offset in gGame.images
 // myRing.push_back(myPhoto);
 //
 // To make a new ring do this:
 // who::Ring myRing;
-// gGame._rings._rings.push_back(ring);
+// gGame.rings.rings.push_back(ring);
 //
 // To add a mask to a photo do this:
-// myPhoto._maskImages.push_back(maskImageOffset);  // offset in gGame._images
+// myPhoto.maskImages.push_back(maskImageOffset);  // offset in gGame.images
 // myPhoto.maskWeights.push_back(1.0f);  // this means the mask is opaque
 //
 
@@ -102,28 +102,28 @@ static BOOL SaveGameData( const std::string & inFilename) {
     who::Ring * currentRing = gGame.GetCurrentRing();
     ////////////////////////////////////////////////
     
-    for( int i=0; i<currentRing->_photos.size(); i++ ) {
+    for( int i=0; i<currentRing->photos.size(); i++ ) {
         
-        who::Photo * aphoto = gGame.GetPhoto(currentRing->_photos[i]);
+        who::Photo * aphoto = gGame.GetPhoto(currentRing->photos[i]);
         
-        if ( aphoto->_type=="face") {
-            out << "face \"" << aphoto->_filename <<" \""<<aphoto->_username <<"\"\n";
+        if ( aphoto->type=="face") {
+            out << "face \"" << aphoto->filename <<" \""<<aphoto->username <<"\"\n";
         }
     }
     for( int i=0; i<currentRing->maskPhotos.size(); i++ ) {
         
         who::Photo * aphoto = gGame.GetPhoto(currentRing->maskPhotos[i]);
         
-        if ( aphoto->_type=="mask") {
-            out << "mask \"" << aphoto->_filename <<" \""<<aphoto->_username <<"\"\n";
+        if ( aphoto->type=="mask") {
+            out << "mask \"" << aphoto->filename <<" \""<<aphoto->username <<"\"\n";
         }
     }
-    for( int i=0; i<currentRing->_photos.size(); i++ ) {
+    for( int i=0; i<currentRing->photos.size(); i++ ) {
         
-        who::Photo * aphoto = gGame.GetPhoto(currentRing->_photos[i]);
+        who::Photo * aphoto = gGame.GetPhoto(currentRing->photos[i]);
         
-        if ( aphoto->_type =="photo" && aphoto->_filename !="addPhoto.png") {
-            out<<"photo \""<< aphoto->_filename<<"\""<<" ";
+        if ( aphoto->type =="photo" && aphoto->filename !="addPhoto.png") {
+            out<<"photo \""<< aphoto->filename<<"\""<<" ";
             for (int j = 0; j <aphoto->_maskImages.size(); j ++) {
                 out<<"\""<<aphoto->_maskImages[j]<<"\"" <<" ";
             }
@@ -141,22 +141,22 @@ static void DisplaySaveAndUploadButtons()
     int nn = 0; 
     if (hitRing ) {
         
-        if (hitRing->_selectedPhoto !=0)
+        if (hitRing->selectedPhoto !=0)
             nn = 100; 
-        who::Photo * currentPhoto = gGame.GetPhoto(hitRing->_photos[hitRing->_selectedPhoto]);
+        who::Photo * currentPhoto = gGame.GetPhoto(hitRing->photos[hitRing->selectedPhoto]);
         //if (!_currentLoadedGame)
         //   _currentLoadedGame = currentPhoto;
         if ( !currentPhoto)
             nn = 200;
-       	float z = -hitRing->_stackingOrder;
+       	float z = -hitRing->stackingOrder;
         glm::vec4 cornerPt = glm::vec4(-.5, .5, z, 1);
         glm::vec4 cornerPt2 = glm::vec4(.5, .5, z, 1);
         
-        cornerPt = gGame._camera._vpMat * (currentPhoto->_transform * glm::vec3(cornerPt));
-        cornerPt2 = gGame._camera._vpMat * (currentPhoto->_transform * glm::vec3(cornerPt2));
+        cornerPt = gGame.camera.vpMat * (currentPhoto->transform * glm::vec3(cornerPt));
+        cornerPt2 = gGame.camera.vpMat * (currentPhoto->transform * glm::vec3(cornerPt2));
         
-        int viewportWidth = gGame._camera._viewport[2];
-        int viewportHeight = gGame._camera._viewport[3];
+        int viewportWidth = gGame.camera.viewport[2];
+        int viewportHeight = gGame.camera.viewport[3];
         
         cornerPt[0] /= cornerPt[3];
         cornerPt[1] /= cornerPt[3];
@@ -210,22 +210,22 @@ static void DisplayLoadAndDeleteButtons()
     //  WHO_Execute("newBackRing name=ring2 begin=PopulatePlayRing", 1, "PopulatePlayRing", PopulatePlayRing);
     //WHO_Execute("zoomToRing ring=ring2");
     who::Ring * hitRing = gGame.GetCurrentRing();
-    float z = -hitRing->_stackingOrder;
+    float z = -hitRing->stackingOrder;
     who::Photo * currentPhoto = nil;
-    if (hitRing->_photos.size()>0)
-       currentPhoto = gGame.GetPhoto(hitRing->_photos[hitRing->_selectedPhoto]);
+    if (hitRing->photos.size()>0)
+       currentPhoto = gGame.GetPhoto(hitRing->photos[hitRing->selectedPhoto]);
     
     glm::vec4 cornerPt, cornerPt2;
     if ( currentPhoto )
-       cornerPt = gGame._camera._vpMat * (currentPhoto->_transform * glm::vec4(-0.5, -0.5, z, 1));
+       cornerPt = gGame.camera.vpMat * (currentPhoto->transform * glm::vec4(-0.5, -0.5, z, 1));
        cornerPt /= cornerPt.w;
     
     if ( currentPhoto )
-       cornerPt2 = gGame._camera._vpMat * (currentPhoto->_transform * glm::vec4(0.5, -0.5, z, 1));
+       cornerPt2 = gGame.camera.vpMat * (currentPhoto->transform * glm::vec4(0.5, -0.5, z, 1));
     cornerPt2 /= cornerPt2.w;
     
-    int viewportWidth = gGame._camera._viewport[2];
-    int viewportHeight =gGame._camera._viewport[3];
+    int viewportWidth = gGame.camera.viewport[2];
+    int viewportHeight =gGame.camera.viewport[3];
     cornerPt.x = 0.5*viewportWidth*(cornerPt.x+1.0);
     cornerPt.y = viewportHeight- 0.5*viewportHeight*(cornerPt.y+1.0);
     cornerPt2.x = 0.5*viewportWidth*(cornerPt2.x+1.0);
@@ -246,7 +246,7 @@ static void DisplayLoadAndDeleteButtons()
     [gameNameOnNameRing setFrame:textEditRect];
     
     if ( currentPhoto)
-        gameNameOnNameRing.text =(__bridge NSString *)StringToNSString(currentPhoto->_filename);
+        gameNameOnNameRing.text =(__bridge NSString *)StringToNSString(currentPhoto->filename);
     
     [gameNameOnNameRing setEnabled: YES];
     [gameNameOnNameRing setHidden:NO];
@@ -283,9 +283,9 @@ static void PopulateLocalGameNamesRing(who::Ring & inRing, void *) {
 				//[self.gamesWithFullPathArray addObject:gameGameWithFullPath];
 				fileName = [fileName stringByDeletingPathExtension];
                 
-				thisGame._name =  fileName.UTF8String;
-				thisGame._isEditable = true;
-                thisGame._imageI = gGame._images.size();
+				thisGame.name =  fileName.UTF8String;
+				thisGame.isEditable = true;
+                thisGame.imageI = gGame.images.size();
                 
                 std::string nameString = fileName.UTF8String;
                 ////////
@@ -293,7 +293,7 @@ static void PopulateLocalGameNamesRing(who::Ring & inRing, void *) {
                 //gGame.Execute(std::string("addPhotoToRing name=")+filename+std::string("user=")+userName+std::string("type=face ring=") + ring);
                 ///////////
                 gGame.Execute(std::string("addImageFromTextAndImage name=")+nameString+std::string(" text=")+NSStringToString(fileName)+std::string(" imageFile=")+nameString);
-                gGame.Execute(std::string("addPhotoToRing name=")+nameString+std::string(" user=")+nameString+std::string(" type=photo ring=") + inRing._name);
+                gGame.Execute(std::string("addPhotoToRing name=")+nameString+std::string(" user=")+nameString+std::string(" type=photo ring=") + inRing.name);
                 
                 
 			}
@@ -302,6 +302,14 @@ static void PopulateLocalGameNamesRing(who::Ring & inRing, void *) {
     gGame.Execute("DisplayControlsForRing");
     
 }
+
+void PopulateLoadAndDeleteDrawer(who::Drawer & inOutDrawer, void * inArgs)
+{
+    gGame.Execute("addPhotoToRing name=cancel user=abc type=photo ring=gameNamesRing");
+    gGame.Execute("addPhotoToDrawer drawer=loadAndDelete photo=play");
+    gGame.Execute("showDrawer drawer=loadAndDelete location=bottom");
+}
+
 void PopulateControlsForRing()
 {
     who::Ring * hitRing = gGame.GetCurrentRing();
@@ -315,11 +323,12 @@ void PopulateControlsForRing()
     gameNameOnNameRing.hidden = YES;
     gameNameOnPlayrRing.hidden = YES;
     
-    if (hitRing->_name =="playRing") {
+    if (hitRing->name =="playRing") {
         DisplaySaveAndUploadButtons();
     }
-    if (hitRing->_name =="gameNamesRing") {
-        DisplayLoadAndDeleteButtons();
+    if (hitRing->name =="gameNamesRing") {
+        gGame.Execute("newDrawer name=loadAndDelete populate=PopulateLoadAndDeleteDrawer", 1, "PopulateLoadAndDeleteDrawer", PopulateLoadAndDeleteDrawer);
+        //DisplayLoadAndDeleteButtons();
     }
 }
 static void displayAllLocalGameNames()
@@ -329,7 +338,7 @@ static void displayAllLocalGameNames()
     //   if( WHO_GetRing("local") != gNullRing ) {
     //     return;
     // }
-    //gGame._rings._rings.push_back(who::Ring(eRingTypeBrowseLocal));
+    //gGame.rings.rings.push_back(who::Ring(eRingTypeBrowseLocal));
     // who::Ring & ring = WHO_NewBackRing("local", eRingTypeBrowseLocal);
     
 	who::GameName thisGame;
@@ -357,13 +366,13 @@ static void displayAllLocalGameNames()
 				//[self.gamesWithFullPathArray addObject:gameGameWithFullPath];
 				fileName = [fileName stringByDeletingPathExtension];
                 
-				thisGame._name =  fileName.UTF8String;
-				thisGame._isEditable = true;
-                thisGame._imageI = gGame._images.size();
+				thisGame.name =  fileName.UTF8String;
+				thisGame.isEditable = true;
+                thisGame.imageI = gGame.images.size();
                 
                 who::Photo photo;
-                photo._filename = fileName.UTF8String;
-                //     ring._photos.push_back(photo);
+                photo.filename = fileName.UTF8String;
+                //     ring.photos.push_back(photo);
                 //  ring.browseData.localGameNames.push_back(thisGame);
 			}
 		}
@@ -374,12 +383,12 @@ static void displayAllLocalGameNames()
 void PopulateTitleRing(who::Ring & inRing, void *)
 // This function is the callback target to populate the title ring with items
 {
-    gGame._animations.push_back("addImageFromText name=play text=Play");
-    gGame._animations.push_back("addImageFromText name=editor text=Editor");
+    gGame.animations.push_back("addImageFromText name=play text=Play");
+    gGame.animations.push_back("addImageFromText name=editor text=Editor");
 
-    gGame._animations.push_back(std::string("addPhotoToRing name=play user=play type=photo ring=") + inRing._name);
-    gGame._animations.push_back(std::string("addPhotoToRing name=editor user=edit type=photo ring=") + inRing._name);
-   //  gGame.Execute(std::string("addPhotoToRing name=editor user=edit type=face ring=") + inRing._name);
+    gGame.animations.push_back(std::string("addPhotoToRing name=play user=play type=photo ring=") + inRing.name);
+    gGame.animations.push_back(std::string("addPhotoToRing name=editor user=edit type=photo ring=") + inRing.name);
+   //  gGame.Execute(std::string("addPhotoToRing name=editor user=edit type=face ring=") + inRing.name);
     
    
 
@@ -388,7 +397,7 @@ void PopulateTitleRing(who::Ring & inRing, void *)
 static void PopulatePlayRing(who::Ring & inRing, void *argsStr)
 // this function is the callback target to populate the play ring
 {
-    std::string ring = inRing._name;
+    std::string ring = inRing.name;
 
     NSString *gameNameStr = (__bridge NSString *)argsStr;
     if ( !gameName) return; 
@@ -485,7 +494,7 @@ static void PopulatePlayRing(who::Ring & inRing, void *argsStr)
 static void PopulateEditorRing(who::Ring & inRing, void *argsStr)
 // this function is the callback target to populate the play ring
 {
-    std::string ring = inRing._name;
+    std::string ring = inRing.name;
  
     gGame.Execute("addImageFromFile name=addPhoto.png file=addPhoto.png");
     gGame.Execute(std::string("addPhotoToRing name=addPhoto.png user=addPhoto.png type=photo ring=") + ring);
@@ -513,15 +522,15 @@ void WHO_InitApp()
     if( !errorCode )
         // create and show the Title ring
     {
-        gGame._animationVars["reanimate"] = (void *)Reanimate;
+        gGame.animationVars["reanimate"] = (void *)Reanimate;
         
         gGame.Execute("newBackRing name=titleRing begin=PopulateTitleRing", 1, "PopulateTitleRing", PopulateTitleRing);
         gGame.Execute("zoomToRing ring=titleRing completed=reanimate args=\"setCurrentPhoto photo=editor\"");
-        gGame._rings._currentRing = "titleRing";
+        gGame.rings.currentRing = "titleRing";
     }
     
-    gGame._camera._lookAt = glm::vec3(0, 0, 0);
-    gGame._camera._up = glm::vec3(0, 1, 0);
+    gGame.camera.lookAt = glm::vec3(0, 0, 0);
+    gGame.camera.up = glm::vec3(0, 1, 0);
     
     glEnable(GL_DEPTH_TEST);
     
@@ -619,7 +628,7 @@ UITextField *CreateTextEdit(CGRect rect, CGFloat fontSize )
 
      // Instantiate the delete button
     deleteGameButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    uiImage  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"list_remove" ofType:@"png"]];
+    uiImage  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"listremove" ofType:@"png"]];
     [deleteGameButton setImage:uiImage forState:UIControlStateNormal];
     [deleteGameButton setBackgroundColor:nil];
     [deleteGameButton setBackgroundImage:nil forState:UIControlStateNormal];
@@ -651,7 +660,7 @@ UITextField *CreateTextEdit(CGRect rect, CGFloat fontSize )
     
     uploadButton = [UIButton buttonWithType:UIButtonTypeCustom];
     
-    uiImage  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"go_up" ofType:@"png"]];
+    uiImage  = [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"goup" ofType:@"png"]];
     
     [uploadButton setImage:uiImage forState:UIControlStateNormal];
     [uploadButton setBackgroundColor:nil];
@@ -707,7 +716,7 @@ UITextField *CreateTextEdit(CGRect rect, CGFloat fontSize )
         return;
     }
     
-    //gGame._rings._rings.push_back(who::Ring(eRingTypeBrowseMore));
+    //gGame.rings.rings.push_back(who::Ring(eRingTypeBrowseMore));
   //  who::Ring & ring = WHO_NewBackRing("browseMore", eRingTypeBrowseMore);
     
     // First get all the games from server  
@@ -720,14 +729,14 @@ UITextField *CreateTextEdit(CGRect rect, CGFloat fontSize )
 		//NSString *ext = [fileName pathExtension]; 
 		if ( [[fileName pathExtension] caseInsensitiveCompare:@"who"] == NSOrderedSame) {
 			fileName = [fileName stringByDeletingPathExtension];
-			thisGame._name =  fileName.UTF8String;
-			thisGame._isEditable = true;
-            thisGame._imageI = gGame._images.size();
+			thisGame.name =  fileName.UTF8String;
+			thisGame.isEditable = true;
+            thisGame.imageI = gGame.images.size();
             
             who::Photo photo;
-            photo._filename = fileName.UTF8String;
+            photo.filename = fileName.UTF8String;
             //photo.imageI = thisGame.imageI;
-        //    ring._photos.push_back(photo); 
+        //    ring.photos.push_back(photo); 
         //    ring.browseData.remoteGameNames.push_back(thisGame); 
            
 		}
@@ -735,8 +744,19 @@ UITextField *CreateTextEdit(CGRect rect, CGFloat fontSize )
     
     //gCurrentPattern = 0; 
     
-    //gGame._rings._currentRing = gGame._rings._rings.size()-1;
+    //gGame.rings.currentRing = gGame.rings.rings.size()-1;
 
+}
+
+void PopulateFacesDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
+{
+    who::Ring & ring = gGame.rings.rings[gGame.rings.currentRing];
+    
+    for( int i=0; i<ring.facePhotos.size(); i++ )
+    {
+        std::string photo = ring.facePhotos[i];
+        gGame.Execute("addPhotoToDrawer drawer=" + inOutDrawer.name + " photo=" + photo);
+    }
 }
 
 - (IBAction) requestToLoadGame:(id) sender
@@ -745,17 +765,17 @@ UITextField *CreateTextEdit(CGRect rect, CGFloat fontSize )
         
         who::Ring * currentRing = gGame.GetCurrentRing();
       
-        if( currentRing &&  currentRing->_name =="gameNamesRing")
-            _currentLoadedGame = gGame.GetPhoto(currentRing->_photos[0]);   
+        if( currentRing &&  currentRing->name =="gameNamesRing")
+            _currentLoadedGame = gGame.GetPhoto(currentRing->photos[0]);   
         
     }
     if (!_currentLoadedGame) return;
     
     std::string commandStr = "newBackRing name=playRing begin=PopulatePlayRing";
     commandStr +=" args=";
-    commandStr +=_currentLoadedGame->_filename;
+    commandStr +=_currentLoadedGame->filename;
     
-    gOriginalGameName = (__bridge NSString *)StringToNSString( _currentLoadedGame->_filename);
+    gOriginalGameName = (__bridge NSString *)StringToNSString( _currentLoadedGame->filename);
     
     gGame.Execute(commandStr, 1, "PopulatePlayRing", PopulatePlayRing);
     gGame.Execute("zoomToRing ring=playRing");
@@ -840,22 +860,13 @@ UITextField *CreateTextEdit(CGRect rect, CGFloat fontSize )
 	//[self.popoverController presentPopoverFromRect:selectedRect inView:[self view] permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
 }
 
-static void PopulateEditorDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
+void PopulateEditorDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
 {
-   gGame.Execute("addPhotoToDrawer drawer=" + inOutDrawer._name + " photo=play");
+    gGame.ExecuteImmediately("addImageFromFile name=test1 file=eraser.png");
+    gGame.ExecuteImmediately("addPhotoToDrawer drawer=" + inOutDrawer.name + " photo=eraser.png");
+}
 
-}
-static void PopulateFacesDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
-{
-    who::Ring & ring = gGame._rings._rings[gGame._rings._currentRing];
-    
-    for( int i=0; i<ring.facePhotos.size(); i++ )
-    {
-        std::string photo = ring.facePhotos[i];
-        gGame.Execute("addPhotoToDrawer drawer=" + inOutDrawer._name + " photo=" + photo);
-    }
-    
-}
+
 -(void ) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     UITouch * touch = [touches anyObject];
@@ -865,21 +876,21 @@ static void PopulateFacesDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
     
     glm::vec3 rayOrigin, rayDir;
     
-    GEO_MakePickRay(gGame._camera._viewMat, gGame._camera._projectionMat, gGame._camera._viewport, viewPt, rayOrigin, rayDir);
+    GEO_MakePickRay(gGame.camera.viewMat, gGame.camera.projMat, gGame.camera.viewport, viewPt, rayOrigin, rayDir);
     
     who::Ring * hitRing = 0;
     who::Ring * currentRing = gGame.GetCurrentRing();
     
     glm::vec3 intersectPt;
     
-    if( gGame._zoomedToPhoto ) {
+    if( gGame.zoomedToPhoto ) {
         hitRing = currentRing;
     }
     else
     {
         
-        for( int i=glm::max(0, currentRing->_stackingOrder-1); i<gGame._rings._stackingOrder.size() && hitRing==0; i++ ) {
-            who::Ring * ring = gGame.GetRing(gGame._rings._stackingOrder[i]);
+        for( int i=glm::max(0, currentRing->stackingOrder-1); i<gGame.rings.stackingOrder.size() && hitRing==0; i++ ) {
+            who::Ring * ring = gGame.GetRing(gGame.rings.stackingOrder[i]);
             
             glm::vec3 ptOnPlane = glm::vec3(0, 0, -i);
             glm::vec3 planeNormal = glm::vec3(0, 0, 1);
@@ -895,42 +906,57 @@ static void PopulateFacesDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
     }
     
     who::Photo * hitPhoto = 0;
+    who::Photo * hitDrawerItem = 0;
     
-    if( gGame.GetCurrentRing() == hitRing ) {
-        for( size_t i=0; i<hitRing->_photos.size() & hitPhoto==0; i++ ) {
-            who::Photo * photo = gGame.GetPhoto(hitRing->_photos[i]);
+    if( gGame.GetCurrentRing() == hitRing )
+    {
+        auto hitTestPhotos = [&](std::vector<std::string> & inPhotos) -> who::Photo *
+        {
+            who::Photo * hitItem = 0;
             
-            float z = -hitRing->_stackingOrder;
-            
-            glm::vec3 photoVerts[] = {
-                photo->_transform * glm::vec3(-0.5, -0.5, z),
-                photo->_transform * glm::vec3(0.5, -0.5, z),
-                photo->_transform * glm::vec3(-0.5, 0.5, z),
-                photo->_transform * glm::vec3(0.5, 0.5, z)
-            };
-            
-            if( GEO_RayTriangleIntersection(rayOrigin, rayDir, photoVerts+0, 0, intersectPt) ||
-               GEO_RayTriangleIntersection(rayOrigin, rayDir, photoVerts+1, 0, intersectPt) ) {
-                hitPhoto = photo;
+            for( size_t i=0; i<inPhotos.size() & hitItem==0; i++ )
+            {
+                who::Photo * photo = gGame.GetPhoto(inPhotos[i]);
+                
+                float z = -hitRing->stackingOrder;
+                
+                glm::vec3 photoVerts[] =
+                {
+                    photo->transform * glm::vec3(-0.5, -0.5, z),
+                    photo->transform * glm::vec3(0.5, -0.5, z),
+                    photo->transform * glm::vec3(-0.5, 0.5, z),
+                    photo->transform * glm::vec3(0.5, 0.5, z)
+                };
+                
+                if( GEO_RayTriangleIntersection(rayOrigin, rayDir, photoVerts+0, 0, intersectPt) ||
+                   GEO_RayTriangleIntersection(rayOrigin, rayDir, photoVerts+1, 0, intersectPt) )
+                    hitItem = photo;
             }
-        }
+            
+            return hitItem;
+        };
+        
+        hitPhoto = hitTestPhotos(hitRing->photos);
+        
+        if( gGame.currentDrawer != "" )
+            hitDrawerItem = hitTestPhotos(gGame.drawers[gGame.currentDrawer].photos);
     }
     
     // for hit cancel
-    who::Photo *photo = &gGame._photos[cancelString];
-    if ( currentRing->_name =="playRing" && gGame._totalPhotosToDownload>0) {
-        float z = -hitRing->_stackingOrder;
+    who::Photo *photo = &gGame.photos[cancelString];
+    if ( currentRing->name =="playRing" && gGame.totalPhotosToDownload>0) {
+        float z = -hitRing->stackingOrder;
         glm::vec3 viewPt2 = glm::vec3(touchPoint.x, touchPoint.y, 0);
         
         glm::vec3 rayOrigin2, rayDir2;
-        GEO_MakePickRay(gGame._camera._viewMat, gGame._camera._projectionMat, gGame._camera._viewport, viewPt2, rayOrigin2, rayDir2);
+        GEO_MakePickRay(gGame.camera.viewMat, gGame.camera.projMat, gGame.camera.viewport, viewPt2, rayOrigin2, rayDir2);
 
         
         glm::vec3 photoVerts[] = {
-            photo->_transform * glm::vec3(-0.5, -0.5, z),
-            photo->_transform * glm::vec3(0.5, -0.5, z),
-            photo->_transform * glm::vec3(-0.5, 0.5, z),
-            photo->_transform * glm::vec3(0.5, 0.5, z)
+            photo->transform * glm::vec3(-0.5, -0.5, z),
+            photo->transform * glm::vec3(0.5, -0.5, z),
+            photo->transform * glm::vec3(-0.5, 0.5, z),
+            photo->transform * glm::vec3(0.5, 0.5, z)
         };
 
         if( GEO_RayTriangleIntersection(rayOrigin2, rayDir2, photoVerts+0, 0, intersectPt) ||
@@ -943,23 +969,23 @@ static void PopulateFacesDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
     
     if( hitPhoto )
     {
-        if( hitPhoto->_type == "cancel" )
+        if( hitPhoto->type == "cancel" )
         {
             if (picasaController)
                 [picasaController cancelClicked:nil];
         }
         //_currentHitPhoto = hitPhoto;
-        else if( hitPhoto && hitPhoto->_filename=="addPhoto.png") {
+        else if( hitPhoto && hitPhoto->filename=="addPhoto.png") {
             [self showImagePhotosPicker:touchPoint ];
         }
-    	else if( hitRing->_name =="gameNamesRing") {
+    	else if( hitRing->name =="gameNamesRing") {
             _currentLoadedGame = hitPhoto;
             
-            if( gGame._zoomedToPhoto ) {
+            if( gGame.zoomedToPhoto ) {
                 gGame.Execute("zoomToRing");
                 
             } else {
-                sprintf(command, "setCurrentPhoto photo=%s", hitPhoto->_filename.c_str());
+                sprintf(command, "setCurrentPhoto photo=%s", hitPhoto->filename.c_str());
                 //sprintf(command, "zoomToPhoto photo=%s", hitPhoto->filename.c_str());
                 gGame.Execute(command);
                 _requestToDisplayLoadAndDeleteButtons = YES;
@@ -969,11 +995,11 @@ static void PopulateFacesDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
             }
 
     	}
-        else if( hitPhoto->_filename == "editor" ) {
+        else if( hitPhoto->filename == "editor" ) {
 
-            if( gGame._zoomedToPhoto )
+            if( gGame.zoomedToPhoto )
             {
-                //gGame.Execute("deleteRingsAfter ring=" + hitRing->_name);
+                //gGame.Execute("deleteRingsAfter ring=" + hitRing->name);
                 
                 //gGame.Execute("setCurrentPhoto photo=editor");
                 //gGame.Execute("newBackRing name=playRing begin=PopulateEditorRing", 1, "PopulateEditorRing", PopulateEditorRing);
@@ -981,8 +1007,14 @@ static void PopulateFacesDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
                 
                 //gGame.Execute("showTextEdit");
                 
+                //auto PopulateEditorDrawer = [&](who::Drawer & inOutDrawer, void * /*inArgs*/)
+                //{
+                  //  gGame.ExecuteImmediately("addImageFromFile file=deleteFace.jpg name=test1");
+                    //gGame.ExecuteImmediately("addPhotoToDrawer drawer=" + inOutDrawer.name + " photo=test1");
+                //};
+
                 gGame.Execute("newDrawer name=EditorDrawer populate=PopulateEditorDrawer", 1, "PopulateEditorDrawer", PopulateEditorDrawer);
-                gGame.Execute("showDrawer drawer=EditorDrawer");
+                gGame.Execute("showDrawer drawer=EditorDrawer location=top");
                 
 
                 //  [self displaySaveAndUploadButtons];
@@ -991,17 +1023,17 @@ static void PopulateFacesDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
             }
             else
             {
-                sprintf(command, "zoomToPhoto photo=%s", hitPhoto->_filename.c_str());
+                sprintf(command, "zoomToPhoto photo=%s", hitPhoto->filename.c_str());
                 gGame.Execute(command);
                 
             }
             
             
         }
-    	else if( hitPhoto->_filename == "play" ) {
-            if( gGame._zoomedToPhoto )
+    	else if( hitPhoto->filename == "play" ) {
+            if( gGame.zoomedToPhoto )
             {
-                gGame.Execute("deleteRingsAfter ring=" + hitRing->_name);
+                gGame.Execute("deleteRingsAfter ring=" + hitRing->name);
                 
                 gGame.Execute("setCurrentPhoto photo=play");
 
@@ -1014,7 +1046,7 @@ static void PopulateFacesDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
             }
 
         }
-        else if( hitPhoto->_filename == "addPhoto" )
+        else if( hitPhoto->filename == "addPhoto" )
         {
             gGame.Execute("showDrawer drawer=faces");
         
@@ -1022,22 +1054,26 @@ static void PopulateFacesDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
         }
         else if( hitRing != 0 )
         {
-            if( gGame._zoomedToPhoto )
+            if( gGame.zoomedToPhoto )
             {
                 gGame.Execute("zoomToRing");
                 gGame.Execute("hideDrawer");
                 
-            } else {
-                sprintf(command, "zoomToPhoto photo=%s", hitPhoto->_filename.c_str());
+            }
+            else
+            {
+                sprintf(command, "zoomToPhoto photo=%s", hitPhoto->filename.c_str());
                 gGame.Execute(command);
                 gGame.Execute("showDrawer drawer=FacesDrawer");
                 
             }
         }
-    } else if( hitRing ) {
+    }
+    else if( hitRing )
+    {
         gGame.Execute("hideDrawer");
         
-        sprintf(command, "zoomToRing ring=%s", hitRing->_name.c_str());
+        sprintf(command, "zoomToRing ring=%s", hitRing->name.c_str());
         gGame.Execute(command);
         gGame.Execute("DisplayControlsForRing");
     }
@@ -1058,15 +1094,15 @@ static void PopulateFacesDrawer(who::Drawer & inOutDrawer, void * /*inArgs*/)
     
     if ( cancelImageInfo.image) {
    
-        gGame._images[cancelString] = cancelImageInfo;
+        gGame.images[cancelString] = cancelImageInfo;
     
         who::Photo photo;
-        photo._type ="cancel";
-        photo._filename = "cancel";
-        photo._username = "cancel";
-        photo._transform = glm::mat4x3(glm::mat4(1));
+        photo.type ="cancel";
+        photo.filename = "cancel";
+        photo.username = "cancel";
+        photo.transform = glm::mat4x3(glm::mat4(1));
         
-        gGame._photos[cancelString]=photo;
+        gGame.photos[cancelString]=photo;
     }
 }
 
@@ -1090,9 +1126,9 @@ static bool PhotoNameExists(NSString *thisPhotoname)
 {
     bool findName = false; 
     who::Ring * currentRing = gGame.GetCurrentRing();
-    for( size_t i=0; i<currentRing->_photos.size() && !findName; i++ ) {
-        who::Photo * photo = gGame.GetPhoto(currentRing->_photos[i]);
-        NSString *photoName = (__bridge NSString *)StringToNSString(photo->_filename);
+    for( size_t i=0; i<currentRing->photos.size() && !findName; i++ ) {
+        who::Photo * photo = gGame.GetPhoto(currentRing->photos[i]);
+        NSString *photoName = (__bridge NSString *)StringToNSString(photo->filename);
         findName = [thisPhotoname isEqualToString:photoName];
     }
     
@@ -1134,21 +1170,21 @@ static bool PhotoNameExists(NSString *thisPhotoname)
     if (didSave) {
     
         who::Ring * currentRing = gGame.GetCurrentRing();
-        std::string ring = currentRing->_name;
+        std::string ring = currentRing->name;
         
-        GL_LoadTextureFromUIImage(image, gGame._images[nameString]);
+        GL_LoadTextureFromUIImage(image, gGame.images[nameString]);
         gGame.Execute(std::string("addPhotoToRing name=")+nameString+std::string(" user=")+nameString+std::string(" type=photo ring=") + ring);
     }
 }
 
 -(void)setTotalPhotosToDownload:(int)numOfPhotos
 {
-    gGame._totalPhotosToDownload = numOfPhotos;
+    gGame.totalPhotosToDownload = numOfPhotos;
 }
 -(void)setPhotosDownloaded:(int)numOfPhotos;
 {
     who::Ring * currentRing = gGame.GetCurrentRing();
-    gGame._currentNumOfPhotos = currentRing->_photos.size();
+    gGame.currentNumOfPhotos = currentRing->photos.size();
 }
 - (void)addLocalImageToPhotos:(UIImage *)image 
 {
@@ -1193,9 +1229,9 @@ static bool PhotoNameExists(NSString *thisPhotoname)
     else
          [UIImageJPEGRepresentation(image, 1.0) writeToFile:imageFilePath atomically:YES];
     who::Ring * currentRing = gGame.GetCurrentRing();
-    std::string ring = currentRing->_name;
+    std::string ring = currentRing->name;
     
-    GL_LoadTextureFromUIImage(image, gGame._images[nameString]);
+    GL_LoadTextureFromUIImage(image, gGame.images[nameString]);
     gGame.Execute(std::string("addPhotoToRing name=")+nameString+std::string(" user=")+nameString+std::string(" type=photo ring=") + ring);
     
 }
@@ -1205,12 +1241,12 @@ static bool PhotoNameExists(NSString *thisPhotoname)
 {
     // TODO the camera should know about the viewport and hit test calculations should use the
     // camera's data, not gGLData's matrices and viewport
-    if ( gGame._rings._currentRing == "") return;
+    if ( gGame.rings.currentRing == "") return;
     
-    gGame._camera._viewport[0] = 0;
-    gGame._camera._viewport[1] = 0;
-    gGame._camera._viewport[2] = self.view.bounds.size.width;
-    gGame._camera._viewport[3] = self.view.bounds.size.height;
+    gGame.camera.viewport[0] = 0;
+    gGame.camera.viewport[1] = 0;
+    gGame.camera.viewport[2] = self.view.bounds.size.width;
+    gGame.camera.viewport[3] = self.view.bounds.size.height;
     
     //float aspect = glm::abs(self.view.bounds.size.width / float(self.view.bounds.size.height));
 
@@ -1225,99 +1261,99 @@ static bool PhotoNameExists(NSString *thisPhotoname)
      MAT4_MakeFrustum(-halfNearPlaneWidth, halfNearPlaneWidth, -halfNearPlaneHeight, halfNearPlaneHeight, nearPlaneDistance, farPlaneDistance, projectionMat);
      */
     
-    float z = gGame._camera._zoomed;
-    gGame._camera = Camera(gGame._camera._pos, gGame._camera._lookAt, gGame._camera._up, 65.0f,
+    float z = gGame.camera.zoomed;
+    gGame.camera = Camera(gGame.camera.pos, gGame.camera.lookAt, gGame.camera.up, 65.0f,
                          glm::vec2(0.01, 100.0), glm::ivec4(0, 0, self.view.bounds.size.width, self.view.bounds.size.height),
                          glm::ivec2(self.view.bounds.size.width, self.view.bounds.size.height));
-    gGame._camera._zoomed = z;
+    gGame.camera.zoomed = z;
     
-    gGame._camera._projectionMat = gGame._camera._projectionMat;
+    gGame.camera.projMat = gGame.camera.projMat;
     
     //float mv[16];
-    gGame._camera._viewMat = glm::mat4x3(1);
-    gGame._camera._viewMat[3] -= gGame._camera._pos;
+    gGame.camera.viewMat = glm::mat4x3(1);
+    gGame.camera.viewMat[3] -= gGame.camera.pos;
     
-    gGame._camera._vpMat = gGame._camera._projectionMat * gGame._camera._viewMat;
-    gGame._camera._viewportMat = glm::viewportMatrix<float>(gGame._camera._viewport);
-    gGame._camera._vpvMat = gGame._camera._viewportMat * gGame._camera._vpMat;
+    gGame.camera.vpMat = gGame.camera.projMat * gGame.camera.viewMat;
+    gGame.camera.viewportMat = glm::viewportMatrix<float>(gGame.camera.viewport);
+    gGame.camera.vpvMat = gGame.camera.viewportMat * gGame.camera.vpMat;
     
    
-    _rotation += self.timeSinceLastUpdate * 0.1f;
+    rotation += self.timeSinceLastUpdate * 0.1f;
     gTick += self.timeSinceLastUpdate;
     
-    if( !AnimationSystem::IsRunning(gGame._currentAnmID) && !gGame._animations.empty() )
+    if( !AnimationSystem::IsRunning(gGame.currentAnmID) && !gGame.animations.empty() )
     // The primary animation blocks subsequent animatinos from starting until it completes.
     {
         
-        std::string anm = gGame._animations.front();
-        gGame._animations.pop_front();
+        std::string anm = gGame.animations.front();
+        gGame.animations.pop_front();
         
         int pos = 0;
-        who::WhoParser::PRS_Command(anm.c_str(), pos);
+        who::WhoParser::PRS_Command(anm.c_str(), pos, gGame.errorStream);
     }
     
-    //if( gGame._rings._currentRing == 0 ) {  // test code
-    //    MarkupMask(_rotation*3);
+    //if( gGame.rings.currentRing == 0 ) {  // test code
+    //    MarkupMask(rotation*3);
     //}
     
     AnimationSystem::UpdateAnimations(gTick);
     
     std::vector<int> removedRingIndices;
     
-    for_j( gGame._rings._stackingOrder.size() ) {
+    for_j( gGame.rings.stackingOrder.size() ) {
         
-        who::Ring * ring = gGame.GetRing(gGame._rings._stackingOrder[j]);
-        if( ring->_ringAlpha == 0 )
+        who::Ring * ring = gGame.GetRing(gGame.rings.stackingOrder[j]);
+        if( ring->ringAlpha == 0 )
         // delete the ring if its alpha has gone to 0
         {
             // remember the index in stacking order of the ring we're removing
             removedRingIndices.push_back(j);
             
-            for_i( gGame._rings._stackingOrder.size() )
+            for_i( gGame.rings.stackingOrder.size() )
             // shift subsequent rings in the stacking order
             {
-                who::Ring * shiftRing = gGame.GetRing(gGame._rings._stackingOrder[i]);
-                shiftRing->_stackingOrder--;
+                who::Ring * shiftRing = gGame.GetRing(gGame.rings.stackingOrder[i]);
+                shiftRing->stackingOrder--;
             }
             
-            for_i( ring->_photos.size() ) {
-                who::Photo * photo = gGame.GetPhoto(ring->_photos[i]);
+            for_i( ring->photos.size() ) {
+                who::Photo * photo = gGame.GetPhoto(ring->photos[i]);
                 
-                std::string resourceName = photo->_filename;
-                glDeleteTextures(1, &gGame._images[resourceName].texID);
-                delete gGame._images[resourceName].image;
-                gGame._images[resourceName].image = 0;
+                std::string resourceName = photo->filename;
+                glDeleteTextures(1, &gGame.images[resourceName].texID);
+                delete gGame.images[resourceName].image;
+                gGame.images[resourceName].image = 0;
                 
                 for_j( photo->_maskImages.size() ) {
                     resourceName = photo->_maskImages[j];
-                    glDeleteTextures(1, &gGame._images[resourceName].texID);
-                    delete gGame._images[resourceName].image;
-                    gGame._images[resourceName].image = 0;
+                    glDeleteTextures(1, &gGame.images[resourceName].texID);
+                    delete gGame.images[resourceName].image;
+                    gGame.images[resourceName].image = 0;
                 }
             }
             
-            if( ring->_ringType == who::eRingTypeEdit ) {
+            if( ring->ringType == who::eRingTypeEdit ) {
                 std::string resourceName = "brush";
-                glDeleteTextures(1, &gGame._images[resourceName].texID);
-                delete gGame._images[resourceName].image;
-                gGame._images[resourceName].image = 0;
+                glDeleteTextures(1, &gGame.images[resourceName].texID);
+                delete gGame.images[resourceName].image;
+                gGame.images[resourceName].image = 0;
                 
                 resourceName = "eraser";
-                glDeleteTextures(1, &gGame._images[resourceName].texID);
-                delete gGame._images[resourceName].image;
-                gGame._images[resourceName].image = 0;
+                glDeleteTextures(1, &gGame.images[resourceName].texID);
+                delete gGame.images[resourceName].image;
+                gGame.images[resourceName].image = 0;
                 
                 resourceName = "scissors";
-                glDeleteTextures(1, &gGame._images[resourceName].texID);
-                delete gGame._images[resourceName].image;
-                gGame._images[resourceName].image = 0;
+                glDeleteTextures(1, &gGame.images[resourceName].texID);
+                delete gGame.images[resourceName].image;
+                gGame.images[resourceName].image = 0;
                 
             }
-            if( gGame._rings._currentRing == gGame._rings._stackingOrder.back() ) {
-                gGame._rings._currentRing = gGame._rings._stackingOrder[gGame._rings._stackingOrder.size()-2];
+            if( gGame.rings.currentRing == gGame.rings.stackingOrder.back() ) {
+                gGame.rings.currentRing = gGame.rings.stackingOrder[gGame.rings.stackingOrder.size()-2];
             }
-            //gGame._rings._stackingOrder.pop_back();
-            //gGame._rings._rings.erase(backRing);
+            //gGame.rings.stackingOrder.pop_back();
+            //gGame.rings.rings.erase(backRing);
         }
 
     }
@@ -1333,10 +1369,10 @@ static bool PhotoNameExists(NSString *thisPhotoname)
             if( i == removedRingIndices[removedI] ) {
                 removedI++;
             } else {
-                newStackingOrder.push_back(gGame._rings._stackingOrder[i]);
+                newStackingOrder.push_back(gGame.rings.stackingOrder[i]);
             }
         }
-        gGame._rings._stackingOrder = newStackingOrder;
+        gGame.rings.stackingOrder = newStackingOrder;
     }
         
 }
@@ -1369,7 +1405,7 @@ float GetTick() {
 #if 0
 bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
     
-    gGame._photos
+    gGame.photos
 
 	GameImages & gi = inOutGI;
     
@@ -1380,20 +1416,20 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
 	}
     std::map<std::string, who::Photo>::iterator it
     
-	for(  std::map<std::string, who::Photo>::iterator it = gGame._photos.begin(); it != gGame._photos.end(); it++ ) {
+	for(  std::map<std::string, who::Photo>::iterator it = gGame.photos.begin(); it != gGame.photos.end(); it++ ) {
 		who::Photo thisPhoto = it->second;
         
 		out << "face \"" << thiPhoto.who::Photo<< "\"\n";
 	}
     
     
-	for( std::vector<GamePhoto *>::iterator it = gi._photos.begin(); it != gi._photos.end(); it++ ) {
+	for( std::vector<GamePhoto *>::iterator it = gi.photos.begin(); it != gi.photos.end(); it++ ) {
 		GamePhoto * photo = *it;
         
-		out << "photo \"" << photo->_filename << "\" ";
+		out << "photo \"" << photo->filename << "\" ";
 		for( std::vector<GameFace *>::iterator it2 = photo->masks.begin(); it2 != photo->masks.end(); it2++ ) {
 			GameFace * mask = *it2;
-			std::string faceName = giExtractFaceName(photo->_filename, mask->_filename);
+			std::string faceName = giExtractFaceName(photo->filename, mask->filename);
 			
 			out << "\"" << faceName << "\" ";
 		}
@@ -1430,7 +1466,7 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
     
 }
 - (IBAction)requestToSaveGame:(id)sefnder {
-    //gGame._images
+    //gGame.images
     
     NSString *gameNameText = [gameName text];
     NSString *gameTxtFile = [gameNameText  stringByAppendingPathExtension: @"txt"];
@@ -1464,9 +1500,9 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
     
     for( int i=0; i<currentRing->maskPhotos.size(); i++ ) {
         
-        who::Photo * aphoto = gGame.GetPhoto(currentRing->_photos[i]);
+        who::Photo * aphoto = gGame.GetPhoto(currentRing->photos[i]);
         
-        std::string faceFileName = aphoto->_filename;
+        std::string faceFileName = aphoto->filename;
         
         NSString *faceFileNameString = (__bridge NSString *)StringToNSString(faceFileName);
         NSString *faceString = [curGameDataPath stringByAppendingPathComponent:faceFileNameString];
@@ -1475,11 +1511,11 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
         
     }
     NSString *firstPhotoFile = nil; 
-    for( int i=0; i<currentRing->_photos.size(); i++ ) {
+    for( int i=0; i<currentRing->photos.size(); i++ ) {
         
-        who::Photo * aphoto = gGame.GetPhoto(currentRing->_photos[i]);
+        who::Photo * aphoto = gGame.GetPhoto(currentRing->photos[i]);
         
-        std::string fileName = aphoto->_filename;
+        std::string fileName = aphoto->filename;
         if (fileName != "addPhoto.png") {
             NSString *fileNameString = (__bridge NSString *)StringToNSString(fileName);
             NSString *fileString = [curGameDataPath stringByAppendingPathComponent:fileNameString];
@@ -1876,11 +1912,11 @@ bool giSaveGameData(GameImages & inOutGI, const std::string & inFilename) {
 		[self dismissModalViewControllerAnimated:YES];
 		[self.popoverController dismissPopoverAnimated:YES];
          who::Ring * hitRing = gGame.GetCurrentRing();
-        if ( _currentLoadedGame && _currentLoadedGame->_filename !="play" && _currentLoadedGame->_filename !="editor") {
-            std::string oldName = _currentLoadedGame->_filename;
-            _currentLoadedGame->_filename = NSStringToString( (NSString *)sender.text);
-            //gGame._images[_currentHitPhoto->name].originalWidth = 20;
-            GL_LoadTextureFromTextAndImage(_currentLoadedGame->_filename, oldName, gGame._images[_currentLoadedGame->_filename]);
+        if ( _currentLoadedGame && _currentLoadedGame->filename !="play" && _currentLoadedGame->filename !="editor") {
+            std::string oldName = _currentLoadedGame->filename;
+            _currentLoadedGame->filename = NSStringToString( (NSString *)sender.text);
+            //gGame.images[_currentHitPhoto->name].originalWidth = 20;
+            GL_LoadTextureFromTextAndImage(_currentLoadedGame->filename, oldName, gGame.images[_currentLoadedGame->filename]);
     
         }
         

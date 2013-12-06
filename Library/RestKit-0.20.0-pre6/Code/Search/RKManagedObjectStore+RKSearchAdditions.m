@@ -28,7 +28,7 @@ static char searchIndexerAssociationKey;
 
 - (RKSearchIndexer *)searchIndexer
 {
-    return (RKSearchIndexer *)objc_getAssociatedObject(self, &searchIndexerAssociationKey);
+    return (RKSearchIndexer *)objcgetAssociatedObject(self, &searchIndexerAssociationKey);
 }
 
 - (void)setSearchIndexer:(RKSearchIndexer *)searchIndexer

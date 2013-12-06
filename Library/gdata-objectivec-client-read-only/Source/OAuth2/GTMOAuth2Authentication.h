@@ -82,11 +82,11 @@ _EXTERN NSString* const kGTMOAuth2FetchTypeUserInfo   _INITIALIZE_AS(@"userInfo"
 _EXTERN NSString* const kGTMOAuth2ErrorKey                  _INITIALIZE_AS(@"error");
 _EXTERN NSString* const kGTMOAuth2ErrorObjectKey            _INITIALIZE_AS(@"kGTMOAuth2ErrorObjectKey");
 
-_EXTERN NSString* const kGTMOAuth2ErrorInvalidRequest       _INITIALIZE_AS(@"invalid_request");
+_EXTERN NSString* const kGTMOAuth2ErrorInvalidRequest       _INITIALIZE_AS(@"invalidrequest");
 _EXTERN NSString* const kGTMOAuth2ErrorInvalidClient        _INITIALIZE_AS(@"invalid_client");
-_EXTERN NSString* const kGTMOAuth2ErrorInvalidGrant         _INITIALIZE_AS(@"invalid_grant");
+_EXTERN NSString* const kGTMOAuth2ErrorInvalidGrant         _INITIALIZE_AS(@"invalidgrant");
 _EXTERN NSString* const kGTMOAuth2ErrorUnauthorizedClient   _INITIALIZE_AS(@"unauthorized_client");
-_EXTERN NSString* const kGTMOAuth2ErrorUnsupportedGrantType _INITIALIZE_AS(@"unsupported_grant_type");
+_EXTERN NSString* const kGTMOAuth2ErrorUnsupportedGrantType _INITIALIZE_AS(@"unsupportedgranttype");
 _EXTERN NSString* const kGTMOAuth2ErrorInvalidScope         _INITIALIZE_AS(@"invalid_scope");
 
 // Notification that sign-in has completed, and token fetches will begin (useful

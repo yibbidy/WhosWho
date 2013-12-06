@@ -43,7 +43,7 @@ _EXTERN NSString* const kGDataRoleCommenter _INITIALIZE_AS(@"commenter");
 // an element with a value attribute, as in
 //  <gAcl:role value='owner'></gAcl:role>
 //
-//  http://code.google.com/apis/calendar/reference.html#gacl_reference
+//  http://code.google.com/apis/calendar/reference.html#gaclreference
 
 
 @interface GDataACLRoleBase : GDataValueConstruct

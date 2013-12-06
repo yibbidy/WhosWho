@@ -42,9 +42,9 @@ static NSString* const kFetcherStreamDataKey           = @"_streamData";
 static NSString* const kFetcherParsedObjectKey         = @"_parsedObject";
 static NSString* const kFetcherParseErrorKey           = @"_parseError";
 static NSString* const kFetcherCallbackThreadKey       = @"_callbackThread";
-static NSString* const kFetcherCallbackRunLoopModesKey = @"_runLoopModes";
+static NSString* const kFetcherCallbackRunLoopModesKey = @"runLoopModes";
 
-NSString* const kFetcherRetryInvocationKey = @"_retryInvocation";
+NSString* const kFetcherRetryInvocationKey = @"retryInvocation";
 
 static const NSUInteger kMaxNumberOfNextLinksFollowed = 25;
 

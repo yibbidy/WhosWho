@@ -132,7 +132,7 @@ static NSString * kDefaultPutURLText = @"Hongbing%20Carter:hsc10266@localhost";/
 		
 		self.putNetworkStream = (__bridge NSOutputStream *) ftpStream;
 		
-		//   if (self._usernameText.text.length != 0) {
+		//   if (self.usernameText.text.length != 0) {
 #pragma unused (success) //Adding this to appease the static analyzer.
 		success = [self.putNetworkStream setProperty:@"Hongbing Carter" forKey:(id)kCFStreamPropertyFTPUserName];
 		assert(success);
@@ -196,7 +196,7 @@ static NSString * kDefaultPutURLText = @"Hongbing%20Carter:hsc10266@localhost";/
         
         self.createDirNetworkStream = (__bridge NSOutputStream *) ftpStream;
 		
-     //   if (self._usernameText.text.length != 0) {
+     //   if (self.usernameText.text.length != 0) {
 			#pragma unused (success) //Adding this to appease the static analyzer.
             success = [self.createDirNetworkStream setProperty:@"Hongbing Carter" forKey:(id)kCFStreamPropertyFTPUserName];
             assert(success);
@@ -240,7 +240,7 @@ static NSString * kDefaultPutURLText = @"Hongbing%20Carter:hsc10266@localhost";/
 	int nn = 100; 
     switch (eventCode) {
         case NSStreamEventOpenCompleted: {
-           // [self _updateStatus:@"Opened connection"];
+           // [self updateStatus:@"Opened connection"];
             // Despite what it says in the documentation <rdar://problem/7163693>, 
             // you should wait for the NSStreamEventEndEncountered event to see 
             // if the directory was created successfully.  If you shut the stream 
@@ -293,14 +293,14 @@ static NSString * kDefaultPutURLText = @"Hongbing%20Carter:hsc10266@localhost";/
 	int nn = 100; 
 	switch (eventCode) {
 		case NSStreamEventOpenCompleted: {
-			//[self _updateStatus:@"Opened connection"];
+			//[self updateStatus:@"Opened connection"];
 			nn = 0; 
 		} break;
 		case NSStreamEventHasBytesAvailable: {
 			assert(NO);     // should never happen for the output stream
 		} break;
 		case NSStreamEventHasSpaceAvailable: {
-			//[self _updateStatus:@"Sending"];
+			//[self updateStatus:@"Sending"];
 			
 			// If we don't have any data buffered, go read the next chunk of data.
 			

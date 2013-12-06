@@ -22,13 +22,13 @@
 
 #import "AFImageRequestOperation.h"
 
-static dispatch_queue_t af_image_request_operation_processing_queue;
-static dispatch_queue_t image_request_operation_processing_queue() {
-    if (af_image_request_operation_processing_queue == NULL) {
-        af_image_request_operation_processing_queue = dispatch_queue_create("com.alamofire.networking.image-request.processing", 0);
+static dispatch_queue_t af_imagerequest_operation_processing_queue;
+static dispatch_queue_t imagerequest_operation_processing_queue() {
+    if (af_imagerequest_operation_processing_queue == NULL) {
+        af_imagerequest_operation_processing_queue = dispatch_queue_create("com.alamofire.networking.image-request.processing", 0);
     }
     
-    return af_image_request_operation_processing_queue;
+    return af_imagerequest_operation_processing_queue;
 }
 
 @interface AFImageRequestOperation ()
@@ -40,7 +40,7 @@ static dispatch_queue_t image_request_operation_processing_queue() {
 @end
 
 @implementation AFImageRequestOperation
-@synthesize responseImage = _responseImage;
+@synthesize responseImage = responseImage;
 #if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
 @synthesize imageScale = _imageScale;
 #endif
@@ -79,10 +79,10 @@ static dispatch_queue_t image_request_operation_processing_queue() {
         if (success) {
             UIImage *image = responseObject;
             if (imageProcessingBlock) {
-                dispatch_async(image_request_operation_processing_queue(), ^(void) {
+                dispatch_async(imagerequest_operation_processing_queue(), ^(void) {
                     UIImage *processedImage = imageProcessingBlock(image);
 
-                    dispatch_async(operation.successCallbackQueue ?: dispatch_get_main_queue(), ^(void) {
+                    dispatch_async(operation.successCallbackQueue ?: dispatchget_main_queue(), ^(void) {
                         success(operation.request, operation.response, processedImage);
                     });
                 });
@@ -110,10 +110,10 @@ static dispatch_queue_t image_request_operation_processing_queue() {
         if (success) {
             NSImage *image = responseObject;
             if (imageProcessingBlock) {
-                dispatch_async(image_request_operation_processing_queue(), ^(void) {
+                dispatch_async(imagerequest_operation_processing_queue(), ^(void) {
                     NSImage *processedImage = imageProcessingBlock(image);
 
-                    dispatch_async(operation.successCallbackQueue ?: dispatch_get_main_queue(), ^(void) {
+                    dispatch_async(operation.successCallbackQueue ?: dispatchget_main_queue(), ^(void) {
                         success(operation.request, operation.response, processedImage);
                     });
                 });
@@ -147,13 +147,13 @@ static dispatch_queue_t image_request_operation_processing_queue() {
 
 #if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
 - (UIImage *)responseImage {
-    if (!_responseImage && [self.responseData length] > 0 && [self isFinished]) {
+    if (!responseImage && [self.responseData length] > 0 && [self isFinished]) {
         UIImage *image = [UIImage imageWithData:self.responseData];
         
         self.responseImage = [UIImage imageWithCGImage:[image CGImage] scale:self.imageScale orientation:image.imageOrientation];
     }
     
-    return _responseImage;
+    return responseImage;
 }
 
 - (void)setImageScale:(CGFloat)imageScale {
@@ -170,14 +170,14 @@ static dispatch_queue_t image_request_operation_processing_queue() {
 }
 #elif defined(__MAC_OS_X_VERSION_MIN_REQUIRED)
 - (NSImage *)responseImage {
-    if (!_responseImage && [self.responseData length] > 0 && [self isFinished]) {
+    if (!responseImage && [self.responseData length] > 0 && [self isFinished]) {
         // Ensure that the image is set to it's correct pixel width and height
         NSBitmapImageRep *bitimage = [[NSBitmapImageRep alloc] initWithData:self.responseData];
         self.responseImage = [[NSImage alloc] initWithSize:NSMakeSize([bitimage pixelsWide], [bitimage pixelsHigh])];
         [self.responseImage addRepresentation:bitimage];
     }
     
-    return _responseImage;
+    return responseImage;
 }
 #endif
 
@@ -203,10 +203,10 @@ static dispatch_queue_t image_request_operation_processing_queue() {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-retain-cycles"
     self.completionBlock = ^ {
-        dispatch_async(image_request_operation_processing_queue(), ^(void) {
+        dispatch_async(imagerequest_operation_processing_queue(), ^(void) {
             if (self.error) {
                 if (failure) {
-                    dispatch_async(self.failureCallbackQueue ?: dispatch_get_main_queue(), ^{
+                    dispatch_async(self.failureCallbackQueue ?: dispatchget_main_queue(), ^{
                         failure(self, self.error);
                     });
                 }
@@ -220,7 +220,7 @@ static dispatch_queue_t image_request_operation_processing_queue() {
 
                     image = self.responseImage;
 
-                    dispatch_async(self.successCallbackQueue ?: dispatch_get_main_queue(), ^{
+                    dispatch_async(self.successCallbackQueue ?: dispatchget_main_queue(), ^{
                         success(self, image);
                     });
                 }

@@ -27,7 +27,7 @@
 //   <gs:rowCount>100</gs:rowCount>
 //   <gs:colCount>100</gs:colCount>
 //
-// http://code.google.com/apis/spreadsheets/reference.html#gs_reference
+// http://code.google.com/apis/spreadsheets/reference.html#gsreference
 
 @implementation GDataColumnCount
 

@@ -18,7 +18,7 @@ enum STREAM_KIND {
 	   
 	UITextField *gameName; 
 	NSString *currentGameFileName; 
-	UIView *_renderView; 
+	UIView *renderView; 
 	
 	// Create directory 
 	NSOutputStream *            _createDirNetworkStream;

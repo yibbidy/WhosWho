@@ -29,8 +29,8 @@
 
 + (void)load
 {
-    RKlcl_configure_by_name("RestKit*", RKLogLevelDefault);
-    RKlcl_configure_by_name("App", RKLogLevelDefault);
+    RKlcl_configure_byname("RestKit*", RKLogLevelDefault);
+    RKlcl_configure_byname("App", RKLogLevelDefault);
     RKLogInfo(@"RestKit logging initialized...");
 }
 

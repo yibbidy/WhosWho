@@ -13,7 +13,7 @@ enum {
 	UIPopoverController *popoverController;   
 	UITextField *gameName; 
 	NSString *currentGameFileName; 
-	UIView *_renderView; 
+	UIView *renderView; 
 	
 
 	// List 

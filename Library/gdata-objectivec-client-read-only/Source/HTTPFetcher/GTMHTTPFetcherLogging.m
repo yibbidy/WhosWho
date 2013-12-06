@@ -520,7 +520,7 @@ static NSString* gLoggingProcessName = nil;
     NSString *responseDataExtn = nil;
 
     // generate a response file base name like
-    responseBaseName = [NSString stringWithFormat:@"fetch_%d_response",
+    responseBaseName = [NSString stringWithFormat:@"fetch_%dresponse",
                         responseCounter];
 
     NSString *responseType = [responseHeaders valueForKey:@"Content-Type"];

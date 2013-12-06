@@ -77,13 +77,13 @@ void Camera::FlyToPhoto(const glm::vec3 * inCorners, float inWindowAspect, const
 Camera::Camera(const glm::vec3 & inPos, const glm::vec3 & inLookAt, const glm::vec3 & inUp, float inFovY,
                    const glm::vec2 inNearFarDist, const glm::ivec4 & inViewport, const glm::ivec2 & inWindowSize)
 {
-    _pos = inPos;
-    _lookAt = inLookAt;
-    _up = inUp;
-    _fovXY[1] = inFovY;
+    pos = inPos;
+    lookAt = inLookAt;
+    up = inUp;
+    fovXY[1] = inFovY;
     
-    _viewport = inViewport;
-    _viewportAspect = inViewport[2] / float(inViewport[3]);
+    viewport = inViewport;
+    viewportAspect = inViewport[2] / float(inViewport[3]);
     
     _windowSize = inWindowSize;
     _windowAspect = _windowSize[0] / float(_windowSize[1]);
@@ -91,21 +91,21 @@ Camera::Camera(const glm::vec3 & inPos, const glm::vec3 & inLookAt, const glm::v
     _nearFarDist = inNearFarDist;
     
     
-    _viewMat = glm::mat4x3(glm::lookAt(inPos, inLookAt, inUp));
-    _viewInvMat = glm::affineInverse(_viewMat);
+    viewMat = glm::mat4x3(glm::lookAt(inPos, inLookAt, inUp));
+    _viewInvMat = glm::affineInverse(viewMat);
     
-    float halfNearPlaneHeight = _nearFarDist[0] * glm::tan(glm::radians(_fovXY[1])*0.5f);
-    float halfNearPlaneWidth = halfNearPlaneHeight * _viewportAspect;
-	_fovXY[0] = glm::degrees(2.0f * glm::atan(halfNearPlaneWidth / _nearFarDist[0]));
+    float halfNearPlaneHeight = _nearFarDist[0] * glm::tan(glm::radians(fovXY[1])*0.5f);
+    float halfNearPlaneWidth = halfNearPlaneHeight * viewportAspect;
+	fovXY[0] = glm::degrees(2.0f * glm::atan(halfNearPlaneWidth / _nearFarDist[0]));
 	
-    _projectionMat = glm::perspective(inFovY, _viewportAspect, _nearFarDist[0], inNearFarDist[1]);
-    _projectionInvMat = glm::inverse(_projectionMat);
+    projMat = glm::perspective(inFovY, viewportAspect, _nearFarDist[0], inNearFarDist[1]);
+    _projectionInvMat = glm::inverse(projMat);
     
-    _vpMat = _projectionMat * _viewportMat;
-    _vpMatInv = glm::inverse(_vpMat);
+    vpMat = projMat * viewportMat;
+    vpMatInv = glm::inverse(vpMat);
     
-    _viewportMat = glm::viewportMatrix<float>(_viewport);
-    _viewportInvMat = glm::affineInverse(_viewportMat);
+    viewportMat = glm::viewportMatrix<float>(viewport);
+    viewportInvMat = glm::affineInverse(viewportMat);
     
     
     

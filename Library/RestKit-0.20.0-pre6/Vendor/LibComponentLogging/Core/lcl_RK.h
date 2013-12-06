@@ -128,7 +128,7 @@ typedef uint8_t  _RKlcl_level_narrow_t;
 
 // Log components, prefixed with 'RKlcl_c'.
 enum _RKlcl_enum_component_t {
-#   define  _RKlcl_component(_identifier, _header, _name)                        \
+#   define  _RKlcl_component(_identifier, _header, name)                        \
     RKlcl_c##_identifier,                                                        \
   __RKlcl_log_symbol_RKlcl_c##_identifier = RKlcl_c##_identifier,
 #   include "lcl_config_components_RK.h"
@@ -261,7 +261,7 @@ uint32_t RKlcl_configure_by_identifier(const char *identifier, _RKlcl_level_t le
 //
 uint32_t RKlcl_configure_by_header(const char *header, _RKlcl_level_t level);
 
-// RKlcl_configure_by_name(<name>, <level>)
+// RKlcl_configure_byname(<name>, <level>)
 //
 // <name>     : a log component's name with optional '*' wildcard suffix
 // <level>    : a log level with prefix 'RKlcl_v'
@@ -269,7 +269,7 @@ uint32_t RKlcl_configure_by_header(const char *header, _RKlcl_level_t level);
 // Configures the given log level for the given log component(s).
 // Returns the number of configured log components, or 0 on failure.
 //
-uint32_t RKlcl_configure_by_name(const char *name, _RKlcl_level_t level);
+uint32_t RKlcl_configure_byname(const char *name, _RKlcl_level_t level);
 
 
 //
@@ -287,7 +287,7 @@ extern const char * const _RKlcl_component_identifier[_RKlcl_component_t_count];
 extern const char * const _RKlcl_component_header[_RKlcl_component_t_count];
 
 // Log component names, indexed by log component.
-extern const char * const _RKlcl_component_name[_RKlcl_component_t_count];
+extern const char * const _RKlcl_componentname[_RKlcl_component_t_count];
 
 // Log level headers, indexed by log level.
 extern const char * const _RKlcl_level_header[_RKlcl_level_t_count];   // full header
@@ -295,7 +295,7 @@ extern const char * const _RKlcl_level_header_1[_RKlcl_level_t_count]; // header
 extern const char * const _RKlcl_level_header_3[_RKlcl_level_t_count]; // header with 3 characters
 
 // Log level names, indexed by log level.
-extern const char * const _RKlcl_level_name[_RKlcl_level_t_count];
+extern const char * const _RKlcl_levelname[_RKlcl_level_t_count];
 
 // Version.
 extern const char * const _RKlcl_version;

@@ -134,24 +134,24 @@ static inline BOOL AFStateTransitionIsValid(AFOperationState fromState, AFOperat
 @synthesize state = _state;
 @synthesize cancelled = _cancelled;
 @synthesize connection = _connection;
-@synthesize runLoopModes = _runLoopModes;
-@synthesize request = _request;
-@synthesize response = _response;
+@synthesize runLoopModes = runLoopModes;
+@synthesize request = request;
+@synthesize response = response;
 @synthesize error = _error;
-@synthesize responseData = _responseData;
-@synthesize responseString = _responseString;
-@synthesize responseStringEncoding = _responseStringEncoding;
+@synthesize responseData = responseData;
+@synthesize responseString = responseString;
+@synthesize responseStringEncoding = responseStringEncoding;
 @synthesize totalBytesRead = _totalBytesRead;
 @dynamic inputStream;
 @synthesize outputStream = _outputStream;
 @synthesize userInfo = _userInfo;
 @synthesize backgroundTaskIdentifier = _backgroundTaskIdentifier;
-@synthesize uploadProgress = _uploadProgress;
+@synthesize uploadProgress = uploadProgress;
 @synthesize downloadProgress = _downloadProgress;
 @synthesize authenticationAgainstProtectionSpace = _authenticationAgainstProtectionSpace;
 @synthesize authenticationChallenge = _authenticationChallenge;
 @synthesize cacheResponse = _cacheResponse;
-@synthesize redirectResponse = _redirectResponse;
+@synthesize redirectResponse = redirectResponse;
 @synthesize lock = _lock;
 
 + (void) __attribute__((noreturn)) networkRequestThreadEntryPoint:(id)__unused object {
@@ -235,9 +235,9 @@ static inline BOOL AFStateTransitionIsValid(AFOperationState fromState, AFOperat
     if (!block) {
         [super setCompletionBlock:nil];
     } else {
-        __weak __typeof(&*self)weakSelf = self;
+        __weak _typeof(&*self)weakSelf = self;
         [super setCompletionBlock:^ {
-            __strong __typeof(&*weakSelf)strongSelf = weakSelf;
+            __strong _typeof(&*weakSelf)strongSelf = weakSelf;
 			
             block();
             [strongSelf setCompletionBlock:nil];
@@ -276,9 +276,9 @@ static inline BOOL AFStateTransitionIsValid(AFOperationState fromState, AFOperat
     [self.lock lock];
     if (!self.backgroundTaskIdentifier) {    
         UIApplication *application = [UIApplication sharedApplication];
-        __weak __typeof(&*self)weakSelf = self;
+        __weak _typeof(&*self)weakSelf = self;
         self.backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:^{
-            __strong __typeof(&*weakSelf)strongSelf = weakSelf;
+            __strong _typeof(&*weakSelf)strongSelf = weakSelf;
             
             if (handler) {
                 handler();
@@ -332,7 +332,7 @@ static inline BOOL AFStateTransitionIsValid(AFOperationState fromState, AFOperat
         [self didChangeValueForKey:oldStateKey];
         [self didChangeValueForKey:newStateKey];
         
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatchget_main_queue(), ^{
             switch (state) {
                 case AFOperationExecutingState:
                     [[NSNotificationCenter defaultCenter] postNotificationName:AFNetworkingOperationDidStartNotification object:self];
@@ -350,17 +350,17 @@ static inline BOOL AFStateTransitionIsValid(AFOperationState fromState, AFOperat
 
 - (NSString *)responseString {
     [self.lock lock];
-    if (!_responseString && self.response && self.responseData) {
+    if (!responseString && self.response && self.responseData) {
         self.responseString = [[NSString alloc] initWithData:self.responseData encoding:self.responseStringEncoding];
     }
     [self.lock unlock];
     
-    return _responseString;
+    return responseString;
 }
 
 - (NSStringEncoding)responseStringEncoding {
     [self.lock lock];
-    if (!_responseStringEncoding) {
+    if (!responseStringEncoding) {
         NSStringEncoding stringEncoding = NSUTF8StringEncoding;
         if (self.response.textEncodingName) {
             CFStringEncoding IANAEncoding = CFStringConvertIANACharSetNameToEncoding((__bridge CFStringRef)self.response.textEncodingName);
@@ -373,7 +373,7 @@ static inline BOOL AFStateTransitionIsValid(AFOperationState fromState, AFOperat
     }
     [self.lock unlock];
     
-    return _responseStringEncoding;
+    return responseStringEncoding;
 }
 
 - (void)pause {
@@ -386,7 +386,7 @@ static inline BOOL AFStateTransitionIsValid(AFOperationState fromState, AFOperat
     if ([self isExecuting]) {
         [self.connection performSelector:@selector(cancel) onThread:[[self class] networkRequestThread] withObject:nil waitUntilDone:NO modes:[self.runLoopModes allObjects]];
         
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatchget_main_queue(), ^{
             [[NSNotificationCenter defaultCenter] postNotificationName:AFNetworkingOperationDidFinishNotification object:self];
         });
     }
@@ -585,7 +585,7 @@ didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 {
     if (self.uploadProgress) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatchget_main_queue(), ^{
             self.uploadProgress((NSUInteger)bytesWritten, totalBytesWritten, totalBytesExpectedToWrite);
         });
     }
@@ -610,7 +610,7 @@ didReceiveResponse:(NSURLResponse *)response
     }
     
     if (self.downloadProgress) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatchget_main_queue(), ^{
             self.downloadProgress([data length], self.totalBytesRead, self.response.expectedContentLength);
         });
     }

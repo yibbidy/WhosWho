@@ -24,7 +24,7 @@
 // For rowCount and colCount, like:
 //   <gs:rowCount>100</gs:rowCount>
 //
-// http://code.google.com/apis/spreadsheets/reference.html#gs_reference
+// http://code.google.com/apis/spreadsheets/reference.html#gsreference
 
 @interface GDataRowColumnCount : GDataObject <NSCopying> {
   NSInteger count_;

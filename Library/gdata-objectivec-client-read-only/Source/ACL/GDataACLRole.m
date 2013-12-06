@@ -29,7 +29,7 @@
 // an element with a value attribute, as in
 //  <gAcl:role value='owner'></gAcl:role>
 //
-//  http://code.google.com/apis/calendar/reference.html#gacl_reference
+//  http://code.google.com/apis/calendar/reference.html#gaclreference
 
 + (NSString *)extensionElementURI       { return kGDataNamespaceACL; }
 + (NSString *)extensionElementPrefix    { return kGDataNamespaceACLPrefix; }

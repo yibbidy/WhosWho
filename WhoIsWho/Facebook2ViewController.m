@@ -18,7 +18,7 @@
 @end
 
 static NSString *fbEmail= @"email";
-static NSString *fbUserPhotos = @"user_photos";
+static NSString *fbUserPhotos = @"userphotos";
 
 @implementation Facebook2ViewController
 
@@ -147,7 +147,7 @@ static NSString *fbUserPhotos = @"user_photos";
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         _selectedAlbumPhotos = [[NSMutableArray alloc] init];
-        _selectedPhotoIndexArray = [[NSMutableArray alloc] init]; 
+        _selectedPhotoIndexArray = [[NSMutableArray alloc] init];
     }
     return self;
 }
@@ -273,7 +273,7 @@ static NSString *fbUserPhotos = @"user_photos";
 }
 - (IBAction)getAlbumClicked:(id)sender
 {
-    if ([FBSession.activeSession.permissions indexOfObject:@"user_photos"] != NSNotFound) {
+    if ([FBSession.activeSession.permissions indexOfObject:@"userphotos"] != NSNotFound) {
         
         
         [FBRequestConnection startWithGraphPath:@"/me/albums"
@@ -572,8 +572,8 @@ static NSString *fbUserPhotos = @"user_photos";
 - (void) photoImageViewPressed:(UITapGestureRecognizer *)recoginizer {
     NSUInteger index = recoginizer.view.tag;
     
-  //  if (index < _images.count) {
-    //    NSDictionary *photo = _images[recoginizer.view.tag];
+  //  if (index < images.count) {
+    //    NSDictionary *photo = images[recoginizer.view.tag];
       //  [self.delegate facebookPhotoGridTableViewCell:self didSelectPhoto:photo withPreviewImage:[(UIImageView *)recoginizer.view image]];
    // }
 }

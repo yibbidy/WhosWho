@@ -41,7 +41,7 @@ _EXTERN NSString* const kGDataScopeTypeGroup   _INITIALIZE_AS(@"group");
 // an element with type and value attributes, as in
 //  <gAcl:scope type='user' value='user@gmail.com'></gAcl:scope>
 //
-//  http://code.google.com/apis/calendar/reference.html#gacl_reference
+//  http://code.google.com/apis/calendar/reference.html#gaclreference
 
 @interface GDataACLScope : GDataObject <GDataExtension> 
 

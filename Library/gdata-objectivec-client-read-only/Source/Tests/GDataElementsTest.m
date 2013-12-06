@@ -22,7 +22,7 @@
 #import "GData.h"
 #import "GDataElementsTest.h"
 
-#define typeof __typeof__ // fixes http://www.brethorsting.com/blog/2006/02/stupid-issue-with-ocunit.html
+#define typeof _typeof__ // fixes http://www.brethorsting.com/blog/2006/02/stupid-issue-with-ocunit.html
 
 @implementation GDataElementsTest
 
@@ -42,7 +42,7 @@
                         " xmlns:media='http://search.yahoo.com/mrss/'" 
                         " xmlns:gphoto='http://schemas.google.com/photos/2007'"
                         " xmlns:exif='http://schemas.google.com/photos/exif/2007'"
-                        " xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#'"
+                        " xmlns:geo='http://www.w3.org/2003/01/geo/wgs84pos#'"
                         " xmlns:georss='http://www.georss.org/georss'"
                         " xmlns:gml='http://www.opengis.net/gml' ";
   

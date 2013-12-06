@@ -30,7 +30,7 @@ NSString *gOriginalGameName;
     UIImagePickerController *imagePickerController;
     PicasaViewController *picasaController;
     //Facebook2ViewController *facebookController;
-    float _rotation;
+    float rotation;
     
     UIPopoverController *popoverController;
     IBOutlet UIBarButtonItem *gameDoneButton;

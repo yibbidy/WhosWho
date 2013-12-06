@@ -161,7 +161,7 @@ static void *RKHTTPRequestOperationStartDate = &RKHTTPRequestOperationStartDate;
         return;
     }
     
-    NSTimeInterval elapsedTime = [[NSDate date] timeIntervalSinceDate:objc_getAssociatedObject(operation, RKHTTPRequestOperationStartDate)];
+    NSTimeInterval elapsedTime = [[NSDate date] timeIntervalSinceDate:objcgetAssociatedObject(operation, RKHTTPRequestOperationStartDate)];
     
     NSString *statusCodeString = RKStringFromStatusCode([operation.response statusCode]);
     NSString *elapsedTimeString = [NSString stringWithFormat:@"[%.04f s]", elapsedTime];

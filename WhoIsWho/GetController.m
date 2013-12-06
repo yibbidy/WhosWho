@@ -18,8 +18,8 @@ static NSString *userName = @"Justin";
 
 @synthesize connection    = _connection;
 
-@synthesize getFileStream   = _getFileStream; 
-@synthesize getNetworkStream = _getNetworkStream; 
+@synthesize getFileStream   = getFileStream; 
+@synthesize getNetworkStream = getNetworkStream; 
 
 
 @synthesize bufferOffset  = _bufferOffset;
@@ -136,7 +136,7 @@ static NSString *userName = @"Justin";
 		
 		// Tell the UI we're receiving.
 		
-		//[self _receiveDidStart];
+		//[self receiveDidStart];
 		
 #if 0 
 		NSString *documentsDirectory = [paths objectAtIndex:0];
@@ -246,7 +246,7 @@ static NSString *userName = @"Justin";
         [self.getFileStream close];
         self.getFileStream = nil;
     }
-    //[self _receiveDidStopWithStatus:statusString];
+    //[self receiveDidStopWithStatus:statusString];
     //self.filePath = nil;
 }
 

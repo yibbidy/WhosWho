@@ -739,9 +739,9 @@ static NSString *RKMIMETypeFromAFHTTPClientParameterEncoding(AFHTTPClientParamet
                                      progress:(void (^)(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations))progress
                                    completion:(void (^)(NSArray *operations))completion {
 
-    __block dispatch_group_t dispatchGroup = dispatch_group_create();
+    __block dispatchgroup_t dispatchGroup = dispatchgroup_create();
     NSBlockOperation *batchedOperation = [NSBlockOperation blockOperationWithBlock:^{
-        dispatch_group_notify(dispatchGroup, dispatch_get_main_queue(), ^{
+        dispatchgroup_notify(dispatchGroup, dispatchget_main_queue(), ^{
             if (completion) {
                 completion(operations);
             }
@@ -752,8 +752,8 @@ static NSString *RKMIMETypeFromAFHTTPClientParameterEncoding(AFHTTPClientParamet
         void (^originalCompletionBlock)(void) = [operation.completionBlock copy];
         __weak RKObjectRequestOperation *weakOperation = operation;
         [operation setCompletionBlock:^{
-            dispatch_queue_t queue = weakOperation.successCallbackQueue ?: dispatch_get_main_queue();
-            dispatch_group_async(dispatchGroup, queue, ^{
+            dispatch_queue_t queue = weakOperation.successCallbackQueue ?: dispatchget_main_queue();
+            dispatchgroup_async(dispatchGroup, queue, ^{
                 if (originalCompletionBlock) {
                     originalCompletionBlock();
                 }
@@ -769,11 +769,11 @@ static NSString *RKMIMETypeFromAFHTTPClientParameterEncoding(AFHTTPClientParamet
                     progress(numberOfFinishedOperations, [operations count]);
                 }
 
-                dispatch_group_leave(dispatchGroup);
+                dispatchgroup_leave(dispatchGroup);
             });
         }];
 
-        dispatch_group_enter(dispatchGroup);
+        dispatchgroup_enter(dispatchGroup);
         [batchedOperation addDependency:operation];
 
         [self enqueueObjectRequestOperation:operation];

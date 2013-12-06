@@ -190,7 +190,7 @@ static const char _httpDate_key_spans[] = {
     84,  1,  1, 79,  1,  0,  0,  0
 };
 
-static const short _httpDate_index_offsets[] = {
+static const short _httpDateindex_offsets[] = {
     0,    0,   19,   21,   23,   93,  113,  120,  122,  124,  151,  162,  164,  175,  186,  188,  199,
     210,  212,  223,  234,  236,  247,  258,  269,  280,  282,  284,  286,  288,  290,  312,  314,  318,
     320,  329,  331,  333,  335,  337,  339,  341,  343,  354,  365,  367,  387,  394,  396,  398,  409,
@@ -330,9 +330,9 @@ static NSDate *_parseHTTPDate(const char *buf, size_t bufLen) {
         const char *_keys;
         const unsigned char *_inds;
         if(p  == pe) { goto _test_eof; }
-    _resume:
+    resume:
         _keys  = _httpDate_trans_keys + (cs << 1);
-        _inds  = _httpDate_indicies   + _httpDate_index_offsets[cs];
+        _inds  = _httpDate_indicies   + _httpDateindex_offsets[cs];
         _slen  = _httpDate_key_spans[cs];
         _trans = _inds[(_slen > 0) && (_keys[0] <= (*p)) && ((*p) <= _keys[1]) ? (*p) - _keys[0] : _slen];
         cs     = _httpDate_trans_targs[_trans];
@@ -362,7 +362,7 @@ static NSDate *_parseHTTPDate(const char *buf, size_t bufLen) {
         
     _again:
         if(  cs ==  0) { goto _out;    }
-        if(++p  != pe) { goto _resume; }
+        if(++p  != pe) { goto resume; }
     _test_eof: {}
         if(p == eof) {
             switch(_httpDate_eof_actions[cs]) {

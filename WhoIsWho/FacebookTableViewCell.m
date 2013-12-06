@@ -35,7 +35,7 @@
             [imageView addGestureRecognizer:tap];
             imageView.userInteractionEnabled = YES;
             [_imageViews addObject:imageView];
-            _selectedImageIndex[i] = [NSNumber numberWithInt:-1]; 
+            _selectedImageIndex[i] = [NSNumber numberWithInt:-1];
             
         }
     }
@@ -54,7 +54,7 @@
     for (int i = 0; i <[imageCollection count] && i<kNumberOfImages; i++) {
         UIImage *image = _images[i];
         if (image)  {
-            UIImageView *imageView  = _imageViews[i]; 
+            UIImageView *imageView  = _imageViews[i];
             imageView.image = image;
         }
      }

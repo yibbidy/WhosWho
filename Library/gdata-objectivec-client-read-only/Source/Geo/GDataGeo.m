@@ -25,7 +25,7 @@
 #include <math.h>
 
 // http://www.w3.org/2003/01/geo/
-// xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
+// xmlns:geo="http://www.w3.org/2003/01/geo/wgs84pos#"
 //  <geo:Point>
 //    <geo:lat>55.701</geo:lat>
 //    <geo:long>12.552</geo:long>

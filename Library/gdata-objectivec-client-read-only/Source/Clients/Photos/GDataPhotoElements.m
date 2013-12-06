@@ -19,7 +19,7 @@
 
 #if !GDATA_REQUIRE_SERVICE_INCLUDES || GDATA_INCLUDE_PHOTOS_SERVICE
 
-// http://code.google.com/apis/picasaweb/reference.html#gphoto_reference
+// http://code.google.com/apis/picasaweb/reference.html#gphotoreference
 
 #define GDATAPHOTOELEMENTS_DEFINE_GLOBALS 1
 #import "GDataPhotoElements.h"

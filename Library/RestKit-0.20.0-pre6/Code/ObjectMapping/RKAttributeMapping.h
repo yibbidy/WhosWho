@@ -38,7 +38,7 @@
  The next most common use-case is the transformation of identical data between two different key paths in the
  source and destination objects. This is typically encountered when you wish to transform inbound data to conform with the naming
  conventions of the platform or the data model of your application. An example of this type of transformation would be from the
- source key path of `first_name` to the destination key path of `firstName`. In this transformation, the key paths have diverged
+ source key path of `firstname` to the destination key path of `firstName`. In this transformation, the key paths have diverged
  but both sides of the mapping correspond to NSString properties.
 
  The final type of transformation to be specified via an attribute mapping involves the transformation between types in the mapping.

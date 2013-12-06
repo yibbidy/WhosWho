@@ -28,15 +28,15 @@ int GLData::Init()
         GLchar * vSource = (GLchar *)[[NSString stringWithContentsOfFile:vertShaderPathname encoding:NSUTF8StringEncoding error:nil] UTF8String];
         GLchar * fSource = (GLchar *)[[NSString stringWithContentsOfFile:fragShaderPathname encoding:NSUTF8StringEncoding error:nil] UTF8String];
         
-        errorCode = GFX_LoadGLSLProgram(vSource, fSource, gGLData._photoProgram._program,
-                                  eGLSLBindingAttribute, "inPosition", &gGLData._photoProgram._positionLoc,
-                                  eGLSLBindingAttribute, "inUV", &gGLData._photoProgram._uvLoc,
-                                  eGLSLBindingUniform, "kMVPMat", &gGLData._photoProgram._mvpLoc,
-                                  eGLSLBindingUniform, "kScale", &gGLData._photoProgram._scaleLoc,
-                                  eGLSLBindingUniform, "kImageTex", &gGLData._photoProgram._imageTexLoc,
-                                  eGLSLBindingUniform, "kImageAlpha", &gGLData._photoProgram._imageAlphaLoc,
-                                  eGLSLBindingUniform, "kMaskTex", &gGLData._photoProgram._maskTexLoc,
-                                  eGLSLBindingUniform, "kMaskWeight", &gGLData._photoProgram._maskWeightLoc,
+        errorCode = GFX_LoadGLSLProgram(vSource, fSource, gGLData.photoProgram.program,
+                                  eGLSLBindingAttribute, "inPosition", &gGLData.photoProgram.positionLoc,
+                                  eGLSLBindingAttribute, "inUV", &gGLData.photoProgram.uvLoc,
+                                  eGLSLBindingUniform, "kMVPMat", &gGLData.photoProgram.mvpLoc,
+                                  eGLSLBindingUniform, "kScale", &gGLData.photoProgram.scaleLoc,
+                                  eGLSLBindingUniform, "kImageTex", &gGLData.photoProgram.imageTexLoc,
+                                  eGLSLBindingUniform, "kImageAlpha", &gGLData.photoProgram.imageAlphaLoc,
+                                  eGLSLBindingUniform, "kMaskTex", &gGLData.photoProgram.maskTexLoc,
+                                  eGLSLBindingUniform, "kMaskWeight", &gGLData.photoProgram.maskWeightLoc,
                                   eGLSLBindingEnd);
     }
 
@@ -47,88 +47,88 @@ int GLData::Init()
         GLchar * vSource = (GLchar *)[[NSString stringWithContentsOfFile:vertShaderPathname encoding:NSUTF8StringEncoding error:nil] UTF8String];
         GLchar * fSource = (GLchar *)[[NSString stringWithContentsOfFile:fragShaderPathname encoding:NSUTF8StringEncoding error:nil] UTF8String];
         
-        errorCode = GFX_LoadGLSLProgram(vSource, fSource, gGLData._colorProgram._program,
-                                  eGLSLBindingAttribute, "inPosition", &gGLData._colorProgram._positionLoc,
-                                  eGLSLBindingAttribute, "inUV", &gGLData._colorProgram._uvLoc,
-                                  eGLSLBindingUniform, "kMVPMat", &gGLData._colorProgram._mvpMatLoc,
-                                  eGLSLBindingUniform, "kColor", &gGLData._colorProgram._colorLoc,
-                                  eGLSLBindingUniform, "kImageTexture", &gGLData._colorProgram._imageTexture,
-                                  eGLSLBindingUniform, "kImageWeight", &gGLData._colorProgram._imageWeight,
+        errorCode = GFX_LoadGLSLProgram(vSource, fSource, gGLData.colorProgram.program,
+                                  eGLSLBindingAttribute, "inPosition", &gGLData.colorProgram.positionLoc,
+                                  eGLSLBindingAttribute, "inUV", &gGLData.colorProgram.uvLoc,
+                                  eGLSLBindingUniform, "kMVPMat", &gGLData.colorProgram.mvpMatLoc,
+                                  eGLSLBindingUniform, "kColor", &gGLData.colorProgram.colorLoc,
+                                  eGLSLBindingUniform, "kImageTexture", &gGLData.colorProgram.imageTexture,
+                                  eGLSLBindingUniform, "kImageWeight", &gGLData.colorProgram.imageWeight,
                                   eGLSLBindingEnd);
     }
 
     if( !errorCode ) {  // generate vbos and vaos
         
         // generate the vbo and vao for disk
-        glGenVertexArraysOES(1, &gGLData._diskVAO);
-        glBindVertexArrayOES(gGLData._diskVAO);
+        glGenVertexArraysOES(1, &gGLData.diskVAO);
+        glBindVertexArrayOES(gGLData.diskVAO);
         
-        glGenBuffers(1, &gGLData._diskVBO);
-        glBindBuffer(GL_ARRAY_BUFFER, gGLData._diskVBO);
+        glGenBuffers(1, &gGLData.diskVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, gGLData.diskVBO);
         std::vector<float> verts, normals, texCoords;
         GEO_GenerateDisc(-90, 270, who::kR0, who::kR1, 0, 64, verts, normals, texCoords, 0);
-        gGLData._diskNumVertices = verts.size()/3;
+        gGLData.diskNumVertices = verts.size()/3;
         unsigned int size = verts.size()*sizeof(float);
         glBufferData(GL_ARRAY_BUFFER, size, &verts[0], GL_STATIC_DRAW);
-        glEnableVertexAttribArray(gGLData._colorProgram._positionLoc);
-        glVertexAttribPointer(gGLData._colorProgram._positionLoc, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), BUFFER_OFFSET(0));
+        glEnableVertexAttribArray(gGLData.colorProgram.positionLoc);
+        glVertexAttribPointer(gGLData.colorProgram.positionLoc, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), BUFFER_OFFSET(0));
         
         
-        glGenVertexArraysOES(1, &gGLData._diskInnerEdgeVAO);
-        glBindVertexArrayOES(gGLData._diskInnerEdgeVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, gGLData._diskVBO);
-        glEnableVertexAttribArray(gGLData._colorProgram._positionLoc);
-        glVertexAttribPointer(gGLData._colorProgram._positionLoc, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(0));
+        glGenVertexArraysOES(1, &gGLData.diskInnerEdgeVAO);
+        glBindVertexArrayOES(gGLData.diskInnerEdgeVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, gGLData.diskVBO);
+        glEnableVertexAttribArray(gGLData.colorProgram.positionLoc);
+        glVertexAttribPointer(gGLData.colorProgram.positionLoc, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(0));
         
-        glGenVertexArraysOES(1, &gGLData._diskOuterEdgeVAO);
-        glBindVertexArrayOES(gGLData._diskOuterEdgeVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, gGLData._diskVBO);
-        glEnableVertexAttribArray(gGLData._colorProgram._positionLoc);
-        glVertexAttribPointer(gGLData._colorProgram._positionLoc, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3*sizeof(float)));
+        glGenVertexArraysOES(1, &gGLData.diskOuterEdgeVAO);
+        glBindVertexArrayOES(gGLData.diskOuterEdgeVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, gGLData.diskVBO);
+        glEnableVertexAttribArray(gGLData.colorProgram.positionLoc);
+        glVertexAttribPointer(gGLData.colorProgram.positionLoc, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3*sizeof(float)));
         
         
-        glGenVertexArraysOES(1, &gGLData._squareVAO);
-        glBindVertexArrayOES(gGLData._squareVAO);
+        glGenVertexArraysOES(1, &gGLData.squareVAO);
+        glBindVertexArrayOES(gGLData.squareVAO);
         GEO_GenerateRectangle(1, 1, verts, normals, texCoords);
-        glGenBuffers(1, &gGLData._squareVBO);
-        glBindBuffer(GL_ARRAY_BUFFER, gGLData._squareVBO);
+        glGenBuffers(1, &gGLData.squareVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, gGLData.squareVBO);
         glBufferData(GL_ARRAY_BUFFER, verts.size()*sizeof(float)+texCoords.size()*sizeof(float), 0, GL_STATIC_DRAW);
         
         glBufferSubData(GL_ARRAY_BUFFER, 0, verts.size()*sizeof(float), &verts[0]);
         glBufferSubData(GL_ARRAY_BUFFER, verts.size()*sizeof(float), texCoords.size()*sizeof(float), &texCoords[0]);
         
-        glGenBuffers(1, &gGLData._squareIBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gGLData._squareIBO);
+        glGenBuffers(1, &gGLData.squareIBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gGLData.squareIBO);
         int indices[] = { 0, 1, 2, 3 };
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4*sizeof(int), indices, GL_STATIC_DRAW);
         
-        glEnableVertexAttribArray(gGLData._photoProgram._positionLoc);
-        glVertexAttribPointer(gGLData._photoProgram._positionLoc, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), BUFFER_OFFSET(0));
-        glEnableVertexAttribArray(gGLData._photoProgram._uvLoc);
-        glVertexAttribPointer(gGLData._photoProgram._uvLoc, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), BUFFER_OFFSET(verts.size()*sizeof(float)));
+        glEnableVertexAttribArray(gGLData.photoProgram.positionLoc);
+        glVertexAttribPointer(gGLData.photoProgram.positionLoc, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), BUFFER_OFFSET(0));
+        glEnableVertexAttribArray(gGLData.photoProgram.uvLoc);
+        glVertexAttribPointer(gGLData.photoProgram.uvLoc, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), BUFFER_OFFSET(verts.size()*sizeof(float)));
         
         
-        glGenVertexArraysOES(1, &gGLData._squareEdgeVAO);
-        glBindVertexArrayOES(gGLData._squareEdgeVAO);
-        glGenBuffers(1, &gGLData._squareEdgeIBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gGLData._squareEdgeIBO);
+        glGenVertexArraysOES(1, &gGLData.squareEdgeVAO);
+        glBindVertexArrayOES(gGLData.squareEdgeVAO);
+        glGenBuffers(1, &gGLData.squareEdgeIBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gGLData.squareEdgeIBO);
         int indices2[] = { 0, 1, 3, 2 };
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int)*4, &indices2[0], GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, gGLData._squareVBO);
-        glEnableVertexAttribArray(gGLData._colorProgram._positionLoc);
-        glVertexAttribPointer(gGLData._colorProgram._positionLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, gGLData.squareVBO);
+        glEnableVertexAttribArray(gGLData.colorProgram.positionLoc);
+        glVertexAttribPointer(gGLData.colorProgram.positionLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
         
         
-        glGenVertexArraysOES(1, &gGLData._faceListVAO);
-        glBindVertexArrayOES(gGLData._faceListVAO);
+        glGenVertexArraysOES(1, &gGLData.faceListVAO);
+        glBindVertexArrayOES(gGLData.faceListVAO);
         
-        glBindBuffer(GL_ARRAY_BUFFER, gGLData._squareVBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gGLData._squareIBO);
+        glBindBuffer(GL_ARRAY_BUFFER, gGLData.squareVBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gGLData.squareIBO);
         
-        glEnableVertexAttribArray(gGLData._colorProgram._positionLoc);
-        glVertexAttribPointer(gGLData._colorProgram._positionLoc, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), BUFFER_OFFSET(0));
-        glEnableVertexAttribArray(gGLData._colorProgram._uvLoc);
-        glVertexAttribPointer(gGLData._colorProgram._uvLoc, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), BUFFER_OFFSET(verts.size()*sizeof(float)));
+        glEnableVertexAttribArray(gGLData.colorProgram.positionLoc);
+        glVertexAttribPointer(gGLData.colorProgram.positionLoc, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), BUFFER_OFFSET(0));
+        glEnableVertexAttribArray(gGLData.colorProgram.uvLoc);
+        glVertexAttribPointer(gGLData.colorProgram.uvLoc, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), BUFFER_OFFSET(verts.size()*sizeof(float)));
         
         glBindVertexArrayOES(0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -144,14 +144,14 @@ int GLData::DeInit()
     int errorCode = 0;
     
     // deallocate vbos, vaos, programs
-    glDeleteBuffers(1, &gGLData._diskVBO);
-    glDeleteVertexArraysOES(1, &gGLData._diskVAO);
+    glDeleteBuffers(1, &gGLData.diskVBO);
+    glDeleteVertexArraysOES(1, &gGLData.diskVAO);
 
-    glDeleteBuffers(1, &gGLData._squareVBO);
-    glDeleteVertexArraysOES(1, &gGLData._squareVAO);
+    glDeleteBuffers(1, &gGLData.squareVBO);
+    glDeleteVertexArraysOES(1, &gGLData.squareVAO);
 
-    glDeleteProgram(gGLData._photoProgram._program);
-    glDeleteProgram(gGLData._colorProgram._program);
+    glDeleteProgram(gGLData.photoProgram.program);
+    glDeleteProgram(gGLData.colorProgram.program);
     
     return errorCode;
 }
@@ -165,33 +165,33 @@ void sDrawDrawer(float inDropdownAnim)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    glUseProgram(gGLData._colorProgram._program);
-    glBindVertexArrayOES(gGLData._squareVAO);
-    glUniform4f(gGLData._colorProgram._colorLoc, 0, 0, 1, 1);
-    glUniform1f(gGLData._colorProgram._imageWeight, 0);
-    glUniform1i(gGLData._colorProgram._imageTexture, 0);
+    glUseProgram(gGLData.colorProgram.program);
+    glBindVertexArrayOES(gGLData.squareVAO);
+    glUniform4f(gGLData.colorProgram.colorLoc, 0, 0, 1, 1);
+    glUniform1f(gGLData.colorProgram.imageWeight, 0);
+    glUniform1i(gGLData.colorProgram.imageTexture, 0);
     glActiveTexture(GL_TEXTURE0);
     
     float height = 0.07f;  // world units of drawer backdrop
     float width = 0.1f;
     
-    int currentRingZ = gGame._rings._rings[gGame._rings._currentRing]._stackingOrder;
+    int currentRingZ = gGame.rings.rings[gGame.rings.currentRing].stackingOrder;
     
     glm::vec3 corners[4];
-    ComputeTopPhotoCorners(gGame._rings._rings[gGame._rings._currentRing], corners);
+    ComputeTopPhotoCorners(gGame.rings.rings[gGame.rings.currentRing], corners);
     float top = (who::kR1+who::kR0)*0.5f + corners[2].y;
     width = corners[0].x - corners[1].x;
     float dy = height * glm::abs(glm::sin(inDropdownAnim));
-    glm::mat4 mat = glm::scale(glm::translate(gGame._camera._vpMat, glm::vec3(0, top-dy*0.5f, -currentRingZ+0.001f)),
+    glm::mat4 mat = glm::scale(glm::translate(gGame.camera.vpMat, glm::vec3(0, top-dy*0.5f, -currentRingZ+who::kDepthOffset)),
                                glm::vec3(width, dy, 1));
-    glUniform4f(gGLData._colorProgram._colorLoc, 0.8f, 0.8f, 0.8f, 0.5f);
-    glUniformMatrix4fv(gGLData._colorProgram._mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
+    glUniform4f(gGLData.colorProgram.colorLoc, 0.8f, 0.8f, 0.8f, 0.5f);
+    glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
     
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
     float backgroundHeight = dy;
     
-    int numItems = int(gGame._drawers[gGame._currentDrawer]._photos.size());
+    int numItems = int(gGame.drawers[gGame.currentDrawer].photos.size());
     
     int xSpacing = 0;
     float centerX = -width*0.5f + height*0.5f;
@@ -215,14 +215,22 @@ void sDrawDrawer(float inDropdownAnim)
         dy = height * glm::abs(glm::sin(inDropdownAnim));
     }
     
-    top -= (backgroundHeight/2 - dy/2);
+    top += (-backgroundHeight/2 + dy/2);
     for_i( numItems ) {
-        mat = glm::scale(glm::translate(gGame._camera._vpMat, glm::vec3(centerX, top-dy*0.5f, -currentRingZ+0.01f)),
+        std::string photoName = gGame.drawers[gGame.currentDrawer].photos[i];
+        who::Photo & photo = gGame.photos[photoName];
+        ImageInfo & image = gGame.images[photoName];
+        
+        mat = glm::scale(glm::translate(glm::mat4(1), glm::vec3(centerX, top-dy*0.5f, -currentRingZ+who::kDepthOffset)),
                          glm::vec3(height, dy, 1));
-        glUniform4f(gGLData._colorProgram._colorLoc, 0.8f, 0.8f, 0.8f, 1);
-        glUniformMatrix4fv(gGLData._colorProgram._mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
-        glBindTexture(GL_TEXTURE_2D, gGame._images[gGame._drawers[gGame._currentDrawer]._photos[i]].texID);
-        glUniform1f(gGLData._colorProgram._imageWeight, 1);
+        photo.transform = glm::mat4x3(mat);
+        
+        mat = gGame.camera.vpMat * mat;
+        
+        glUniform4f(gGLData.colorProgram.colorLoc, 0.8f, 0.8f, 0.8f, 1);
+        glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
+        glBindTexture(GL_TEXTURE_2D, image.texID);
+        glUniform1f(gGLData.colorProgram.imageWeight, 1);
         
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         
@@ -239,33 +247,58 @@ int GLData::RenderScene()
 {
     int errorCode = 0;
     
+    //gGame.renderer.ClearColor(glm::vec4(0.65f, 0.65f, 0.65f, 1.0f));
     glClearColor(0.65f, 0.65f, 0.65f, 1.0f);
+    //gGame.renderer.Clear();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-       
-    glm::mat4 mat = gGame._camera._vpMat;
     
-    int currentRingZ = gGame._rings._rings[gGame._rings._currentRing]._stackingOrder;
+    glm::mat4 mat = gGame.camera.vpMat;
+    
+    int currentRingZ = gGame.rings.rings[gGame.rings.currentRing].stackingOrder;
     
     size_t startRingI = size_t(glm::max(currentRingZ-2, 0));
-    size_t endRingI = gGame._rings._rings.size();
+    size_t endRingI = gGame.rings.rings.size();
     
-    if( gGame._camera._zoomed == 1 ) {
+    if( gGame.camera.zoomed == 1 )
+    {
         startRingI = currentRingZ;
         endRingI = startRingI+1;
     }
     
     for( size_t i=startRingI; i < endRingI; i++ ) {
         
-        who::Ring & ring = gGame._rings._rings[gGame._rings._stackingOrder[i]];
+        who::Ring & ring = gGame.rings.rings[gGame.rings.stackingOrder[i]];
         
         glm::mat4 mvMat = glm::translate(mat, glm::vec3(0.0f, 0.0f, -float(i)));
         
-        DrawRing(ring, gGame._camera._zoomed==1, mvMat);
+        DrawRing(ring, gGame.camera.zoomed==1, mvMat);
 
-        if( gGame._currentDrawer != "" && gGame._drawerDropAnim>0 )
-            sDrawDrawer(gGame._drawerDropAnim);
+        if( gGame.currentDrawer != "" && gGame.drawerDropAnim>0 )
+            sDrawDrawer(gGame.drawerDropAnim);
         
     }
+    
+    for( std::string & str : gGame.animations )
+    {
+        ImageInfo imageInfo;
+        GL_LoadTextureFromText(str, imageInfo);
+        
+        glUseProgram(colorProgram.program);
+        glm::mat4 mat = glm::mat4(1);
+        glm::vec4 color = glm::vec4(0, 1, 0, 1);
+        glUniformMatrix4fv(colorProgram.mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
+        glUniform4fv(colorProgram.colorLoc, 1, &color[0]);
+        glUniform1i(colorProgram.imageTexture, 0);
+        glUniform1f(colorProgram.imageWeight, 1);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, imageInfo.texID);
+        
+        glBindVertexArrayOES(squareVAO);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        
+        glDeleteTextures(1, &imageInfo.texID);
+    }
+    glBindTexture(GL_TEXTURE_2D, 0);
     
     return errorCode;
 }
@@ -279,32 +312,32 @@ void DrawToolList(float inRotation) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    glUseProgram(gGLData._colorProgram._program);
-    glBindVertexArrayOES(gGLData._squareVAO);
-    glUniform4f(gGLData._colorProgram._colorLoc, 1, 1, 1, 0.3f);
-    glUniform1f(gGLData._colorProgram._imageWeight, 0);
-    glUniform1i(gGLData._colorProgram._imageTexture, 0);
+    glUseProgram(gGLData.colorProgram.program);
+    glBindVertexArrayOES(gGLData.squareVAO);
+    glUniform4f(gGLData.colorProgram.colorLoc, 1, 1, 1, 0.3f);
+    glUniform1f(gGLData.colorProgram.imageWeight, 0);
+    glUniform1i(gGLData.colorProgram.imageTexture, 0);
     glActiveTexture(GL_TEXTURE0);
     
     float height = 0.04f;
     float width = 0.1f;
     
-    int currentRingZ = gGame._rings._rings[gGame._rings._currentRing]._stackingOrder;
+    int currentRingZ = gGame.rings.rings[gGame.rings.currentRing].stackingOrder;
     
-    who::Ring & editRing = gGame._rings._rings[gGame._rings._currentRing];
+    who::Ring & editRing = gGame.rings.rings[gGame.rings.currentRing];
     glm::vec3 corners[4];
     ComputeTopPhotoCorners(editRing, corners);
     float top = (who::kR0+who::kR1)*0.5f + corners[0].y + height;
     width = corners[0].x - corners[1].x;
     float dy = height * fabs(sinf(4*_rotation));
-    glm::mat4 mat = glm::scale(glm::translate(mat, glm::vec3(0, top-dy*0.5f, -currentRingZ+0.01f)),
+    glm::mat4 mat = glm::scale(glm::translate(mat, glm::vec3(0, top-dy*0.5f, -currentRingZ+who::kDepthOffset)),
                                glm::vec3(width, dy, 1));
-    glUniform4f(gGLData._colorProgram._colorLoc, 0.8f, 0.8f, 0.8f, 0.5f);
-    glUniformMatrix4fv(gGLData._colorProgram._mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
+    glUniform4f(gGLData.colorProgram.colorLoc, 0.8f, 0.8f, 0.8f, 0.5f);
+    glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
     
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
-    int numItems = int(gGame._faceList.size());
+    int numItems = int(gGame.faceList.size());
     
     float xSpacing = 0.01;
     float centerX = -width*0.5f + height*0.5f;
@@ -329,12 +362,12 @@ void DrawToolList(float inRotation) {
     };
     
     for_i( numItems ) {
-        mat = glm::scale(glm::translate(gGame._camera._vpMat, glm::vec3(centerX, top-dy*0.5f, -currentRingZ+0.01f)),
+        mat = glm::scale(glm::translate(gGame.camera.vpMat, glm::vec3(centerX, top-dy*0.5f, -currentRingZ+who::kDepthOffset)),
                          glm::vec3(height, dy, 1));
-        glUniform4f(gGLData._colorProgram._colorLoc, 0.8f, 0.8f, 0.8f, 1);
-        glUniformMatrix4fv(gGLData._colorProgram._mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
-        glBindTexture(GL_TEXTURE_2D, gGame._images[faceList[i]].texID);
-        glUniform1f(gGLData._colorProgram._imageWeight, 1);
+        glUniform4f(gGLData.colorProgram.colorLoc, 0.8f, 0.8f, 0.8f, 1);
+        glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
+        glBindTexture(GL_TEXTURE_2D, gGame.images[faceList[i]].texID);
+        glUniform1f(gGLData.colorProgram.imageWeight, 1);
         
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         
@@ -359,12 +392,12 @@ int IMG_SprayPaint(ImageInfo & inImage, int inLastX, int inLastY, int inCurrX, i
     
 	ImageInfo * imageInfo = &inImage;
     
-	bool inErase = inArgs._erase;
-	unsigned char red = inArgs._r * 255;
-	unsigned char green = inArgs._g * 255;
-	unsigned char blue = inArgs._b * 255;
+	bool inErase = inArgs.erase;
+	unsigned char red = inArgs.r * 255;
+	unsigned char green = inArgs.g * 255;
+	unsigned char blue = inArgs.b * 255;
     
-	int brushSize = inArgs._brushSize;
+	int brushSize = inArgs.brushSize;
 	int halfBrushSize = brushSize/2;
 	//int alphaInc = inArgs.pressure;
 	//halfBrushSize = 17;
@@ -433,7 +466,7 @@ int IMG_SprayPaint(ImageInfo & inImage, int inLastX, int inLastY, int inCurrX, i
 				double alphaFactor = (halfBrushSize - glm::min(double(halfBrushSize), glm::sqrt((double)y*y + x*x))) / halfBrushSize;
 				alphaFactor = pow(alphaFactor, 1.7);
                 
-				unsigned char alphaInc = (unsigned char)glm::max(0.0, glm::min(255.0, alphaFactor * inArgs._pressure));
+				unsigned char alphaInc = (unsigned char)glm::max(0.0, glm::min(255.0, alphaFactor * inArgs.pressure));
                 
 				int index1 = ((y+halfBrushSize)*brushSize + (x+halfBrushSize))*B;
 				int index2 = ((yy+y)*w + xx+x)*B;
@@ -628,60 +661,60 @@ int GFX_LoadGLSLProgram(const char * inVS, const char * inFS, GLuint & outProgra
 void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat) {
     
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);//(GL_BLEND);
+    glEnable(GL_BLEND);
     
     // Draw the ring (a disc)
-    glUseProgram(gGLData._colorProgram._program);
+    glUseProgram(gGLData.colorProgram.program);
     
-    glUniformMatrix4fv(gGLData._colorProgram._mvpMatLoc, 1, GL_FALSE, &inMVPMat[0][0]);
-    glUniform4f(gGLData._colorProgram._colorLoc, 0.2f, 0.3f, 1, inRing._ringAlpha);//0.8f);
-    glUniform1f(gGLData._colorProgram._imageWeight, 0);
-    glUniform1i(gGLData._colorProgram._imageTexture, 0);
-    glBindVertexArrayOES(gGLData._diskVAO);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, gGLData._diskNumVertices);  // draw blue ring
+    glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, &inMVPMat[0][0]);
+    glUniform4f(gGLData.colorProgram.colorLoc, 0.2f, 0.3f, 1, inRing.ringAlpha);//0.8f);
+    glUniform1f(gGLData.colorProgram.imageWeight, 0);
+    glUniform1i(gGLData.colorProgram.imageTexture, 0);
+    glBindVertexArrayOES(gGLData.diskVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, gGLData.diskNumVertices);  // draw blue ring
     
     glm::mat4 mat = glm::translate(inMVPMat, glm::vec3(0, 0, 0.001f));
-    glUseProgram(gGLData._colorProgram._program);
-    glUniformMatrix4fv(gGLData._colorProgram._mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
-    glUniform4f(gGLData._colorProgram._colorLoc, 0, 0, 0, 1);
+    glUseProgram(gGLData.colorProgram.program);
+    glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
+    glUniform4f(gGLData.colorProgram.colorLoc, 0, 0, 0, 1);
 
-    glBindVertexArrayOES(gGLData._diskInnerEdgeVAO);
+    glBindVertexArrayOES(gGLData.diskInnerEdgeVAO);
     glLineWidth(4.0f);
-    glDrawArrays(GL_LINE_STRIP, 0, gGLData._diskNumVertices/2);  // black outer edge
+    glDrawArrays(GL_LINE_STRIP, 0, gGLData.diskNumVertices/2);  // black outer edge
     
-    glBindVertexArrayOES(gGLData._diskOuterEdgeVAO);
-    double percentage = gGame._totalPhotosToDownload>0?(float)(inRing._photos.size()-gGame._currentNumOfPhotos)/(float)gGame._totalPhotosToDownload:1.0;
+    glBindVertexArrayOES(gGLData.diskOuterEdgeVAO);
+    double percentage = gGame.totalPhotosToDownload>0?(float)(inRing.photos.size()-gGame.currentNumOfPhotos)/(float)gGame.totalPhotosToDownload:1.0;
         
     static float lineWidth = 4;
     glLineWidth(lineWidth);
-    glDrawArrays(GL_LINE_STRIP, 0, int(percentage * gGLData._diskNumVertices/2));  // inerr edge
+    glDrawArrays(GL_LINE_STRIP, 0, int(percentage * gGLData.diskNumVertices/2));  // inerr edge
 
     glLineWidth(4);  // restore line width
     
     ///// draw progress ring and draw cancel image (green X)
-    if (percentage > 0.0f && percentage < 1.0f && inRing._ringType == who::eRingTypePlay && inRing._name=="playRing" ) {
+    if (percentage > 0.0f && percentage < 1.0f && inRing.ringType == who::eRingTypePlay && inRing.name=="playRing" ) {
         
         float x = glm::cos(-kPi/2 + 2*kPi*percentage) * who::kR0;
         float y = -glm::sin(-kPi/2 + 2*kPi*percentage) * who::kR0;
 
-        ImageInfo cancelImage =  gGame._images[cancelString];
+        ImageInfo cancelImage =  gGame.images[cancelString];
         
-        glUseProgram(gGLData._colorProgram._program);
-        glBindVertexArrayOES(gGLData._squareVAO);
-        glUniform1f(gGLData._colorProgram._imageWeight, 1);
-        glUniform1i(gGLData._colorProgram._imageTexture, 0);
+        glUseProgram(gGLData.colorProgram.program);
+        glBindVertexArrayOES(gGLData.squareVAO);
+        glUniform1f(gGLData.colorProgram.imageWeight, 1);
+        glUniform1i(gGLData.colorProgram.imageTexture, 0);
         
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, cancelImage.texID);
         //float ratio = gGame.cancelImage.originalHeight/gGame.cancelImage.originalWidth;
         
-        mat = glm::mat4(glm::scale(glm::translate(glm::mat4(1),glm::vec3(x, y, 0.01f)),glm::vec3(0.1, 0.1, 1)));
-        gGame._photos[cancelString]._transform = glm::mat4x3(mat);
+        mat = glm::mat4(glm::scale(glm::translate(glm::mat4(1),glm::vec3(x, y, who::kDepthOffset)),glm::vec3(0.1, 0.1, 1)));
+        gGame.photos[cancelString].transform = glm::mat4x3(mat);
         
         mat = inMVPMat * mat;
     
-        glUniform4f(gGLData._colorProgram._colorLoc, 1.0f, 1.0f, 1.0f, 0.5f);
-        glUniformMatrix4fv(gGLData._colorProgram._mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
+        glUniform4f(gGLData.colorProgram.colorLoc, 1.0f, 1.0f, 1.0f, 0.5f);
+        glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
         
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         
@@ -689,22 +722,22 @@ void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat) {
     
     ///////////////////////////////////////////
     // draw the images on the ring (a bunch of rects in a circle pattern)
-    glUseProgram(gGLData._photoProgram._program);
-    glBindVertexArrayOES(gGLData._squareVAO);
+    glUseProgram(gGLData.photoProgram.program);
+    glBindVertexArrayOES(gGLData.squareVAO);
     
-    glUniform1i(gGLData._photoProgram._imageTexLoc, 0);
-    glUniform1f(gGLData._photoProgram._imageAlphaLoc, inRing._ringAlpha);
+    glUniform1i(gGLData.photoProgram.imageTexLoc, 0);
+    glUniform1f(gGLData.photoProgram.imageAlphaLoc, inRing.ringAlpha);
     
    
     glActiveTexture(GL_TEXTURE0);
-    // glBindTexture(GL_TEXTURE_2D, gGame._images[0].texID);
+    // glBindTexture(GL_TEXTURE_2D, gGame.images[0].texID);
 #if 0
     int masks[] = { 1, 2 };
     glUniform1iv(gGLData.photoProgram.maskTexLoc, 2, masks);
 #endif
     
     
-    int numImages = int(inRing._photos.size());
+    int numImages = int(inRing.photos.size());
     float halfNumImages = numImages * 0.5f;
     float w0 = glm::atan((who::kR1-who::kR0)/(who::kR1+who::kR0));  // end angle for 0th photo
     
@@ -722,29 +755,37 @@ void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat) {
     int startImageI = 0;
     int endImageI = numImages;
     
+    // improve rendering performance by reducing the number of photos drawn when zoomed up close
     if( inZoomedIn )
-        // improve rendering performance by reducing the number of photos drawn when zoomed up close
     {
-        if( inRing._selectedPhoto != -1 &&  inRing._selectedPhoto == inRing._currentPhoto ) {
-            startImageI = inRing._selectedPhoto;
+        if( inRing.selectedPhoto != -1 &&  inRing.selectedPhoto == inRing.currentPhoto )
+        {
+            startImageI = inRing.selectedPhoto;
             endImageI = startImageI+1;
-        } else {
-            if( inRing._selectedPhoto < inRing._currentPhoto ) {  // if ring is rotating counter clockwise
-                startImageI = inRing._selectedPhoto;
-            } else {
-                startImageI = inRing._selectedPhoto-1;
-                if( startImageI < 0 ) {
+        }
+        else
+        {
+            if( inRing.selectedPhoto < inRing.currentPhoto )
+            {
+                // Ring is rotating counter clockwise
+                startImageI = inRing.selectedPhoto;
+            }
+            else
+            {
+                // Ring is rotating clockwise
+                startImageI = inRing.selectedPhoto-1;
+                if( startImageI < 0 )
                     startImageI = numImages + startImageI;
-                }
             }
             endImageI = startImageI + 2;
         }
     }
     startImageI  = glm::max(0, startImageI);
-    for( int imageI=startImageI; imageI<endImageI; imageI++ ) {
+    for( int imageI=startImageI; imageI<endImageI; imageI++ )
+    {
         int i = imageI%numImages;
         
-        float t = (i-inRing._currentPhoto)/float(halfNumImages);
+        float t = (i-inRing.currentPhoto)/float(halfNumImages);
         float halfStep = 0.5f/halfNumImages;
         
         float angle0 = kPi * spacingFn(t-halfStep, &p);
@@ -757,73 +798,68 @@ void DrawRing(who::Ring & inRing, bool inZoomedIn, const glm::mat4 & inMVPMat) {
         glm::vec2 p0 = glm::vec2(radius*glm::cos(angle0), radius*glm::sin(angle0));  // top right point in world space
         glm::vec2 p1 = glm::vec2(radius*glm::cos(angle1), radius*glm::sin(angle1));  // top left point in world space
         float length = glm::distance(p0, p1) / glm::sqrt(2.0f);  // diagonal length of the image square
-       //  length = .1f;
         
         
-        who::Photo * photo = gGame.GetPhoto(inRing._photos[i]);
-        ImageInfo & image = gGame._images[photo->_filename];
+        who::Photo * photo = gGame.GetPhoto(inRing.photos[i]);
+        ImageInfo & image = gGame.images[photo->filename];
         float aspect = image.originalWidth / float(image.originalHeight);
         float w, h;
         // compute world space width and height based on image's aspect ratio
-        if( aspect > 1 ) {
+        if( aspect > 1 )
+        {
             w = length;
             h = length / aspect;
-        } else {
+        }
+        else
+        {
             w = length * aspect;
             h = length;
         }
         
         // build the matrix that transforms normalzied image corners to world space
         glm::mat4 mat = glm::mat4(glm::scale(glm::translate(glm::rotate(glm::mat4(1), -glm::degrees(angle), glm::vec3(0, 0, 1)),
-                                    glm::vec3(0, radius, 0.01f)),
+                                                            glm::vec3(0, radius, who::kDepthOffset)),
                                    glm::vec3(w, h, 1)));
         
         
         
-        photo->_transform = glm::mat4x3(mat);
+        photo->transform = glm::mat4x3(mat);
         
-        //MAT4_Multiply(inMVPMat, mat, mat);
         mat = inMVPMat * mat;
-        float fl[16];
-        memcpy(fl, &mat[0][0], 16*sizeof(float));
-    
-        
-        glUniformMatrix4fv(gGLData._photoProgram._mvpLoc, 1, GL_FALSE, &mat[0][0]);
-        glUniform1f(gGLData._photoProgram._scaleLoc, 1);
+        glUniformMatrix4fv(gGLData.photoProgram.mvpLoc, 1, GL_FALSE, &mat[0][0]);
+        glUniform1f(gGLData.photoProgram.scaleLoc, 1);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, image.texID);
         glActiveTexture(GL_TEXTURE1);
         
-        if( photo->_maskImages.size() > 0 ) {
-            glBindTexture(GL_TEXTURE_2D, gGame._images[photo->_maskImages[0]].texID);
-        }
+        if( photo->_maskImages.size() > 0 )
+            glBindTexture(GL_TEXTURE_2D, gGame.images[photo->_maskImages[0]].texID);
+        
         glActiveTexture(GL_TEXTURE2);
-        if( photo->_maskImages.size() > 1 ) {
-            glBindTexture(GL_TEXTURE_2D, gGame._images[photo->_maskImages[1]].texID);
-        }
-        float maskWeights[2];
-        memset(maskWeights, 0, 2*sizeof(float));
+        if( photo->_maskImages.size() > 1 )
+            glBindTexture(GL_TEXTURE_2D, gGame.images[photo->_maskImages[1]].texID);
         
-        for_i( photo->_maskWeights.size() ) {
-            maskWeights[i] = photo->_maskWeights[i];
-        }
+        float maskWeights[2] = { 0, 0 };
+        std::copy(photo->_maskWeights.begin(), photo->_maskWeights.end(), maskWeights);
+        //for_i( photo->_maskWeights.size() )
+        //    maskWeights[i] = photo->_maskWeights[i];
         
-        glUniform1fv(gGLData._photoProgram._maskWeightLoc, 2, maskWeights);
+        glUniform1fv(gGLData.photoProgram.maskWeightLoc, 2, maskWeights);
         
         
         glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, BUFFER_OFFSET(0));
         
-        if( i == (inRing._selectedPhoto%inRing._photos.size()) )
+        if( i == (inRing.selectedPhoto%inRing.photos.size()) )
             // the selected photo has a red box around it
         {
-            glUseProgram(gGLData._colorProgram._program);
-            glBindVertexArrayOES(gGLData._squareEdgeVAO);
-            glUniformMatrix4fv(gGLData._colorProgram._mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
-            glUniform4f(gGLData._colorProgram._colorLoc, 1, 0, 0, inRing._ringAlpha);
+            glUseProgram(gGLData.colorProgram.program);
+            glBindVertexArrayOES(gGLData.squareEdgeVAO);
+            glUniformMatrix4fv(gGLData.colorProgram.mvpMatLoc, 1, GL_FALSE, &mat[0][0]);
+            glUniform4f(gGLData.colorProgram.colorLoc, 1, 0, 0, inRing.ringAlpha);
             glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, BUFFER_OFFSET(0));
             
-            glUseProgram(gGLData._photoProgram._program);
-            glBindVertexArrayOES(gGLData._squareVAO);
+            glUseProgram(gGLData.photoProgram.program);
+            glBindVertexArrayOES(gGLData.squareVAO);
         }
         
     }
@@ -852,20 +888,20 @@ void MarkupMask(float inRotation) {
     }
     
     SprayPaintArgs spa;
-    spa._r = 1;
-    spa._g = 0;
-    spa._b = 0;
-    spa._pressure = 20;
-    spa._brushSize = 40;
+    spa.r = 1;
+    spa.g = 0;
+    spa.b = 0;
+    spa.pressure = 20;
+    spa.brushSize = 40;
     //spa.erase = true;
-    IMG_SprayPaint(gGame._images[gGLData._mask0], lastP[0], lastP[1], currP[0], currP[1], spa);
-    spa._r = 0;
-    spa._g = 1;
-    spa._b = 0;
-    spa._pressure = 35;
-    spa._brushSize = 10;
+    IMG_SprayPaint(gGame.images[gGLData.mask0], lastP[0], lastP[1], currP[0], currP[1], spa);
+    spa.r = 0;
+    spa.g = 1;
+    spa.b = 0;
+    spa.pressure = 35;
+    spa.brushSize = 10;
     //spa.erase = true;
-    IMG_SprayPaint(gGame._images[gGLData._mask1], lastP[2], lastP[3], currP[2], currP[3], spa);
+    IMG_SprayPaint(gGame.images[gGLData.mask1], lastP[2], lastP[3], currP[2], currP[3], spa);
     
     memcpy(lastP, currP, 4*sizeof(float));
 }

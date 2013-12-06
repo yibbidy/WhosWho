@@ -94,8 +94,8 @@ _EXTERN NSString* const kGDataLinkYouTubeVideo                 _INITIALIZE_AS(@"
 _EXTERN NSString* const kGDataLinkYouTubeInsightViews          _INITIALIZE_AS(@"http://gdata.youtube.com/schemas/2007#insight.views");
 
 // user event types
-_EXTERN NSString* const kGDataYouTubeUserEventVideoUploaded         _INITIALIZE_AS(@"video_uploaded");
-_EXTERN NSString* const kGDataYouTubeUserEventVideoRated            _INITIALIZE_AS(@"video_rated");
+_EXTERN NSString* const kGDataYouTubeUserEventVideoUploaded         _INITIALIZE_AS(@"videouploaded");
+_EXTERN NSString* const kGDataYouTubeUserEventVideoRated            _INITIALIZE_AS(@"videorated");
 _EXTERN NSString* const kGDataYouTubeUserEventVideoFavorited        _INITIALIZE_AS(@"video_favorited");
 _EXTERN NSString* const kGDataYouTubeUserEventVideoShared           _INITIALIZE_AS(@"video_shared");
 _EXTERN NSString* const kGDataYouTubeUserEventVideoCommented        _INITIALIZE_AS(@"video_commented");

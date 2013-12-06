@@ -73,7 +73,7 @@ static NSString *RKUnderscoredStringFromCamelCasedString(NSString *camelCasedStr
     return [lowercasedComponents componentsJoinedByString:@"_"];
 }
 
-// Given 'Human', returns 'humanID' and 'human_id'; Given 'AmenityReview' returns 'amenityReviewID' and 'amenity_review_id'
+// Given 'Human', returns 'humanID' and 'human_id'; Given 'AmenityReview' returns 'amenityReviewID' and 'amenityreview_id'
 static NSArray *RKEntityIdentificationAttributeNamesForEntity(NSEntityDescription *entity)
 {
     NSString *entityName = [entity name];

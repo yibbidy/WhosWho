@@ -19,7 +19,7 @@ static NSString * kDefaultURLText =  @"ftp://Hongbing%20Carter:hsc10266@localhos
 @synthesize listData        = _listData;
 @synthesize listEntries     = _listEntries;
 @synthesize listGameNames   = _listGameNames; 
-@synthesize renderView = _renderView; 
+@synthesize renderView = renderView; 
 
 // Implement loadView to create a view hierarchy programmatically, without using a nib.
 
@@ -98,7 +98,7 @@ static NSString * kDefaultURLText =  @"ftp://Hongbing%20Carter:hsc10266@localhos
 	// If the URL is bogus, let the user know.  Otherwise kick off the connection.
 	
 	if ( ! success) {
-		//[self _updateStatus:@"Invalid URL"];
+		//[self updateStatus:@"Invalid URL"];
 		NSLog(@"Invalid URL"); 
 	} else {
 		
@@ -272,13 +272,13 @@ static NSString * kDefaultURLText =  @"ftp://Hongbing%20Carter:hsc10266@localhos
 	
     switch (eventCode) {
         case NSStreamEventOpenCompleted: {
-           // [self _updateStatus:@"Opened connection"];
+           // [self updateStatus:@"Opened connection"];
         } break;
         case NSStreamEventHasBytesAvailable: {
             NSInteger       bytesRead;
             uint8_t         buffer[32768];
 			
-            //[self _updateStatus:@"Receiving"];
+            //[self updateStatus:@"Receiving"];
             
             // Pull some data off the network.
             
@@ -325,7 +325,7 @@ static NSString * kDefaultURLText =  @"ftp://Hongbing%20Carter:hsc10266@localhos
 		[self.listNetworkStream close];
 		self.listNetworkStream = nil;
 	}
-	//[self _receiveDidStopWithStatus:statusString];
+	//[self receiveDidStopWithStatus:statusString];
 	self.listData = nil;
 	
 	// now get list of game names from listEntries; 

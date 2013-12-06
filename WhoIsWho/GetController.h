@@ -13,8 +13,8 @@ enum {
 	
 	
 	// Get
-	NSInputStream *             _getNetworkStream;
-    NSOutputStream *            _getFileStream;
+	NSInputStream *             getNetworkStream;
+    NSOutputStream *            getFileStream;
 
 	uint8_t                     _buffer[kGetBufferSize];
     size_t                      _bufferOffset;

@@ -24,7 +24,7 @@
 // arbitrary spreadsheet custom tag, like
 //  <gsx:e-mail>fitz@gmail.com</gsx:e-mail>
 //
-// http://code.google.com/apis/spreadsheets/reference.html#gsx_reference
+// http://code.google.com/apis/spreadsheets/reference.html#gsxreference
 
 // this object may be an extension, so declare its extension characteristics
 

@@ -49,7 +49,7 @@ static char kAFImageRequestOperationObjectKey;
 @implementation UIImageView (AFNetworking)
 
 - (AFHTTPRequestOperation *)af_imageRequestOperation {
-    return (AFHTTPRequestOperation *)objc_getAssociatedObject(self, &kAFImageRequestOperationObjectKey);
+    return (AFHTTPRequestOperation *)objcgetAssociatedObject(self, &kAFImageRequestOperationObjectKey);
 }
 
 - (void)af_setImageRequestOperation:(AFImageRequestOperation *)imageRequestOperation {

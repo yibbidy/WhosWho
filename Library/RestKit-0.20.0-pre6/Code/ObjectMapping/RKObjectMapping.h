@@ -37,12 +37,12 @@
  
  Configuring object mappings can become quite repetitive if the keys in your serialized object representations follow a different convention than their local domain counterparts. For example, consider a typical JSON document in the "snake case" format:
  
-    {"user": {"first_name": "Blake", "last_name": "Watters", "email_address": "blake@restkit.org"}}
+    {"user": {"firstname": "Blake", "lastname": "Watters", "email_address": "blake@restkit.org"}}
  
  Typically when configuring a mapping for the object represented in this document we would transform the destination properties into the Objective-C idiomatic "llama case" variation. This can produce lengthy, error-prone mapping configurations in which the transformations are specified manually:
  
     RKObjectMapping *userMapping = [RKObjectMapping mappingForClass:[RKUser class]];
-    [userMapping addAttributeMappingsFromDictionary:@{ @"first_name": @"firstName", @"last_name": @"lastName", @"email_address", @"emailAddress" }];
+    [userMapping addAttributeMappingsFromDictionary:@{ @"firstname": @"firstName", @"lastname": @"lastName", @"email_address", @"emailAddress" }];
  
  To combat this repetition, a block can be designated to perform a transformation on source keys to produce corresponding destination keys:
  
@@ -53,7 +53,7 @@
  
  With the block configured, the original configuration can be changed into a simpler array based invocation:
  
-    [userMapping addAttributeMappingsFromArray:@[ @"first_name", @"last_name", @"email_address" ]];
+    [userMapping addAttributeMappingsFromArray:@[ @"firstname", @"lastname", @"email_address" ]];
  
  Transformation blocks can be configured on a per-mapping basis or globally via `[RKObjectMapping setDefaultSourceToDestinationKeyTransformationBlock:]`.
 

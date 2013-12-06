@@ -33,7 +33,7 @@ static NSString* const kValueAttr = @"value";
 // an element with type and value attributes, as in
 //  <gAcl:scope type='user' value='user@gmail.com'></gAcl:scope>
 //
-//  http://code.google.com/apis/calendar/reference.html#gacl_reference
+//  http://code.google.com/apis/calendar/reference.html#gaclreference
 
 + (NSString *)extensionElementURI       { return kGDataNamespaceACL; }
 + (NSString *)extensionElementPrefix    { return kGDataNamespaceACLPrefix; }

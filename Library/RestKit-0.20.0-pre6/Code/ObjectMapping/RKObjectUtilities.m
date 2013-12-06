@@ -96,7 +96,7 @@ Class RKKeyValueCodingClassForObjCType(const char *type)
                         memcpy(className, openingQuoteLoc+1, classNameStrLen-1);
                         // Null-terminate the array to stringify
                         className[classNameStrLen-1] = '\0';
-                        return objc_getClass(className);
+                        return objcgetClass(className);
                     }
                 }
                 // If there is no quoted class type (id), it can be used as-is.
@@ -118,8 +118,8 @@ Class RKKeyValueCodingClassForObjCType(const char *type)
                 return [NSNumber class];
                 
             case 'B': // C++ bool or C99 _Bool
-                return objc_getClass("NSCFBoolean")
-                ?: objc_getClass("__NSCFBoolean")
+                return objcgetClass("NSCFBoolean")
+                ?: objcgetClass("__NSCFBoolean")
                 ?: [NSNumber class];
                 
             case '{': // struct

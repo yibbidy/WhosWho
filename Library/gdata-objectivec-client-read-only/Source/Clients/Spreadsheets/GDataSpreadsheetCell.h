@@ -25,7 +25,7 @@
 //   <gs:cell row="2" col="4" inputValue="=FLOOR(R[0]C[-1]/(R[0]C[-2]*60),.0001)"
 //            numericValue="0.0033">0.0033</gs:cell>
 //
-// http://code.google.com/apis/spreadsheets/reference.html#gs_reference
+// http://code.google.com/apis/spreadsheets/reference.html#gsreference
 
 @interface GDataSpreadsheetCell : GDataObject <NSCopying, GDataExtension> {
   NSInteger row_;

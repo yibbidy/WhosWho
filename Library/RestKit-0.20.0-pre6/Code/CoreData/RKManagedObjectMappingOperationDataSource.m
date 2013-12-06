@@ -318,7 +318,7 @@ extern NSString * const RKObjectMappingNestingAttributeKeyName;
             RKManagedObjectDeletionOperation *deletionOperation = nil;
             if (self.parentOperation) {
                 // Attach a deletion operation for execution after the parent operation completes
-                deletionOperation = (RKManagedObjectDeletionOperation *)objc_getAssociatedObject(self.parentOperation, &kRKManagedObjectMappingOperationDataSourceAssociatedObjectKey);
+                deletionOperation = (RKManagedObjectDeletionOperation *)objcgetAssociatedObject(self.parentOperation, &kRKManagedObjectMappingOperationDataSourceAssociatedObjectKey);
                 if (! deletionOperation) {
                     deletionOperation = [[RKManagedObjectDeletionOperation alloc] initWithManagedObjectContext:self.managedObjectContext];
                     objc_setAssociatedObject(self.parentOperation, &kRKManagedObjectMappingOperationDataSourceAssociatedObjectKey, deletionOperation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);

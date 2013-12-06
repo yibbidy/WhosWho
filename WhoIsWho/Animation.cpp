@@ -8,15 +8,15 @@
 int AnimationSystem::_nextAnimationID = 1;
 
 
-std::vector<AnimationBase *> AnimationSystem::_animations;
+std::vector<AnimationBase *> AnimationSystem::animations;
 
 //======== AnimationBase
 
 AnimationBase::AnimationBase()
 {
-    _startTick = 0;
-    _duration = 0;
-    _interpolation = InterpolationTypeLinear;
+    startTick = 0;
+    duration = 0;
+    interpolation = InterpolationTypeLinear;
     _animationID = 0;
     _completed = 0;
 }
@@ -29,12 +29,12 @@ bool AnimationSystem::UpdateAnimation(float inTick, AnimationBase & inOutAnimati
 {
 	AnimationBase & a = inOutAnimation;
     
-	float t = (inTick - a._startTick) / a._duration;
+	float t = (inTick - a.startTick) / a.duration;
 	t = glm::min(glm::max(t, 0.0f), 1.0f);
     
-	if( a._interpolation == InterpolationTypeSmooth ) {
+	if( a.interpolation == InterpolationTypeSmooth ) {
 		t = 3*t*t - 2*t*t*t;
-	} else if( a._interpolation == InterpolationTypeSqrt ) {
+	} else if( a.interpolation == InterpolationTypeSqrt ) {
 		t = sqrt(t);
 	}
 	
@@ -45,23 +45,23 @@ bool AnimationSystem::UpdateAnimation(float inTick, AnimationBase & inOutAnimati
 
 bool AnimationSystem::UpdateAnimations(float inTick) {
     
-    bool anyAnimations = !_animations.empty();
-    for_i( _animations.size() )
+    bool anyAnimations = !animations.empty();
+    for_i( animations.size() )
     // each animation will get updated and if it completes then we
     // will remove it from the list of animations
     {
-        AnimationBase * a = _animations[i];
+        AnimationBase * a = animations[i];
 
         if( !UpdateAnimation(inTick, *a) ) {
             if( a->_completed )
                 (*a->_completed)(a->_completedArgs);
             
             delete a;
-            if( i < _animations.size()-1 ) {
-                _animations[i] = _animations.back();
+            if( i < animations.size()-1 ) {
+                animations[i] = animations.back();
                 i--;
             }
-            _animations.resize(_animations.size()-1);
+            animations.resize(animations.size()-1);
         }
     }
     
@@ -72,8 +72,8 @@ bool AnimationSystem::UpdateAnimations(float inTick) {
 
 
 AnimationBase * AnimationSystem::GetAnimation(int inAnimationID) {
-    for_i( _animations.size() ) {
-        AnimationBase * a = _animations[i];
+    for_i( animations.size() ) {
+        AnimationBase * a = animations[i];
 
         if( a->_animationID == inAnimationID ) {
             return a;
@@ -91,13 +91,13 @@ bool AnimationSystem::IsRunning(int inAnimationID)
 bool AnimationSystem::StopFloatAnimation(int inAnimationID)
 // This function terminates an animation specified by inAnimationID.  inAnimationID should be a valid ID that was used in ANM_CreateFloatAnimation.
 {
-	for_i( _animations.size() ) {
-		if( _animations[i]->_animationID == inAnimationID ) {
-			delete _animations[i];
-			if( i < _animations.size()-1 ) {
-				_animations[i] = _animations.back();
+	for_i( animations.size() ) {
+		if( animations[i]->_animationID == inAnimationID ) {
+			delete animations[i];
+			if( i < animations.size()-1 ) {
+				animations[i] = animations.back();
 			}
-			_animations.resize(_animations.size()-1);
+			animations.resize(animations.size()-1);
 			return true;
 		}
 	}

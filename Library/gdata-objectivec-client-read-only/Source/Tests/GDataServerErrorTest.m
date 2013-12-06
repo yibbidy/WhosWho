@@ -16,7 +16,7 @@
 #import <SenTestingKit/SenTestingKit.h>
 #import "GDataServerError.h"
 
-#define typeof __typeof__ // fixes http://brethorsting.com/blog/2006/02/25/stupid-issue-with-ocunit/
+#define typeof _typeof__ // fixes http://brethorsting.com/blog/2006/02/25/stupid-issue-with-ocunit/
 
 @interface GDataServerErrorTest : SenTestCase
 @end

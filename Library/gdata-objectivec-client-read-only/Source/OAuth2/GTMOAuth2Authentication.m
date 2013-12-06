@@ -24,10 +24,10 @@ static NSString *const kOAuth2RefreshTokenKey      = @"refresh_token";
 static NSString *const kOAuth2ClientIDKey          = @"client_id";
 static NSString *const kOAuth2ClientSecretKey      = @"client_secret";
 static NSString *const kOAuth2RedirectURIKey       = @"redirect_uri";
-static NSString *const kOAuth2ResponseTypeKey      = @"response_type";
+static NSString *const kOAuth2ResponseTypeKey      = @"responsetype";
 static NSString *const kOAuth2ScopeKey             = @"scope";
 static NSString *const kOAuth2ErrorKey             = @"error";
-static NSString *const kOAuth2TokenTypeKey         = @"token_type";
+static NSString *const kOAuth2TokenTypeKey         = @"tokentype";
 static NSString *const kOAuth2ExpiresInKey         = @"expires_in";
 static NSString *const kOAuth2CodeKey              = @"code";
 static NSString *const kOAuth2AssertionKey         = @"assertion";
@@ -448,7 +448,7 @@ finishedRefreshWithFetcher:(GTMHTTPFetcher *)fetcher
       userInfo = nil;
     } else {
       // Google's OAuth 2 implementation returns a 400 with JSON body
-      // containing error key "invalid_grant" to indicate the refresh token
+      // containing error key "invalidgrant" to indicate the refresh token
       // is invalid or has been revoked by the user.  We'll promote the
       // JSON error key's value for easy inspection by the observer.
       noteName = kGTMOAuth2AccessTokenRefreshFailed;
@@ -726,7 +726,7 @@ finishedRefreshWithFetcher:(GTMHTTPFetcher *)fetcher
   
   if (refreshToken) {
     // We have a refresh token
-    [paramsDict setObject:@"refresh_token" forKey:@"grant_type"];
+    [paramsDict setObject:@"refresh_token" forKey:@"granttype"];
     [paramsDict setObject:refreshToken forKey:@"refresh_token"];
 
     NSString *refreshScope = self.refreshScope;
@@ -737,7 +737,7 @@ finishedRefreshWithFetcher:(GTMHTTPFetcher *)fetcher
     fetchType = kGTMOAuth2FetchTypeRefresh;
   } else if (code) {
     // We have a code string
-    [paramsDict setObject:@"authorization_code" forKey:@"grant_type"];
+    [paramsDict setObject:@"authorization_code" forKey:@"granttype"];
     [paramsDict setObject:code forKey:@"code"];
 
     NSString *redirectURI = self.redirectURI;
@@ -754,8 +754,8 @@ finishedRefreshWithFetcher:(GTMHTTPFetcher *)fetcher
   } else if (assertion) {
     // We have an assertion string
     [paramsDict setObject:assertion forKey:@"assertion"];
-    [paramsDict setObject:@"http://oauth.net/grant_type/jwt/1.0/bearer"
-                   forKey:@"grant_type"];
+    [paramsDict setObject:@"http://oauth.net/granttype/jwt/1.0/bearer"
+                   forKey:@"granttype"];
     fetchType = kGTMOAuth2FetchTypeAssertion;
   } else {
 #if DEBUG

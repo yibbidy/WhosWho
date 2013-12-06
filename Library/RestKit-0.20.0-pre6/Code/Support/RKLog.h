@@ -106,7 +106,7 @@ RKlcl_log(RKLogComponent, RKlcl_vTrace, @"" __VA_ARGS__)
     RKLogConfigureByName("RestKit/ObjectMapping", RKLogLevelCritical);
  */
 #define RKLogConfigureByName(name, level)                                               \
-RKlcl_configure_by_name(name, level);
+RKlcl_configure_byname(name, level);
 
 /**
  Alias for configuring the LibComponentLogger logging component for the App. This
@@ -114,7 +114,7 @@ RKlcl_configure_by_name(name, level);
  their apps.
  */
 #define RKLogSetAppLoggingLevel(level)                                                  \
-RKlcl_configure_by_name("App", level);
+RKlcl_configure_byname("App", level);
 
 /**
  Temporarily changes the logging level for the specified component and executes the block. Any logging

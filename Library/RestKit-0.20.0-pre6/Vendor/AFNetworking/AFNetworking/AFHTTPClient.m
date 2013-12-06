@@ -196,7 +196,7 @@ NSArray * AFQueryStringPairsFromKeyAndValue(NSString *key, id value) {
 @synthesize baseURL = _baseURL;
 @synthesize stringEncoding = _stringEncoding;
 @synthesize parameterEncoding = _parameterEncoding;
-@synthesize registeredHTTPOperationClassNames = _registeredHTTPOperationClassNames;
+@synthesize registeredHTTPOperationClassNames = registeredHTTPOperationClassNames;
 @synthesize defaultHeaders = _defaultHeaders;
 @synthesize operationQueue = _operationQueue;
 #ifdef _SYSTEMCONFIGURATION_H
@@ -301,13 +301,13 @@ static void AFNetworkReachabilityCallback(SCNetworkReachabilityRef __unused targ
         block(status);
     }
     
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatchget_main_queue(), ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:AFNetworkingReachabilityDidChangeNotification object:nil userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithInteger:status] forKey:AFNetworkingReachabilityNotificationStatusItem]];
     });
 }
 
 static const void * AFNetworkReachabilityRetainCallback(const void *info) {
-    return (__bridge_retained const void *)([(__bridge AFNetworkReachabilityStatusBlock)info copy]);
+    return (__bridgeretained const void *)([(__bridge AFNetworkReachabilityStatusBlock)info copy]);
 }
 
 static void AFNetworkReachabilityReleaseCallback(const void *info) {
@@ -329,9 +329,9 @@ static void AFNetworkReachabilityReleaseCallback(const void *info) {
         return;
     }
     
-    __weak __typeof(&*self)weakSelf = self;
+    __weak _typeof(&*self)weakSelf = self;
     AFNetworkReachabilityStatusBlock callback = ^(AFNetworkReachabilityStatus status) {
-        __strong __typeof(&*weakSelf)strongSelf = weakSelf;
+        __strong _typeof(&*weakSelf)strongSelf = weakSelf;
         if (!strongSelf) {
             return;
         }
@@ -351,7 +351,7 @@ static void AFNetworkReachabilityReleaseCallback(const void *info) {
     if (AFURLHostIsIPAddress(self.baseURL)) {
         SCNetworkReachabilityFlags flags;
         SCNetworkReachabilityGetFlags(self.networkReachability, &flags);
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatchget_main_queue(), ^{
             AFNetworkReachabilityStatus status = AFNetworkReachabilityStatusForFlags(flags);
             callback(status);
         });
@@ -563,15 +563,15 @@ static void AFNetworkReachabilityReleaseCallback(const void *info) {
                               progressBlock:(void (^)(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations))progressBlock
                             completionBlock:(void (^)(NSArray *operations))completionBlock
 {
-    __block dispatch_group_t dispatchGroup = dispatch_group_create();
+    __block dispatchgroup_t dispatchGroup = dispatchgroup_create();
     NSBlockOperation *batchedOperation = [NSBlockOperation blockOperationWithBlock:^{
-        dispatch_group_notify(dispatchGroup, dispatch_get_main_queue(), ^{
+        dispatchgroup_notify(dispatchGroup, dispatchget_main_queue(), ^{
             if (completionBlock) {
                 completionBlock(operations);
             }
         });
 #if !OS_OBJECT_USE_OBJC
-        dispatch_release(dispatchGroup);
+        dispatchrelease(dispatchGroup);
 #endif
     }];
     
@@ -579,8 +579,8 @@ static void AFNetworkReachabilityReleaseCallback(const void *info) {
         AFCompletionBlock originalCompletionBlock = [operation.completionBlock copy];
 		__weak AFHTTPRequestOperation *weakOperation = operation;
         operation.completionBlock = ^{
-            dispatch_queue_t queue = weakOperation.successCallbackQueue ?: dispatch_get_main_queue();
-            dispatch_group_async(dispatchGroup, queue, ^{
+            dispatch_queue_t queue = weakOperation.successCallbackQueue ?: dispatchget_main_queue();
+            dispatchgroup_async(dispatchGroup, queue, ^{
                 if (originalCompletionBlock) {
                     originalCompletionBlock();
                 }
@@ -596,11 +596,11 @@ static void AFNetworkReachabilityReleaseCallback(const void *info) {
                     progressBlock(numberOfFinishedOperations, [operations count]);
                 }
                 
-                dispatch_group_leave(dispatchGroup);
+                dispatchgroup_leave(dispatchGroup);
             });
         };
         
-        dispatch_group_enter(dispatchGroup);
+        dispatchgroup_enter(dispatchGroup);
         [batchedOperation addDependency:operation];
     }
     [self.operationQueue addOperations:operations waitUntilFinished:NO];
@@ -769,7 +769,7 @@ NSTimeInterval const kAFUploadStream3GSuggestedDelay = 0.2;
 @end
 
 @implementation AFStreamingMultipartFormData
-@synthesize request = _request;
+@synthesize request = request;
 @synthesize bodyStream = _bodyStream;
 @synthesize stringEncoding = _stringEncoding;
 

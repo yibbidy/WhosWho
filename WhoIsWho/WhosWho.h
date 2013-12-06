@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <iostream>
 #include "utilities.h"
 #include "Camera.h"
 
@@ -20,28 +21,29 @@ namespace who
     // hm.. should these constants just be chilling out here?
     const float kR0 = 0.6f;  // inner ring radius
     const float kR1 = 1.0f;  // outer ring radius
-
+    const float kDepthOffset = 0.0001f;
+    
     struct Photo
     {
         Photo() {
             _currentMask = -1;
-            _transform = glm::mat4x3(1);
-            _index = -1;
+            transform = glm::mat4x3(1);
+            index = -1;
         }
         
-        std::string _username;  // resource name of this image (Joe)
-        std::string _filename;  // name of image(image.jpg, image2.jpg)
-        std::string _ring;  // the ring this image lives on
-        std::string _type;  // face mask or photo(face, mask, photo)
+        std::string username;  // resource name of this image (Joe)
+        std::string filename;  // name of image(image.jpg, image2.jpg)
+        std::string ring;  // the ring this image lives on
+        std::string type;  // face mask or photo(face, mask, photo)
         
-        int _index;  // index in parent ring._photos vector
+        int index;  // index in parent ring.photos vector
         
         int _currentMask;
         
         std::vector<std::string> _maskImages;  // ordered set of imageDef resource// maskImage[1] = image mask1.png;
         std::vector<float> _maskWeights;  // the alpha of the mask, should be same size as maskImages
         
-        glm::mat4x3 _transform;  // this transforms the unit square into on the XY plane into world space; it's algorithmetically computed when drawn
+        glm::mat4x3 transform;  // this transforms the unit square into on the XY plane into world space; it's algorithmetically computed when drawn
     };
     
     enum ERingType {
@@ -56,50 +58,50 @@ namespace who
     };
     
     struct GameName {
-        int _imageI;  // index into gGame._phoos
-        std::string _name;
-        bool _isEditable;
+        int imageI;  // index into gGame.phoos
+        std::string name;
+        bool isEditable;
     };
     
     struct Ring {
         Ring() {
-            _ringAlpha = 1;
-            _selectedPhoto = -1;
-            _currentPhoto = -1;
-            _ringType = ERingType(-1);
+            ringAlpha = 1;
+            selectedPhoto = -1;
+            currentPhoto = -1;
+            ringType = ERingType(-1);
         }
         Ring(std::string inName, ERingType inRingType) {
-            _name = inName;
-            _ringAlpha = 1;
-            _selectedPhoto = -1;
-            _currentPhoto = -1;
-            _ringType = inRingType;
+            name = inName;
+            ringAlpha = 1;
+            selectedPhoto = -1;
+            currentPhoto = -1;
+            ringType = inRingType;
             
-            _stackingOrder = 0;
+            stackingOrder = 0;
         }
         bool operator ==(const Ring & inRing) const {
-            return _name == inRing._name;
+            return name == inRing.name;
         }
         bool operator !=(const Ring & inRing) const {
             return !(*this == inRing);
         }
-        std::string _name;  // resource name
-        int _stackingOrder;  // 0 is the top most ring (the title ring), 1 is the ring beneath it, etc.
+        std::string name;  // resource name
+        int stackingOrder;  // 0 is the top most ring (the title ring), 1 is the ring beneath it, etc.
         
-        int _selectedPhoto;
-        float _currentPhoto;
-        std::vector<std::string> _photos;
+        int selectedPhoto;
+        float currentPhoto;
+        std::vector<std::string> photos;
         std::vector<std::string> maskPhotos;
         std::vector<std::string> facePhotos;
-        float _ringAlpha;  // when new rings are created they fade in
+        float ringAlpha;  // when new rings are created they fade in
         
-        ERingType _ringType;
+        ERingType ringType;
         
         struct {  // used by localGame, remoteGame, userGame, friendGame
             
             // not implemented yet  std::vector<GameName> gameNames;
             std::vector<GameName> _localGameNames;
-            std::vector<GameName> _remoteGameNames;
+            std::vector<GameName> remoteGameNames;
             
         } _browseData;
         
@@ -112,7 +114,7 @@ namespace who
         
         struct {
             int _brushI;
-            int _eraserI;
+            int eraserI;
             int _scissorsI;
         } _editData;
         
@@ -122,9 +124,9 @@ namespace who
         Rings() {
             
         }
-        std::vector<std::string> _stackingOrder;
-        std::string _currentRing;  // resource name into 'rings'
-        std::map<std::string, Ring> _rings;
+        std::vector<std::string> stackingOrder;
+        std::string currentRing;  // resource name into 'rings'
+        std::map<std::string, Ring> rings;
     };
     
     
@@ -140,14 +142,14 @@ namespace who
     
 
     struct Faces {
-        std::vector<std::string> _faceList;  // image resource names of the faces
+        std::vector<std::string> faceList;  // image resource names of the faces
         DraggingFace _draggingFace;
     };
     
     struct Drawer
     {
-        std::string _name;
-        std::vector<std::string> _photos;
+        std::string name;
+        std::vector<std::string> photos;
     };
     
     struct Game
@@ -155,15 +157,16 @@ namespace who
     // contains the current state of the game.
     // TODO should contain the camera
     {
-        Game() {
-            _faceDropdownAnim = 0;
-            _zoomedToPhoto = false;
-            _currentAnmID = 0;
+        Game() : errorStream(std::cout)
+        {
+            faceDropdownAnim = 0;
+            zoomedToPhoto = false;
+            currentAnmID = 0;
             
-            _currentDrawer = "";
-            _drawerDropAnim = 0;
-            _totalPhotosToDownload=-1;
-            _currentNumOfPhotos = 0; 
+            currentDrawer = "";
+            drawerDropAnim = 0;
+            totalPhotosToDownload=-1;
+            currentNumOfPhotos = 0; 
         }
         
         void Execute(std::string inCommand, int inNumPairs = 0, ...);
@@ -174,29 +177,30 @@ namespace who
         Ring * GetCurrentRing();
         Photo * GetPhoto(std::string inName);
         
+        std::ostream & errorStream;
         
-        Rings _rings;  // this game shows a bunch of discs or rings with images on them.  this structure contains all the loaded rings
-        std::vector<std::string> _faceList;  // the game shows a list of faces along the bottom that the user drags onto a ring.  This is an ordered list of image resource names
+        Rings rings;  // this game shows a bunch of discs or rings with images on them.  this structure contains all the loaded rings
+        std::vector<std::string> faceList;  // the game shows a list of faces along the bottom that the user drags onto a ring.  This is an ordered list of image resource names
         
-        float _faceDropdownAnim;
-        std::map<std::string, ImageInfo> _images;  // loaded images that the faceList and the rings use.  they can be looked up by a resource name
+        float faceDropdownAnim;
+        std::map<std::string, ImageInfo> images;  // loaded images that the faceList and the rings use.  they can be looked up by a resource name
         
-        std::map<std::string, Photo> _photos;
+        std::map<std::string, Photo> photos;
         
-        std::list<std::string> _animations;  // the list of sequential animations
-        std::map<std::string, void *> _animationVars;  // animation variables - animation strings can reference these vars
+        std::list<std::string> animations;  // the list of sequential animations
+        std::map<std::string, void *> animationVars;  // animation variables - animation strings can reference these vars
         
-        std::map<std::string, Drawer> _drawers;
-        std::string _currentDrawer;  // == "" for no drawer
-        float _drawerDropAnim;
+        std::map<std::string, Drawer> drawers;
+        std::string currentDrawer;  // == "" for no drawer
+        float drawerDropAnim;
         
-        bool _zoomedToPhoto;
-        int _currentAnmID;
+        bool zoomedToPhoto;
+        int currentAnmID;
         
-        Camera _camera;
+        Camera camera;
         Photo  cancelImagePhoto;
-        int _totalPhotosToDownload;
-        int _currentNumOfPhotos;
+        int totalPhotosToDownload;
+        int currentNumOfPhotos;
     };
     
     float SmoothFn(float inT, float * inParams);

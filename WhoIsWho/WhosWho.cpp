@@ -14,8 +14,8 @@ namespace who
     Ring * Game::GetRing(std::string inName)
     // returns the ring whose resource name is 'inName' or 0 if such a name doesn't exist.
     {
-        std::map<std::string, Ring>::iterator it = gGame._rings._rings.find(inName);
-        if( it == gGame._rings._rings.end() ) {
+        std::map<std::string, Ring>::iterator it = gGame.rings.rings.find(inName);
+        if( it == gGame.rings.rings.end() ) {
             return 0;
         } else {
             return &it->second;
@@ -25,22 +25,22 @@ namespace who
     Ring * Game::GetBackRing()
     // returns the back ring, aka the bottom ring or 0 if there is no back ring.
     {
-        if( gGame._rings._stackingOrder.empty() ) {
+        if( gGame.rings.stackingOrder.empty() ) {
             return 0;
         } else {
-            return GetRing(gGame._rings._stackingOrder.back());
+            return GetRing(gGame.rings.stackingOrder.back());
         }
     }
     
     Ring * Game::GetCurrentRing()
     // returns the back ring, aka the bottom ring or 0 if there is no back ring.
     {
-        return GetRing(gGame._rings._currentRing);
+        return GetRing(gGame.rings.currentRing);
     }
     
     Photo * Game::GetPhoto(std::string inPhoto) {
-        std::map<std::string, Photo>::iterator it = _photos.find(inPhoto);
-        if( it == _photos.end() ) {
+        std::map<std::string, Photo>::iterator it = photos.find(inPhoto);
+        if( it == photos.end() ) {
             return 0;
         }
         
@@ -50,7 +50,7 @@ namespace who
     void Game::Execute(std::string inCommand, int inNumPairs, ...) {
  
         
-        gGame._animations.push_back(inCommand);
+        gGame.animations.push_back(inCommand);
         
         va_list args;
         va_start(args, inNumPairs);
@@ -58,27 +58,27 @@ namespace who
         for_i( inNumPairs ) {
             std::string key = (std::string)va_arg(args, char *);
             void * value = (void *)va_arg(args, void *);
-            gGame._animationVars[key] = value;
+            gGame.animationVars[key] = value;
         }
         va_end(args);
         
     }
     
-    void Game::ExecuteImmediately(std::string inCommand, int inNumPairs, ...) {
-        
-        
+    void Game::ExecuteImmediately(std::string inCommand, int inNumPairs, ...)
+    {
+            
         va_list args;
         va_start(args, inNumPairs);
         
         for_i( inNumPairs ) {
             std::string key = (std::string)va_arg(args, char *);
             void * value = (void *)va_arg(args, void *);
-            gGame._animationVars[key] = value;
+            gGame.animationVars[key] = value;
         }
         va_end(args);
         
         int pos = 0;
-        WhoParser::PRS_Command(inCommand.c_str(), pos);
+        WhoParser::PRS_Command(inCommand.c_str(), pos, gGame.errorStream);
         
     }
     
@@ -125,7 +125,7 @@ namespace who
     void ComputeTopPhotoCorners(who::Ring & inRing, glm::vec3 * outCorners) {
         float kPi = 3.141592654f;
         
-        int numImages = int(inRing._photos.size());
+        int numImages = int(inRing.photos.size());
         float halfNumImages = numImages * 0.5f;
         float w0 = glm::atan((kR1-kR0)/(kR1+kR0));  // end angle for 0th photo
         
@@ -155,8 +155,8 @@ namespace who
         glm::vec2 p1 = glm::vec2(radius*glm::cos(angle1), radius*glm::sin(angle1));
         float length = glm::distance(p0, p1) / glm::sqrt(2.0f);
         
-        who::Photo & photo = gGame._photos[inRing._photos[inRing._selectedPhoto]];
-        ImageInfo & image = gGame._images[photo._filename];
+        who::Photo & photo = gGame.photos[inRing.photos[inRing.selectedPhoto]];
+        ImageInfo & image = gGame.images[photo.filename];
         float aspect = glm::abs(image.originalHeight) > 0 ? (image.originalWidth / float(image.originalHeight)) : 1.0f;
         float w, h;
         if( aspect > 1 ) {
@@ -169,7 +169,7 @@ namespace who
         
         w *= 0.5f;
         h *= 0.5f;
-        float z = 0.01f;
+        float z = who::kDepthOffset;
         
         outCorners[0] = glm::vec3(w, h, z);
         outCorners[1] = glm::vec3(-w, h, z);

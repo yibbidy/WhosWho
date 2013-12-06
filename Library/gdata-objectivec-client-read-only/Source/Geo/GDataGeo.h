@@ -42,7 +42,7 @@
 #define _INITIALIZE_AS(x)
 #endif
 
-_EXTERN NSString* const kGDataNamespaceGeoW3C       _INITIALIZE_AS(@"http://www.w3.org/2003/01/geo/wgs84_pos#");
+_EXTERN NSString* const kGDataNamespaceGeoW3C       _INITIALIZE_AS(@"http://www.w3.org/2003/01/geo/wgs84pos#");
 _EXTERN NSString* const kGDataNamespaceGeoW3CPrefix _INITIALIZE_AS(@"geo");
 
 _EXTERN NSString* const kGDataNamespaceGeoRSS       _INITIALIZE_AS(@"http://www.georss.org/georss");
@@ -111,7 +111,7 @@ _EXTERN NSString* const kGDataNamespaceGeoGMLPrefix _INITIALIZE_AS(@"gml");
 // W3C Point
 //
 // http://www.w3.org/2003/01/geo/
-// xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
+// xmlns:geo="http://www.w3.org/2003/01/geo/wgs84pos#"
 //  <geo:Point>
 //    <geo:lat>55.701</geo:lat>
 //    <geo:long>12.552</geo:long>

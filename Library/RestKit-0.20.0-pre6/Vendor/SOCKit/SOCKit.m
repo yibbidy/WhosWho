@@ -352,14 +352,14 @@ NSString* kTemporaryBackslashToken = @"/backslash/";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setArgumentsFromValues:(NSArray *)values forInvocation:(NSInvocation *)invocation {
-  Method method = class_getInstanceMethod([invocation.target class], invocation.selector);
+  Method method = classgetInstanceMethod([invocation.target class], invocation.selector);
   NSAssert(nil != method, @"The method must exist with the given invocation target.");
 
   for (NSInteger ix = 0; ix < [values count]; ++ix) {
     NSString* value = [values objectAtIndex:ix];
 
     char argType[4];
-    method_getArgumentType(method, (unsigned int) ix + 2, argType, sizeof(argType) / sizeof(argType[0]));
+    methodgetArgumentType(method, (unsigned int) ix + 2, argType, sizeof(argType) / sizeof(argType[0]));
     SOCArgumentType type = SOCArgumentTypeForTypeAsChar(argType[0]);
 
     [self setArgument:value withType:type atIndex:ix forInvocation:invocation];

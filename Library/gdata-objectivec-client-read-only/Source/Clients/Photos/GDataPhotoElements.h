@@ -45,7 +45,7 @@ _EXTERN NSString* const kGDataPhotoStatusFinal   _INITIALIZE_AS(@"final");
 _EXTERN NSString* const kGDataPhotoStatusFailed  _INITIALIZE_AS(@"failed");
 
 
-// http://code.google.com/apis/picasaweb/reference.html#gphoto_reference
+// http://code.google.com/apis/picasaweb/reference.html#gphotoreference
 
 // album id, like <gphoto:albumid>5024425138</gphoto:albumid>
 @interface GDataPhotoAlbumID : GDataValueElementConstruct <GDataExtension>

@@ -64,7 +64,7 @@ _EXTERN NSString* kGDataPostalAddressLocal    _INITIALIZE_AS(@"http://schemas.go
 - (void)setCountryName:(NSString *)str;
 
 // 3166-1 alpha-2 country codes
-// http://www.iso.org/iso/english_country_names_and_code_elements
+// http://www.iso.org/iso/english_countrynames_and_code_elements
 - (NSString *)countryCode;
 - (void)setCountryCode:(NSString *)str;
 

@@ -1,8 +1,8 @@
 // Contributors:
 //  Shirley Carter (shirley.carter66@gmail.com)
 
-#ifndef WhoIsWho_glUtilities_h
-#define WhoIsWho_glUtilities_h
+#ifndef WhoIsWhoglUtilities_h
+#define WhoIsWhoglUtilities_h
 
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>

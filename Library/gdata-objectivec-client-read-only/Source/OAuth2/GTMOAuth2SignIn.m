@@ -268,7 +268,7 @@ finishedWithFetcher:(GTMHTTPFetcher *)fetcher
   if ([scope length] == 0) scope = nil;
 
   NSMutableDictionary *paramsDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                     @"code", @"response_type",
+                                     @"code", @"responsetype",
                                      clientID, @"client_id",
                                      scope, @"scope", // scope may be nil
                                      nil];

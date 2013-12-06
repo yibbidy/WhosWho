@@ -20,7 +20,7 @@
 // arbitrary spreadsheet custom tag, like
 //  <gsx:e-mail>fitzy@gmail.com</gsx:e-mail>
 //
-// http://code.google.com/apis/spreadsheets/reference.html#gsx_reference
+// http://code.google.com/apis/spreadsheets/reference.html#gsxreference
 
 @interface GDataSpreadsheetCustomElement : GDataObject <NSCopying, GDataExtension> {
   NSString *name_;

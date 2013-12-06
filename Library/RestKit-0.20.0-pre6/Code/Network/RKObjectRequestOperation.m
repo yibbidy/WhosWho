@@ -120,8 +120,8 @@ static NSString *RKStringDescribingURLResponseWithData(NSURLResponse *response, 
 - (void)dealloc
 {
 #if !OS_OBJECT_USE_OBJC
-    if(_failureCallbackQueue) dispatch_release(_failureCallbackQueue);
-    if(_successCallbackQueue) dispatch_release(_successCallbackQueue);
+    if(_failureCallbackQueue) dispatchrelease(_failureCallbackQueue);
+    if(_successCallbackQueue) dispatchrelease(_successCallbackQueue);
 #endif
 }
 
@@ -154,14 +154,14 @@ static NSString *RKStringDescribingURLResponseWithData(NSURLResponse *response, 
    if (successCallbackQueue != _successCallbackQueue) {
        if (_successCallbackQueue) {
 #if !OS_OBJECT_USE_OBJC
-           dispatch_release(_successCallbackQueue);
+           dispatchrelease(_successCallbackQueue);
 #endif
            _successCallbackQueue = NULL;
        }
 
        if (successCallbackQueue) {
 #if !OS_OBJECT_USE_OBJC
-           dispatch_retain(successCallbackQueue);
+           dispatchretain(successCallbackQueue);
 #endif
            _successCallbackQueue = successCallbackQueue;
        }
@@ -173,14 +173,14 @@ static NSString *RKStringDescribingURLResponseWithData(NSURLResponse *response, 
    if (failureCallbackQueue != _failureCallbackQueue) {
        if (_failureCallbackQueue) {
 #if !OS_OBJECT_USE_OBJC
-           dispatch_release(_failureCallbackQueue);
+           dispatchrelease(_failureCallbackQueue);
 #endif
            _failureCallbackQueue = NULL;
        }
 
        if (failureCallbackQueue) {
 #if !OS_OBJECT_USE_OBJC
-           dispatch_retain(failureCallbackQueue);
+           dispatchretain(failureCallbackQueue);
 #endif
            _failureCallbackQueue = failureCallbackQueue;
        }
@@ -228,13 +228,13 @@ static NSString *RKStringDescribingURLResponseWithData(NSURLResponse *response, 
 
         if (self.error) {
             if (failure) {
-                dispatch_async(self.failureCallbackQueue ? self.failureCallbackQueue : dispatch_get_main_queue(), ^{
+                dispatch_async(self.failureCallbackQueue ? self.failureCallbackQueue : dispatchget_main_queue(), ^{
                     failure(self, self.error);
                 });
             }
         } else {
             if (success) {
-                dispatch_async(self.successCallbackQueue ? self.successCallbackQueue : dispatch_get_main_queue(), ^{
+                dispatch_async(self.successCallbackQueue ? self.successCallbackQueue : dispatchget_main_queue(), ^{
                     success(self, self.mappingResult);
                 });
             }

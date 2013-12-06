@@ -25,7 +25,7 @@
 // The project's static library target defines these by default:
 //
 //   -DGDATA_REQUIRE_SERVICE_INCLUDES=1
-//   -DGDATA_INCLUDE_nameServiceHere_SERVICE=1
+//   -DGDATA_INCLUDEnameServiceHere_SERVICE=1
 //
 // in the additional C flags.  Those should be replaced with specification of
 // the actual needed service code, such as:
@@ -38,7 +38,7 @@
 // placeholder in release builds.
 //
 #if !DEBUG
-  #if GDATA_INCLUDE_nameServiceHere_SERVICE && !GDATA_SUPPRESS_INCLUDE_WARNING
+  #if GDATA_INCLUDEnameServiceHere_SERVICE && !GDATA_SUPPRESS_INCLUDE_WARNING
     #error The service placeholder compiler flag should be replaced by actual service specifications
   #endif
 #endif

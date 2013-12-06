@@ -120,7 +120,7 @@
 // updating a document entry with data requires the editMediaLink rather than
 // the editLink, per
 //
-// http://code.google.com/apis/documents/docs/3.0/developers_guide_protocol.html#UpdatingContent
+// http://code.google.com/apis/documents/docs/3.0/developersguide_protocol.html#UpdatingContent
 
 - (GDataServiceTicket *)fetchEntryByUpdatingEntry:(GDataEntryBase *)entryToUpdate
                                          delegate:(id)delegate

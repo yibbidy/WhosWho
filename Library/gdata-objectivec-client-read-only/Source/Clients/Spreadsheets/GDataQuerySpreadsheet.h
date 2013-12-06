@@ -28,7 +28,7 @@
 // list feed parameters
 
 // Note: for list feed, setOrderBy: parameter
-// can be "position" or "column:column_name"
+// can be "position" or "column:columnname"
 
 - (void)setSpreadsheetQuery:(NSString *)queryStr;
 - (NSString *)spreadsheetQuery; // sq query

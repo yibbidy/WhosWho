@@ -67,7 +67,7 @@
 {
     if (self.isObserverAdded) return;
 
-    NSAssert(_name, @"Notification name cannot be nil");
+    NSAssert(name, @"Notification name cannot be nil");
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(processNotification:)

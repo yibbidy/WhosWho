@@ -960,7 +960,7 @@
 
     { @"entries.1.package.name", @"http://gentoo.osuosl.org/distfiles/Perl6-Pugs-6.2.12.tar.gz" },
     { @"entries.1.package.URI", @"http://gentoo.osuosl.org/distfiles/Perl6-Pugs-6.2.12.tar.gz" },
-    { @"entries.1.file.name", @"Perl6-Pugs-6.2.12/t/subroutines/sub_named_params.t" },
+    { @"entries.1.file.name", @"Perl6-Pugs-6.2.12/t/subroutines/subnamed_params.t" },
     { @"entries.1.matches.0.lineNumberString", @"131" },
     { @"entries.1.matches.0.type", @"text/html" },
     { @"entries.1.matches.0", @"hasPrefix:<pre>my %fellowship" },

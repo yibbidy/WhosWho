@@ -157,10 +157,10 @@
  * for more details.
  *
  * Key-Value Coding Fundamentals:
- * http://developer.apple.com/library/ios/#documentation/cocoa/conceptual/KeyValueCoding/Articles/BasicPrinciples.html#//apple_ref/doc/uid/20002170-BAJEAIEE
+ * http://developer.apple.com/library/ios/#documentation/cocoa/conceptual/KeyValueCoding/Articles/BasicPrinciples.html#//appleref/doc/uid/20002170-BAJEAIEE
  *
  * Collection Operators:
- * http://developer.apple.com/library/ios/#documentation/cocoa/conceptual/KeyValueCoding/Articles/CollectionOperators.html#//apple_ref/doc/uid/20002176-BAJEAIEE
+ * http://developer.apple.com/library/ios/#documentation/cocoa/conceptual/KeyValueCoding/Articles/CollectionOperators.html#//appleref/doc/uid/20002176-BAJEAIEE
  *
  *      @param object  The object whose properties will be used to replace the parameters in
  *                     the pattern.

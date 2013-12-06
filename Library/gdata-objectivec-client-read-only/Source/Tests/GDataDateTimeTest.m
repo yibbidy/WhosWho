@@ -21,7 +21,7 @@
 
 #import "GDataDateTime.h"
 
-#define typeof __typeof__ // fixes http://www.brethorsting.com/blog/2006/02/stupid-issue-with-ocunit.html
+#define typeof _typeof__ // fixes http://www.brethorsting.com/blog/2006/02/stupid-issue-with-ocunit.html
 
 @interface GDataDateTimeTest : SenTestCase
 @end

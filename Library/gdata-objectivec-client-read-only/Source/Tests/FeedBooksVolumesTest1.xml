@@ -29,13 +29,13 @@
         <category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/books/2008#volume"/>
         <title type="text">Garfield Pigs Out</title>
         <link
-            href="http://bks2.books.google.com/books?id=_PRJAAAACAAJ&amp;printsec=frontcover&amp;img=1&amp;zoom=5&amp;sig=ACfU3U0DkFm309HCVknWDO2M00pnJ3KCBw&amp;source=gbs_gdata"
+            href="http://bks2.books.google.com/books?id=_PRJAAAACAAJ&amp;printsec=frontcover&amp;img=1&amp;zoom=5&amp;sig=ACfU3U0DkFm309HCVknWDO2M00pnJ3KCBw&amp;source=gbsgdata"
             rel="http://schemas.google.com/books/2008/thumbnail" type="image/jpeg"/>
         <link
-            href="http://books.google.com/books?id=_PRJAAAACAAJ&amp;ie=ISO-8859-1&amp;source=gbs_gdata"
+            href="http://books.google.com/books?id=_PRJAAAACAAJ&amp;ie=ISO-8859-1&amp;source=gbsgdata"
             rel="http://schemas.google.com/books/2008/info" type="text/html"/>
         <link
-            href="http://books.google.com/books?id=_PRJAAAACAAJ&amp;ie=ISO-8859-1&amp;source=gbs_gdata"
+            href="http://books.google.com/books?id=_PRJAAAACAAJ&amp;ie=ISO-8859-1&amp;source=gbsgdata"
             rel="http://schemas.google.com/books/2008/preview" type="text/html"/>
         <link href="http://www.google.com/books/feeds/users/me/volumes"
             rel="http://schemas.google.com/books/2008/annotation" type="application/atom+xml"/>

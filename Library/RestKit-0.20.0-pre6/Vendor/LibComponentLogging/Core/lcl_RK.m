@@ -32,7 +32,7 @@ _RKlcl_level_narrow_t _RKlcl_component_level[_RKlcl_component_t_count];
 
 // Log component identifiers, indexed by log component.
 const char * const _RKlcl_component_identifier[] = {
-#   define  _RKlcl_component(_identifier, _header, _name)                        \
+#   define  _RKlcl_component(_identifier, _header, name)                        \
     #_identifier,
 #   include "lcl_config_components_RK.h"
 #   undef   _RKlcl_component
@@ -40,16 +40,16 @@ const char * const _RKlcl_component_identifier[] = {
 
 // Log component headers, indexed by log component.
 const char * const _RKlcl_component_header[] = {
-#   define  _RKlcl_component(_identifier, _header, _name)                        \
+#   define  _RKlcl_component(_identifier, _header, name)                        \
     _header,
 #   include "lcl_config_components_RK.h"
 #   undef   _RKlcl_component
 };
 
 // Log component names, indexed by log component.
-const char * const _RKlcl_component_name[] = {
-#   define  _RKlcl_component(_identifier, _header, _name)                        \
-    _name,
+const char * const _RKlcl_componentname[] = {
+#   define  _RKlcl_component(_identifier, _header, name)                        \
+    name,
 #   include "lcl_config_components_RK.h"
 #   undef   _RKlcl_component
 };
@@ -84,7 +84,7 @@ const char * const _RKlcl_level_header_3[] = {
 };
 
 // Log level names, indexed by log level.
-const char * const _RKlcl_level_name[] = {
+const char * const _RKlcl_levelname[] = {
     "Off",
     "Critical",
     "Error",
@@ -169,8 +169,8 @@ uint32_t RKlcl_configure_by_header(const char *header, _RKlcl_level_t level) {
 }
 
 // Configures the given log level for the given log component(s) by name.
-uint32_t RKlcl_configure_by_name(const char *name, _RKlcl_level_t level) {
-    return _RKlcl_configure_by_text(_RKlcl_component_t_count, _RKlcl_component_name,
+uint32_t RKlcl_configure_byname(const char *name, _RKlcl_level_t level) {
+    return _RKlcl_configure_by_text(_RKlcl_component_t_count, _RKlcl_componentname,
                                   _RKlcl_component_level, name, level);
 }
 

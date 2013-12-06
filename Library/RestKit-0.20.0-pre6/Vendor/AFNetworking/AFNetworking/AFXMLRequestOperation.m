@@ -24,13 +24,13 @@
 
 #include <Availability.h>
 
-static dispatch_queue_t af_xml_request_operation_processing_queue;
-static dispatch_queue_t xml_request_operation_processing_queue() {
-    if (af_xml_request_operation_processing_queue == NULL) {
-        af_xml_request_operation_processing_queue = dispatch_queue_create("com.alamofire.networking.xml-request.processing", 0);
+static dispatch_queue_t af_xmlrequest_operation_processing_queue;
+static dispatch_queue_t xmlrequest_operation_processing_queue() {
+    if (af_xmlrequest_operation_processing_queue == NULL) {
+        af_xmlrequest_operation_processing_queue = dispatch_queue_create("com.alamofire.networking.xml-request.processing", 0);
     }
     
-    return af_xml_request_operation_processing_queue;
+    return af_xmlrequest_operation_processing_queue;
 }
 
 @interface AFXMLRequestOperation ()
@@ -42,9 +42,9 @@ static dispatch_queue_t xml_request_operation_processing_queue() {
 @end
 
 @implementation AFXMLRequestOperation
-@synthesize responseXMLParser = _responseXMLParser;
+@synthesize responseXMLParser = responseXMLParser;
 #ifdef __MAC_OS_X_VERSION_MIN_REQUIRED
-@synthesize responseXMLDocument = _responseXMLDocument;
+@synthesize responseXMLDocument = responseXMLDocument;
 #endif
 @synthesize XMLError = _XMLError;
 
@@ -90,22 +90,22 @@ static dispatch_queue_t xml_request_operation_processing_queue() {
 
 
 - (NSXMLParser *)responseXMLParser {
-    if (!_responseXMLParser && [self.responseData length] > 0 && [self isFinished]) {
+    if (!responseXMLParser && [self.responseData length] > 0 && [self isFinished]) {
         self.responseXMLParser = [[NSXMLParser alloc] initWithData:self.responseData];
     }
     
-    return _responseXMLParser;
+    return responseXMLParser;
 }
 
 #ifdef __MAC_OS_X_VERSION_MIN_REQUIRED
 - (NSXMLDocument *)responseXMLDocument {
-    if (!_responseXMLDocument && [self.responseData length] > 0 && [self isFinished]) {
+    if (!responseXMLDocument && [self.responseData length] > 0 && [self isFinished]) {
         NSError *error = nil;
         self.responseXMLDocument = [[NSXMLDocument alloc] initWithData:self.responseData options:0 error:&error];
         self.XMLError = error;
     }
     
-    return _responseXMLDocument;
+    return responseXMLDocument;
 }
 #endif
 
@@ -141,18 +141,18 @@ static dispatch_queue_t xml_request_operation_processing_queue() {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-retain-cycles"
     self.completionBlock = ^ {        
-        dispatch_async(xml_request_operation_processing_queue(), ^(void) {
+        dispatch_async(xmlrequest_operation_processing_queue(), ^(void) {
             NSXMLParser *XMLParser = self.responseXMLParser;
             
             if (self.error) {
                 if (failure) {
-                    dispatch_async(self.failureCallbackQueue ?: dispatch_get_main_queue(), ^{
+                    dispatch_async(self.failureCallbackQueue ?: dispatchget_main_queue(), ^{
                         failure(self, self.error);
                     });
                 }
             } else {
                 if (success) {
-                    dispatch_async(self.successCallbackQueue ?: dispatch_get_main_queue(), ^{
+                    dispatch_async(self.successCallbackQueue ?: dispatchget_main_queue(), ^{
                         success(self, XMLParser);
                     });
                 } 

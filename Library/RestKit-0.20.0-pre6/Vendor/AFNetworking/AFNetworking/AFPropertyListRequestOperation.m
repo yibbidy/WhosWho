@@ -22,13 +22,13 @@
 
 #import "AFPropertyListRequestOperation.h"
 
-static dispatch_queue_t af_property_list_request_operation_processing_queue;
-static dispatch_queue_t property_list_request_operation_processing_queue() {
-    if (af_property_list_request_operation_processing_queue == NULL) {
-        af_property_list_request_operation_processing_queue = dispatch_queue_create("com.alamofire.networking.property-list-request.processing", 0);
+static dispatch_queue_t af_property_listrequest_operation_processing_queue;
+static dispatch_queue_t property_listrequest_operation_processing_queue() {
+    if (af_property_listrequest_operation_processing_queue == NULL) {
+        af_property_listrequest_operation_processing_queue = dispatch_queue_create("com.alamofire.networking.property-list-request.processing", 0);
     }
     
-    return af_property_list_request_operation_processing_queue;
+    return af_property_listrequest_operation_processing_queue;
 }
 
 @interface AFPropertyListRequestOperation ()
@@ -38,7 +38,7 @@ static dispatch_queue_t property_list_request_operation_processing_queue() {
 @end
 
 @implementation AFPropertyListRequestOperation
-@synthesize responsePropertyList = _responsePropertyList;
+@synthesize responsePropertyList = responsePropertyList;
 @synthesize propertyListReadOptions = _propertyListReadOptions;
 @synthesize propertyListFormat = _propertyListFormat;
 @synthesize propertyListError = _propertyListError;
@@ -74,7 +74,7 @@ static dispatch_queue_t property_list_request_operation_processing_queue() {
 
 
 - (id)responsePropertyList {
-    if (!_responsePropertyList && [self.responseData length] > 0 && [self isFinished]) {
+    if (!responsePropertyList && [self.responseData length] > 0 && [self isFinished]) {
         NSPropertyListFormat format;
         NSError *error = nil;
         self.responsePropertyList = [NSPropertyListSerialization propertyListWithData:self.responseData options:self.propertyListReadOptions format:&format error:&error];
@@ -82,7 +82,7 @@ static dispatch_queue_t property_list_request_operation_processing_queue() {
         self.propertyListError = error;
     }
     
-    return _responsePropertyList;
+    return responsePropertyList;
 }
 
 - (NSError *)error {
@@ -111,23 +111,23 @@ static dispatch_queue_t property_list_request_operation_processing_queue() {
     self.completionBlock = ^ {        
         if (self.error) {
             if (failure) {
-                dispatch_async(self.failureCallbackQueue ?: dispatch_get_main_queue(), ^{
+                dispatch_async(self.failureCallbackQueue ?: dispatchget_main_queue(), ^{
                     failure(self, self.error);
                 });
             }
         } else {
-            dispatch_async(property_list_request_operation_processing_queue(), ^(void) {
+            dispatch_async(property_listrequest_operation_processing_queue(), ^(void) {
                 id propertyList = self.responsePropertyList;
                 
                 if (self.propertyListError) {
                     if (failure) {
-                        dispatch_async(self.failureCallbackQueue ?: dispatch_get_main_queue(), ^{
+                        dispatch_async(self.failureCallbackQueue ?: dispatchget_main_queue(), ^{
                             failure(self, self.error);
                         });
                     }
                 } else {
                     if (success) {
-                        dispatch_async(self.successCallbackQueue ?: dispatch_get_main_queue(), ^{
+                        dispatch_async(self.successCallbackQueue ?: dispatchget_main_queue(), ^{
                             success(self, propertyList);
                         });
                     } 
